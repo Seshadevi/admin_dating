@@ -1,5 +1,6 @@
 
 import 'package:admin_dating/screens/login.dart';
+import 'package:admin_dating/screens/profile/report.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,6 +19,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.pink,
       ),
       home: const LoginScreen(),
+      routes: {
+         "loginscreen": (context) => LoginScreen(),
+         "reportscreen": (context) =>ReportScreen(),
+   
+        
+      },
     );
   }
 }

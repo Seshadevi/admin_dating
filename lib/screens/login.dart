@@ -12,7 +12,7 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController();
   final TextEditingController _passwordController =
       TextEditingController();
-  bool _obscureText = true;
+  bool _obscureText = false;
 
   @override
   Widget build(BuildContext context) {
@@ -143,6 +143,11 @@ class _LoginScreenState extends State<LoginScreen> {
               child: GestureDetector(
                 onTap: () {
                   // Add login logic
+                  Navigator.pushNamed(
+                      context,
+                      'reportscreen',
+
+                      );
                 },
                 child: Container(
                   width: double.infinity,
