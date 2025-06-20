@@ -13,7 +13,7 @@ class CustomBottomNavBar extends StatelessWidget {
 
     switch (index) {
       case 0:
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        Navigator.pushReplacementNamed(context, 'dashboardscreen');
         break;
       case 1:
         Navigator.pushReplacementNamed(context, '/users');
@@ -22,10 +22,10 @@ class CustomBottomNavBar extends StatelessWidget {
         Navigator.pushReplacementNamed(context, 'reportscreen');
         break;
       case 3:
-        Navigator.pushReplacementNamed(context, '/subscriptions');
+        Navigator.pushReplacementNamed(context, 'subscriptionscreen');
         break;
       case 4:
-        Navigator.pushReplacementNamed(context, '/settings');
+        Navigator.pushReplacementNamed(context, 'settingscreen');
         break;
     }
   }
@@ -34,8 +34,10 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       currentIndex: currentIndex,
-      selectedItemColor: Colors.green[700],
-      unselectedItemColor: Colors.grey,
+       backgroundColor: const Color(0xFFB6D430),
+        selectedItemColor: const Color.fromARGB(255, 230, 224, 224),
+        unselectedItemColor: Colors.black54,
+        type: BottomNavigationBarType.fixed,
       onTap: (index) => _onTap(context, index),
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: "Dashboard"),

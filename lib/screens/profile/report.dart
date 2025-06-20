@@ -20,7 +20,7 @@ class _ReportScreenState extends State<ReportScreen> {
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
           child: ListTile(
             leading: const CircleAvatar(
-              backgroundImage: AssetImage('assets/user.png'), // Dummy image
+              backgroundImage: AssetImage(''), // Dummy image
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

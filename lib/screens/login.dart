@@ -27,18 +27,18 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 180,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/header_bg.png'), // Add your green abstract header as an asset
+                  image: AssetImage(''), // Add your green abstract header as an asset
                   fit: BoxFit.cover,
                 ),
               ),
               alignment: Alignment.bottomCenter,
               child: Image.asset(
-                'assets/logo.png', // Your "EVER QPID" logo
-                height: 60,
+                'assets/images/login.png', // Your "EVER QPID" logo
+                height: 150,
               ),
             ),
 
-            const SizedBox(height: 20),
+            // const SizedBox(height: 20),
 
             const Text(
               "Log In",
@@ -145,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Add login logic
                   Navigator.pushNamed(
                       context,
-                      'reportscreen',
+                      'dashboardscreen',
 
                       );
                 },
