@@ -16,7 +16,7 @@ class CustomBottomNavBar extends StatelessWidget {
         Navigator.pushReplacementNamed(context, 'dashboardscreen');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, '/users');
+        Navigator.pushReplacementNamed(context, 'usersscreen');
         break;
       case 2:
         Navigator.pushReplacementNamed(context, 'reportscreen');
@@ -26,6 +26,9 @@ class CustomBottomNavBar extends StatelessWidget {
         break;
       case 4:
         Navigator.pushReplacementNamed(context, 'settingscreen');
+        break;
+         case 5:
+        Navigator.pushReplacementNamed(context, 'swipesscreen');
         break;
     }
   }
@@ -45,6 +48,7 @@ class CustomBottomNavBar extends StatelessWidget {
         BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "Reports"),
         BottomNavigationBarItem(icon: Icon(Icons.subscriptions), label: "Subscriptions"),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Setting"),
+        BottomNavigationBarItem(icon: Icon(Icons.accessibility), label: "swipes"),
       ],
     );
   }

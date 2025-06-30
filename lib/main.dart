@@ -5,6 +5,8 @@ import 'package:admin_dating/screens/profile/notification.dart';
 import 'package:admin_dating/screens/profile/report.dart';
 import 'package:admin_dating/screens/profile/settings.dart';
 import 'package:admin_dating/screens/profile/subscriptionscreem.dart';
+import 'package:admin_dating/screens/profile/swipes.dart';
+import 'package:admin_dating/screens/profile/users.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -18,6 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Dating App',
       theme: ThemeData(
         primarySwatch: Colors.pink,
@@ -30,6 +33,8 @@ class MyApp extends StatelessWidget {
          "subscriptionscreen": (context) =>SubscriptionsScreen(),
          "settingscreen": (context) =>SettingsScreen(),
          "notificationscreen": (context) =>NotificationsScreen(),
+         "swipesscreen": (context) =>SwipesScreen(),
+         "usersscreen": (context) => UsersScreen(),
    
         
       },
