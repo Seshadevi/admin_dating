@@ -225,9 +225,9 @@ class _UsersScreenState extends State<UsersScreen>
                     const SizedBox(width: 8),
                    GestureDetector(
                   onTap: () {
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(builder: (context) => AddProfileScreen()),
+                     '/addprofilescreen',
                     );
                   },
                   child: Container(
