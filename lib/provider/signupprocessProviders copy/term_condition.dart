@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class TermsNotifier extends StateNotifier<TermsAndConditions> {
@@ -46,6 +47,45 @@ class TermsNotifier extends StateNotifier<TermsAndConditions> {
       print("Failed to fetch TermsAndConditions: $e");
     }
   }
+   Future<bool> addterms({required String terms}) async {
+  final loadingState = ref.read(loadingProvider.notifier);
+  final prefs = await SharedPreferences.getInstance();
+
+  try {
+    loadingState.state = true;
+
+    final apiUrl = Uri.parse(Dgapi.TermsAdd);
+    final request = await http.post(
+      apiUrl,
+      headers: {
+        'Content-Type': 'application/json',
+       
+      },
+      body: jsonEncode({
+        '':terms,
+      }),
+    );
+
+    print('Add Status Code: ${request.statusCode}');
+    print('Add Response Body: ${request.body}');
+
+    if (request.statusCode == 201 || request.statusCode == 200) {
+      print("TermsandConditions added successfully!");
+      await getTermsandConditions(); // Refresh after add
+      return true;
+    } else {
+      final errorBody = jsonDecode(request.body);
+      final errorMessage = errorBody['message'] ?? 'Unexpected error occurred.';
+      print("Error adding TermsandConditions: $errorMessage");
+      return false;
+    }
+  } catch (e) {
+    print("Failed to add TermsandConditions: $e");
+    return false;
+  } finally {
+    loadingState.state = false;
+  }
+}
 }
 
 final termsProvider = StateNotifierProvider<TermsNotifier, TermsAndConditions>((ref) {

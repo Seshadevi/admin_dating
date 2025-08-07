@@ -1,7 +1,10 @@
-import 'package:admin_dating/models/signupprocessmodels/modeModel.dart';
-import 'package:admin_dating/provider/loader.dart';
-import 'package:admin_dating/utils/dgapi.dart';
 
+
+import 'package:admin_dating/models/more%20section/languages.dart';
+
+import 'package:admin_dating/provider/loader.dart';
+import 'package:admin_dating/provider/loginprovider.dart';
+import 'package:admin_dating/utils/dgapi.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'dart:convert';
@@ -9,49 +12,89 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class ModeNotifier extends StateNotifier<ModeModel> {
+class LanguagesProvider extends StateNotifier<LanguagesModel> {
   final Ref ref;
-  ModeNotifier(this.ref) : super(ModeModel.initial());
+  LanguagesProvider(this.ref) : super(LanguagesModel.initial());
   
-  Future<void> getModes() async {
+  Future<void> getLanguages() async {
+    
     final loadingState = ref.read(loadingProvider.notifier);
     try {
       loadingState.state = true;
-      
-      print('get modes');
+     
+      print('get Languages');
 
       final response = await http.get(
-        Uri.parse(Dgapi.modes));
+        Uri.parse(Dgapi.languagesGet));
       final responseBody = response.body;
-      print('Get modes Status Code: ${response.statusCode}');
-      print('Get modes Response Body: $responseBody');
+      print('Get religions Status Code: ${response.statusCode}');
+      print('Get religions Response Body: $responseBody');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         try {
           final res = jsonDecode(responseBody);
-          final usersData = ModeModel.fromJson(res);
+          final usersData = LanguagesModel.fromJson(res);
           state = usersData;
-          print("modes fetched successfully: ${usersData.message}");
+          print("Languages fetched successfully: ${usersData.message}");
         } catch (e) {
           print("Invalid response format: $e");
-          throw Exception("Error parsing modes.");
+          throw Exception("Error parsing Languages.");
         }
       } else {
-        print("Error fetching modes: ${response.body}");
-        throw Exception("Error fetching modes: ${response.body}");
+        print("Error fetching Languages: ${response.body}");
+        throw Exception("Error fetching Languages: ${response.body}");
       }
     } catch (e) {
-      print("Failed to fetch modes: $e");
+      print("Failed to fetch Languages $e");
     }
   }
-  Future<bool> addMode({required String modes}) async {
+  Future<bool> addLanguages({required String languages}) async {
   final loadingState = ref.read(loadingProvider.notifier);
   final prefs = await SharedPreferences.getInstance();
 
   try {
     loadingState.state = true;
+    String? userDataString = prefs.getString('userData');
+    if (userDataString == null || userDataString.isEmpty) {
+      print("User token is missing.");
+      return false;
+    }
 
-    final apiUrl = Uri.parse(Dgapi.modeAdd);
+    final Map<String, dynamic> userData = jsonDecode(userDataString);
+    String? token = userData['accessToken'] ??
+        (userData['data'] != null &&
+                (userData['data'] as List).isNotEmpty &&
+                userData['data'][0]['access_token'] != null
+            ? userData['data'][0]['access_token']
+            : null);
+
+    if (token == null || token.isEmpty) {
+      print("User token is invalid.");
+      return false;
+    }
+
+    final client = RetryClient(
+      http.Client(),
+      retries: 3,
+      when: (response) =>
+          response.statusCode == 401 || response.statusCode == 400,
+      onRetry: (req, res, retryCount) async {
+        if (retryCount == 0 &&
+            (res?.statusCode == 401 || res?.statusCode == 400)) {
+          print("Token expired, refreshing...");
+          String? newAccessToken =
+              await ref.read(loginProvider.notifier).restoreAccessToken();
+
+          await prefs.setString('accessToken', newAccessToken ?? '');
+          token = newAccessToken;
+          req.headers['Authorization'] = 'Bearer $newAccessToken';
+
+          print("New Token: $newAccessToken");
+        }
+      },
+    );
+
+    final apiUrl = Uri.parse(Dgapi.languagesAdd);
     final request = await http.post(
       apiUrl,
       headers: {
@@ -59,7 +102,7 @@ class ModeNotifier extends StateNotifier<ModeModel> {
        
       },
       body: jsonEncode({
-        'value':modes,
+        'religion':languages,
       }),
     );
 
@@ -67,17 +110,17 @@ class ModeNotifier extends StateNotifier<ModeModel> {
     print('Add Response Body: ${request.body}');
 
     if (request.statusCode == 201 || request.statusCode == 200) {
-      print("modes added successfully!");
-      await getModes(); // Refresh after add
+      print("Languages added successfully!");
+      await getLanguages(); // Refresh after add
       return true;
     } else {
       final errorBody = jsonDecode(request.body);
       final errorMessage = errorBody['message'] ?? 'Unexpected error occurred.';
-      print("Error adding modes: $errorMessage");
+      print("Error adding Languages: $errorMessage");
       return false;
     }
   } catch (e) {
-    print("Failed to add modes: $e");
+    print("Failed to add Languages: $e");
     return false;
   } finally {
     loadingState.state = false;
@@ -175,6 +218,6 @@ class ModeNotifier extends StateNotifier<ModeModel> {
 
 }
 
-final modesProvider = StateNotifierProvider<ModeNotifier, ModeModel>((ref) {
-  return ModeNotifier(ref);
+final languagesProvider = StateNotifierProvider<LanguagesProvider, LanguagesModel>((ref) {
+  return LanguagesProvider(ref);
 });

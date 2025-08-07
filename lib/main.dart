@@ -5,6 +5,32 @@ import 'package:admin_dating/screens/profile/add_proffile_screen.dart';
 import 'package:admin_dating/screens/profile/dashboard.dart';
 import 'package:admin_dating/screens/profile/notification.dart';
 import 'package:admin_dating/screens/profile/report.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/causesget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/causespost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/defaultmesagesget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/defaultmesagespost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/dringkingget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/dringkingpost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/genderget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/genderpost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/interestsgetscren.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/interestspost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/kidsget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/kidspost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/languagesget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/languagespost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/lookingforgetscreen.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/lookingforpostscreen.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/modegetscreen.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/modepost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/qualitiesGet.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/qualitiespost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/religionget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/religionpost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/starsignget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/starsignpost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/termsandconditionpost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/termsandconditionsget.dart';
 import 'package:admin_dating/screens/settings/postadmin.dart';
 import 'package:admin_dating/screens/settings/settings.dart';
 import 'package:admin_dating/screens/profile/subscriptionscreem.dart';
@@ -98,6 +124,35 @@ class _MyAppState extends ConsumerState<MyApp> {
          "usersscreen": (context) => UsersScreen(),
          "/addprofilescreen": (context) => AddProfileScreen(),
          '/postadminscreen': (context) => PostAdminScreen(),
+        '/lookingforgetscreen':(context)=>LookingForGetScreen(),
+        '/lookingforpost':(context)=>Lookingforpostscreen(),
+        '/drinkingpost':(context)=>Drinkingpostscreen(),
+        '/drinkingget':(context)=>DrinkingGetScreen(),
+        '/genderpost':(context)=>Genderpostscreen(),
+        '/genderget':(context)=>GenderGetScreen(),
+        '/interestpost':(context)=>Interestspostscreen(),
+        '/interestget':(context)=>interestsGetScreen(),
+        '/kidsget':(context)=>kidsGetScreen(),
+        '/kidspost':(context)=>kidspostscreen(),
+        '/modesget':(context)=>ModeGetScreen(),
+        '/modespost':(context)=>Modepostscreen(),
+        '/qualitiesget':(context)=>QualitiesGetScreen(),
+        '/qualitiespost':(context)=>Qualitiespostscreen(),
+        '/causesget':(context)=>CausesGetScreen(),
+        '/causespost':(context)=>Causespostscreen(),
+        '/defaultmessagespost':(context)=>DefaultMesagespostscreen(),
+        '/defaultmessagesget':(context)=>DefaultMesagesGetScreen(),
+        '/religionget':(context)=>ReligionGetScreen(),
+        '/religionpost':(context)=>Religionpostscreen(),
+        '/termsget':(context)=>TermsAndConditionGetScreen(),
+        '/termspost':(context)=>TermsAndConditionspostscreen(),
+        '/starsignpost':(context)=>Starsignpostscreen(),
+        '/starsignget':(context)=>StarsignGetScreen(),
+        '/languagesget':(context)=>LanguagesGetScreen(),
+        '/languagespost':(context)=>Languagespostscreen(),
+        // '/':(context)=>(),
+        // '/':(context)=>(),
+        // '/':(context)=>(),
    
         
       },

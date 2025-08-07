@@ -1,4 +1,5 @@
 import 'package:admin_dating/models/signupprocessmodels/choosefoodies_model.dart';
+import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/causesProvider.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/choosr_foodies_provider.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/defaultmessages.dart';
@@ -38,6 +39,8 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  TextEditingController _bioController = TextEditingController();
+
   List<String> prompts = [];
   bool isEditingPrompt = false;
   int? editingIndex;
@@ -65,9 +68,14 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   List<int> _selectedLookingIds = [];
   List<String> _selectedLookingNames = [];
   List<int> _selectedqualitiesIds = [];
+  List<int> _selectedkidsIds = [];
+  List<int>? _selectedmodeId;
+  List<int> _selecteddrinkingIds = [];
   List<String> _selectedqualitiesNames = [];
   List<int> _selectedmesagesIds = [];
   List<String> _selectedmesagesNames = [];
+  List<int> _selectedgenderIds = [];
+  List<int> _selectedreligionIds = [];
 
 // void _openCausesDialog() {
 //   Navigator.push(
@@ -585,7 +593,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           horizontal: 12, vertical: 8),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'Men', child: Text('Men')),
+                      DropdownMenuItem(value: 'Man', child: Text('Man')),
                       DropdownMenuItem(value: 'Woman', child: Text('Woman')),
                       DropdownMenuItem(
                           value: 'Nonbinary', child: Text('Nonbinary')),
@@ -1347,6 +1355,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   TextField(
+                    controller: _bioController,
                     maxLines: 3,
                     decoration: InputDecoration(
                       hintText: 'Tell us about yourself...',
@@ -1375,38 +1384,110 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           // _showSuccessDialog();
+                         
+                              
+                              if (_selectedKids != null) {
+                                final matchingItems =kidsData.data?.where(
+                                  (item) => item.kids == _selectedKids,
+                                );
+                                if (matchingItems != null && matchingItems.isNotEmpty) {
+                                  final selectedItem = matchingItems.first;
+                                  if (selectedItem.id != null) {
+                                    _selectedkidsIds = [selectedItem.id!];
+                                  }
+                                }
+                              }
 
-                          // try {
-                          //   await ref.read(.notifier).(
-                          //  firstName:_firstNameController ,
-                          // lastName:_lastNameController ,
-                          //  email: _emailController ,
-                          // phoneNumber: _phoneController,
-                          // _selectedBirth,
-                          // _selectedGender,
-                          // _selectedMode,
-                          // _selectedDrinking,
-                          // _selectedKids,
-                          // _selectedReligion,
-                          // _showProfile
-                          //   _selectedTheirGender,
-                          //   _selectedInterestIds,
-                          // _selectedcauseIds,
-                          //   _selectedLookingIds,
-                          //   _selectedqualitiesIds,
-                          //   prompts
+                         
+                              if (_selectedDrinking != null) {
+                                final matchingItems =drinkingData.data?.where(
+                                  (item) => item.preference == _selectedDrinking,
+                                );
+                                if (matchingItems != null && matchingItems.isNotEmpty) {
+                                  final selectedItem = matchingItems.first;
+                                  if (selectedItem.id != null) {
+                                    _selecteddrinkingIds  = [selectedItem.id!];
+                                  }
+                                }
+                              }
 
-                          //   );
+                         
+                          if ( _selectedMode != null) {
+                                final matchingItems =modeData.data?.where(
+                                  (item) => item.value ==  _selectedMode,
+                                );
+                                if (matchingItems != null && matchingItems.isNotEmpty) {
+                                  final selectedItem = matchingItems.first;
+                                  if (selectedItem.id != null) {
+                                    _selectedmodeId = [selectedItem.id!];
+                                  }
+                                }
+                              }
 
-                          //   ScaffoldMessenger.of(context).showSnackBar(
-                          //     const SnackBar(content: Text('upload profile data successfully!')),
-                          //   );
+                          
+                              if (_selectedReligion != null) {
+                                final matchingItems =religionData.data?.where(
+                                  (item) => item.religion == _selectedReligion,
+                                );
+                                if (matchingItems != null && matchingItems.isNotEmpty) {
+                                  final selectedItem = matchingItems.first;
+                                  if (selectedItem.id != null) {
+                                   _selectedreligionIds  = [selectedItem.id!];
+                                  }
+                                }
+                              }
+                          
+                              if (_selectedTheirGender != null) {
+                                final matchingItems =genderData.data?.where(
+                                  (item) => item.value == _selectedTheirGender,
+                                );
+                                if (matchingItems != null && matchingItems.isNotEmpty) {
+                                  final selectedItem = matchingItems.first;
+                                  if (selectedItem.id != null) {
+                                    _selectedgenderIds = [selectedItem.id!];
+                                  }
+                                }
+                              }
+                          print('seleted data$_selectedgenderIds');
+                          
 
-                          // } catch (e) {
-                          //   ScaffoldMessenger.of(context).showSnackBar(
-                          //     SnackBar(content: Text('Failed to upload profile data: $e')),
-                          //   );
-                          // }
+                          try {
+                            await ref
+                                .read(loginProvider.notifier)
+                                .signupuserApi(
+
+                                    // :_lastNameController ,
+                                    email: _emailController.text,
+                                    mobile: _phoneController.text,
+                                    userName: _firstNameController.text,
+                                    dateOfBirth: _selectedBirth,
+                                    selectedGender: _selectedGender,
+                                    showGenderOnProfile: _showProfile,
+                                    modeid: _selectedmodeId,
+                                    drinkingId: _selecteddrinkingIds,
+                                    selectedkidsIds: _selectedkidsIds,
+                                    selectedreligionIds: _selectedreligionIds,
+                                    selectedGenderIds: _selectedgenderIds,
+                                    selectedInterestIds: _selectedInterestIds,
+                                    selectedcauses: _selectedcauseIds,
+                                    selectedLookingfor: _selectedLookingIds,
+                                    selectedqualities: _selectedqualitiesIds,
+                                    finalheadline: _bioController.text,
+                                    seletedprompts: prompts,
+                                    choosedimages: _selectedImages);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text(
+                                      'upload profile data successfully!')),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(
+                                      'Failed to upload profile data: $e')),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,

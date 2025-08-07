@@ -1,7 +1,10 @@
-import 'package:admin_dating/models/signupprocessmodels/modeModel.dart';
-import 'package:admin_dating/provider/loader.dart';
-import 'package:admin_dating/utils/dgapi.dart';
 
+
+import 'package:admin_dating/models/more%20section/starsign.dart';
+
+import 'package:admin_dating/provider/loader.dart';
+import 'package:admin_dating/provider/loginprovider.dart';
+import 'package:admin_dating/utils/dgapi.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'dart:convert';
@@ -9,49 +12,89 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class ModeNotifier extends StateNotifier<ModeModel> {
+class StartSignProvider extends StateNotifier<StartSignModel> {
   final Ref ref;
-  ModeNotifier(this.ref) : super(ModeModel.initial());
+  StartSignProvider(this.ref) : super(StartSignModel.initial());
   
-  Future<void> getModes() async {
+  Future<void> getStarsign() async {
+    
     final loadingState = ref.read(loadingProvider.notifier);
     try {
       loadingState.state = true;
-      
-      print('get modes');
+     
+      print('get starsign');
 
       final response = await http.get(
-        Uri.parse(Dgapi.modes));
+        Uri.parse(Dgapi.starsignget));
       final responseBody = response.body;
-      print('Get modes Status Code: ${response.statusCode}');
-      print('Get modes Response Body: $responseBody');
+      print('Get religions Status Code: ${response.statusCode}');
+      print('Get religions Response Body: $responseBody');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         try {
           final res = jsonDecode(responseBody);
-          final usersData = ModeModel.fromJson(res);
+          final usersData = StartSignModel.fromJson(res);
           state = usersData;
-          print("modes fetched successfully: ${usersData.message}");
+          print("starsign fetched successfully: ${usersData.message}");
         } catch (e) {
           print("Invalid response format: $e");
-          throw Exception("Error parsing modes.");
+          throw Exception("Error parsing starsign.");
         }
       } else {
-        print("Error fetching modes: ${response.body}");
-        throw Exception("Error fetching modes: ${response.body}");
+        print("Error fetching starsign: ${response.body}");
+        throw Exception("Error fetching starsign: ${response.body}");
       }
     } catch (e) {
-      print("Failed to fetch modes: $e");
+      print("Failed to fetch starsign $e");
     }
   }
-  Future<bool> addMode({required String modes}) async {
+  Future<bool> starsignAdd({required String starsign}) async {
   final loadingState = ref.read(loadingProvider.notifier);
   final prefs = await SharedPreferences.getInstance();
 
   try {
     loadingState.state = true;
+    String? userDataString = prefs.getString('userData');
+    if (userDataString == null || userDataString.isEmpty) {
+      print("User token is missing.");
+      return false;
+    }
 
-    final apiUrl = Uri.parse(Dgapi.modeAdd);
+    final Map<String, dynamic> userData = jsonDecode(userDataString);
+    String? token = userData['accessToken'] ??
+        (userData['data'] != null &&
+                (userData['data'] as List).isNotEmpty &&
+                userData['data'][0]['access_token'] != null
+            ? userData['data'][0]['access_token']
+            : null);
+
+    if (token == null || token.isEmpty) {
+      print("User token is invalid.");
+      return false;
+    }
+
+    final client = RetryClient(
+      http.Client(),
+      retries: 3,
+      when: (response) =>
+          response.statusCode == 401 || response.statusCode == 400,
+      onRetry: (req, res, retryCount) async {
+        if (retryCount == 0 &&
+            (res?.statusCode == 401 || res?.statusCode == 400)) {
+          print("Token expired, refreshing...");
+          String? newAccessToken =
+              await ref.read(loginProvider.notifier).restoreAccessToken();
+
+          await prefs.setString('accessToken', newAccessToken ?? '');
+          token = newAccessToken;
+          req.headers['Authorization'] = 'Bearer $newAccessToken';
+
+          print("New Token: $newAccessToken");
+        }
+      },
+    );
+
+    final apiUrl = Uri.parse(Dgapi.starsignAdd);
     final request = await http.post(
       apiUrl,
       headers: {
@@ -59,7 +102,7 @@ class ModeNotifier extends StateNotifier<ModeModel> {
        
       },
       body: jsonEncode({
-        'value':modes,
+        '':starsign,
       }),
     );
 
@@ -67,17 +110,17 @@ class ModeNotifier extends StateNotifier<ModeModel> {
     print('Add Response Body: ${request.body}');
 
     if (request.statusCode == 201 || request.statusCode == 200) {
-      print("modes added successfully!");
-      await getModes(); // Refresh after add
+      print("starsign added successfully!");
+      await getStarsign(); // Refresh after add
       return true;
     } else {
       final errorBody = jsonDecode(request.body);
       final errorMessage = errorBody['message'] ?? 'Unexpected error occurred.';
-      print("Error adding modes: $errorMessage");
+      print("Error adding starsign: $errorMessage");
       return false;
     }
   } catch (e) {
-    print("Failed to add modes: $e");
+    print("Failed to add starsign: $e");
     return false;
   } finally {
     loadingState.state = false;
@@ -175,6 +218,6 @@ class ModeNotifier extends StateNotifier<ModeModel> {
 
 }
 
-final modesProvider = StateNotifierProvider<ModeNotifier, ModeModel>((ref) {
-  return ModeNotifier(ref);
+final starsignProvider = StateNotifierProvider<StartSignProvider, StartSignModel>((ref) {
+  return StartSignProvider(ref);
 });
