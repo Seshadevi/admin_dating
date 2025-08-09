@@ -1,7 +1,10 @@
-class Dgapi {
+import 'dart:convert';
 
+class Dgapi {
   static const String baseUrl = "http://97.74.93.26:6100";
-  static const String login = "$baseUrl/user/login";
+  static const String login = "$baseUrl/user/userExistance";
+  static const String login1 = "$baseUrl/user/login";
+  static const String refreshToken = "$baseUrl/auth/refresh-token";
   static const String lookingFor = "$baseUrl/user/lookingFor";
   static const String modes = "$baseUrl/user/mode";
   static const String termsAndConditions = "$baseUrl/user/termsAndConditions";
@@ -12,6 +15,41 @@ class Dgapi {
   static const String religion = "$baseUrl/user/religion";
   static const String defaultMessages = "$baseUrl/user/defaultMessages";
   static const String qualities = "$baseUrl/user/qualities";
-   static const String interests = "$baseUrl/user/getAllInterests";
-
+  static const String interests = "$baseUrl/user/getAllInterests";
+  static const String lookingAdd = "$baseUrl/user/createLookingFor";
+  static const String drinkingAdd = "$baseUrl/user/drinking";
+  static const String genderAdd = "$baseUrl/user/createGender";
+  static const String interestAdd = "$baseUrl/user/createInterest";
+  static const String kidsAdd = "$baseUrl/user/kids";
+  static const String modeAdd = "$baseUrl/user/createMode";
+  static const String qualitiesAdd = "$baseUrl/user/qualities";
+  static const String causesAdd = "$baseUrl/user/causes";
+  static const String defaultMessagesAdd = "$baseUrl/user/default-messages";
+  static const String religionAdd = "$baseUrl/user/religions";
+  static const String TermsAdd = "$baseUrl/user/createTermsAndConditions";
+  static const String starsignget = "$baseUrl/starsign";
+  static const String languagesGet = "$baseUrl/language";
+  static const String starsignAdd = "$baseUrl/starsign";
+  static const String languagesAdd = "$baseUrl/language";
+  static const String updatecauses = "$baseUrl/user/causes";
+  static const String deletecause = "$baseUrl/user/causes";
+  static const String updatedmessages = "$baseUrl/user/defaultMessages";
+  static const String deletemessages = "$baseUrl/user/defaultMessages";
+  static const String updatedDrinking = "$baseUrl/user/drinking";
+  static const String deleteDrinking = "$baseUrl/user/drinking";
+  static const String updateGender = "$baseUrl/user/gender";
+  static const String deleteGender = "$baseUrl/user/gender";
+  static const String updatedInterest = "$baseUrl/user/interest";
+  static const String deleteInerest = "$baseUrl/user/interest";
+  static const String updateQualities = "$baseUrl/user/quality";
+  static const String deleteQualities = "$baseUrl/user/quality";
+  static const String updateKids = "$baseUrl/user/kids";
+  static const String deleteKids = "$baseUrl/user/kids";
+  static const String updateLookingfor = "$baseUrl/user/lookingFor";
+  static const String deleteLookingfor = "$baseUrl/user/lookingFor";
+  static const String updateReligion = "$baseUrl/user/religion";
+  static const String deleteReligion = "$baseUrl/user/religion";
+  static const String updateLanguage = "$baseUrl/language";
+  static const String deleteLanguage = "$baseUrl/language";
+  // static const String deletecause = "$baseUrl/";
 }

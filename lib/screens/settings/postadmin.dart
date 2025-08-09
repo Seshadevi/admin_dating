@@ -11,7 +11,7 @@ class _PostAdminScreenState extends State<PostAdminScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white ,
+      backgroundColor: Colors.white,
 
       // ✅ AppBar with back button
       appBar: AppBar(
@@ -41,29 +41,56 @@ class _PostAdminScreenState extends State<PostAdminScreen> {
             //   ),
             // ),
             // const SizedBox(height: 20),
-            buildTile("Mode",onTap: () {}),
-            buildTile("Looking For",onTap: () {}),
-            buildTile("Qualities",onTap: () {}),
-            buildTile("Interests",onTap: () {}),
-            buildTile("CausesAndCommunities",onTap: () {}),
-            buildTile("Religion",onTap: () {}),
-            buildTile("Kids",onTap: () {}),
-            buildTile("Drinking",onTap: () {}),
-            buildTile("DefaultMessages",onTap: () {}),
-            buildTile("Gender",onTap: () {}),
-            buildTile("TermsAndConditions",onTap: () {}),
-            buildTile("ChooseFoodies",onTap: () {}),
-            buildTile("StarSign",onTap: () {}),
-            buildTile("Laguages",onTap: () {}),
-            buildTile("Pronouns",onTap: () {}),
-            buildTile("Edit",onTap: () {}),
-            buildTile("Edit",onTap: () {}),
-            buildTile("Edit",onTap: () {}),
-            buildTile("Edit",onTap: () {}),
-            buildTile("Edit",onTap: () {}),
-
-
-            
+            buildTile("Mode", onTap: () {
+              Navigator.pushNamed(context, '/modesget');
+            }),
+            buildTile("Looking For", onTap: () {
+              Navigator.pushNamed(context, '/lookingforgetscreen');
+            }),
+            buildTile("Qualities", onTap: () {
+              Navigator.pushNamed(context, '/qualitiesget');
+            }),
+            // buildTile("Interests", onTap: () {
+            //   Navigator.pushNamed(context, '/interestget');
+            // }),
+            buildTile("CausesAndCommunities", onTap: () {
+              Navigator.pushNamed(context, '/causesget');
+            }),
+            buildTile("Religion", onTap: () {
+              Navigator.pushNamed(context, '/religionget');
+            }),
+            buildTile("Kids", onTap: () {
+              Navigator.pushNamed(context, '/kidsget');
+            }),
+            buildTile("Drinking", onTap: () {
+              Navigator.pushNamed(context, '/drinkingget');
+            }),
+            buildTile("DefaultMessages", onTap: () {
+              Navigator.pushNamed(context, '/defaultmessagesget');
+            }),
+            buildTile("Gender", onTap: () {
+              Navigator.pushNamed(context, '/genderget');
+            }),
+            buildTile("TermsAndConditions", onTap: () {
+              Navigator.pushNamed(context, '/termsget');
+            }),
+            buildTile("ChooseFoodies", onTap: () {
+              Navigator.pushNamed(context, '/interestget');
+            }),
+            buildTile("StarSign", onTap: () {
+              Navigator.pushNamed(context, '/starsignget');
+            }),
+            buildTile("Laguages", onTap: () {
+              Navigator.pushNamed(context, '/languagesget');
+            }),
+            buildTile("Pronouns", onTap: () {
+              Navigator.pushNamed(context, '/');
+            }),
+            buildTile("Edit", onTap: () {}),
+            buildTile("Edit", onTap: () {}),
+            buildTile("Edit", onTap: () {}),
+            buildTile("Edit", onTap: () {}),
+            buildTile("Edit", onTap: () {}),
           ],
         ),
       ),

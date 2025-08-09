@@ -129,39 +129,44 @@ class LoginNotifier extends StateNotifier<UserModel> {
   Future<int> signupuserApi({
     String? email,
     String? mobile,
-    double? latitude,
-    double? longitude,
+    // double? latitude,
+    // double? longitude,
     String? userName,
     String? dateOfBirth,
     String? selectedGender,
     bool? showGenderOnProfile,
    List<int>? modeid,
     //  String? modename,
-    List<int>? selectedGenderIds,
+    
     List<int>? drinkingId,
-    int? selectedHeight,
-    List<int>? selectedInterestIds,
-    List<int>? selectedqualitiesIDs,
-    List<int>? selectedreligionIds,
     List<int>? selectedkidsIds,
-    List<int>? selectedreligions,
+    List<int>? selectedreligionIds,
+    List<int>? selectedGenderIds,
+    List<int>? selectedInterestIds,
     List<int>? selectedcauses,
+    
     List<int>? selectedLookingfor,
     List<int>? selectedqualities,
+    
+    // List<int>? selectedreligions,
+    
+    
+    // List<int>? selectedqualities,
     List<String>? seletedprompts,
     List<File?>? choosedimages,
     List<int>? defaultmessages,
     String? finalheadline,
     bool? termsAndCondition,
+    int? selectedHeight,
   }) async {
-    const String apiUrl = Dgapi.login;
+    const String apiUrl = Dgapi.login1;
     final prefs = await SharedPreferences.getInstance();
     final int? userId = state.data?.first.user?.id;
 
     print("✅ Proceeding with API request...");
     print(
-        'sign in data.........userId:$userId:$email,mobile:$mobile,latitude:$latitude,longitude:$longitude,Name:$userName,dob:$dateOfBirth,selectedgender:$selectedGender:');
-    print('data:::lookinfor:$selectedLookingfor,qualities::$selectedqualitiesIDs,interests:$selectedInterestIds,kids:$selectedkidsIds');
+        'sign in data.........userId:$userId:$email,mobile:$mobile,latitude:,longitude:,Name:$userName,dob:$dateOfBirth,selectedgender:$selectedGender:');
+    print('data:::lookinfor:$selectedLookingfor,qualities::$selectedqualities,interests:$selectedInterestIds,kids:$selectedkidsIds,defaltmessages:$defaultmessages,drinking:$drinkingId,religion:$selectedreligionIds,');
     print(
         'data.......show:$showGenderOnProfile,height:$selectedHeight,headline:$finalheadline,images:${choosedimages!.length},');
 
@@ -181,7 +186,7 @@ class LoginNotifier extends StateNotifier<UserModel> {
       request.fields['gender'] = 'Man';
       request.fields['showOnProfile'] = showGenderOnProfile.toString();
 
-      // request.fields['height'] = selectedHeight.toString();
+      request.fields['height'] = selectedHeight.toString();
       request.fields['headLine'] = finalheadline ?? '';
       // request.fields['termsAndConditions'] = termsAndCondition.toString();
       request.fields['mobile'] = mobile ?? '';
@@ -203,14 +208,19 @@ class LoginNotifier extends StateNotifier<UserModel> {
         }
       }
 
-      if (selectedqualitiesIDs != null) {
-        for (int i = 0; i < selectedqualitiesIDs.length; i++) {
-          request.fields['qualities[$i]'] = selectedqualitiesIDs[i].toString();
+      if (selectedqualities != null) {
+        for (int i = 0; i < selectedqualities.length; i++) {
+          request.fields['qualities[$i]'] = selectedqualities[i].toString();
         }
       }
       if (selectedkidsIds != null) {
         for (int i = 0; i < selectedkidsIds.length; i++) {
           request.fields['kids[$i]'] = selectedkidsIds![i].toString();
+        }
+      }
+      if (drinkingId != null) {
+        for (int i = 0; i < drinkingId.length; i++) {
+          request.fields['drinking[$i]'] = drinkingId[i].toString();
         }
       }
 
@@ -220,9 +230,9 @@ class LoginNotifier extends StateNotifier<UserModel> {
         }
       }
 
-      if (selectedreligions != null) {
-        for (int i = 0; i < selectedreligions.length; i++) {
-          request.fields['religions[$i]'] = selectedreligions[i].toString();
+      if (selectedreligionIds != null) {
+        for (int i = 0; i < selectedreligionIds.length; i++) {
+          request.fields['religions[$i]'] = selectedreligionIds[i].toString();
         }
       }
 
@@ -282,13 +292,8 @@ class LoginNotifier extends StateNotifier<UserModel> {
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         await prefs.setBool("isSignedUp", true);
-        final userDetails = jsonDecode(responseBody);
-        final userModel = UserModel.fromJson(userDetails);
-        state = userModel;
 
-        final userData = json.encode(userDetails);
-        await prefs.setString('userData', userData);
-        print('User data saved in SharedPreferences.');
+        print('User added succesfully.');
         return response.statusCode;
       } else {
         print("❌ Signup failed with status: ${response.statusCode}");

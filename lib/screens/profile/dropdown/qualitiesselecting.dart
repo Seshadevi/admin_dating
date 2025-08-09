@@ -43,11 +43,14 @@ class _QualitiesSelectionState extends State<QualitiesSelection> {
   }
 
   void _onDone() {
+    print("Selected Qualities IDs: $_selectedqualitiesIds");
+  print("Selected Qualities Names: $_selectedQualitiesNames");
     Navigator.pop(context, {
       'id': _selectedqualitiesIds,
       'name': _selectedQualitiesNames,
     });
   }
+  
 
   // @override
   // Widget build(BuildContext context) {

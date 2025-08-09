@@ -16,6 +16,7 @@ import 'package:admin_dating/screens/profile/dropdown/selectlookingfor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -40,6 +41,8 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   TextEditingController _bioController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
 
   List<String> prompts = [];
   bool isEditingPrompt = false;
@@ -76,6 +79,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   List<String> _selectedmesagesNames = [];
   List<int> _selectedgenderIds = [];
   List<int> _selectedreligionIds = [];
+  double? selectedLat;
+  double? selectedLng;
+  String? selectedAddress;
 
 // void _openCausesDialog() {
 //   Navigator.push(
@@ -280,6 +286,14 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
         );
       },
     );
+  }
+
+  void _onLocationSelected(String address, double lat, double lng) {
+    setState(() {
+      selectedAddress = address;
+      selectedLat = lat;
+      selectedLng = lng;
+    });
   }
 
   @override
@@ -625,6 +639,31 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       ],
                     ),
                   const SizedBox(height: 10),
+                  const Text(
+                    'Your Height',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  TextField(
+                    controller: _heightController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly, // only numbers
+                    ],
+                    decoration: InputDecoration(
+                      hintText: 'ex:158', // dummy example
+                      suffixText: 'cm',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
 
                   // BH Dropdown
                   const Text('Interest Gender',
@@ -914,6 +953,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           );
                         },
                       );
+                      print('qualities:$_selectedqualitiesIds ');
 
                       if (result != null) {
                         setState(() {
@@ -923,6 +963,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                               List<String>.from(result['name'] ?? []);
                         });
                       }
+                      print('qualities: $_selectedqualitiesIds');
                     },
                     child: Container(
                       width: double.infinity,
@@ -1183,6 +1224,45 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   ),
 
                   const SizedBox(height: 10),
+                  const SizedBox(height: 10),
+                  Text("Location",
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 6),
+                  GooglePlaceAutoCompleteTextField(
+                    textEditingController: _locationController,
+                    googleAPIKey:
+                        "AIzaSyB_7QtF9EUbVs_5mVFxZWS-NdzYwV9dbU0", // replace with your key
+                    inputDecoration: InputDecoration(
+                      hintText: "Search location",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      prefixIcon: const Icon(Icons.location_on),
+                    ),
+                    debounceTime: 800,
+                    countries: const ["in"], // restrict to India
+                    isLatLngRequired: true,
+                    getPlaceDetailWithLatLng: (prediction) {
+                      setState(() {
+                        selectedLat = double.tryParse(prediction.lat ?? "0");
+                        selectedLng = double.tryParse(prediction.lng ?? "0");
+                      });
+
+                      _onLocationSelected(
+                        _locationController.text,
+                        selectedLat ?? 0,
+                        selectedLng ?? 0,
+                      );
+                    },
+                    itemClick: (prediction) {
+                      _locationController.text = prediction.description ?? "";
+                      _locationController.selection =
+                          TextSelection.fromPosition(
+                        TextPosition(offset: _locationController.text.length),
+                      );
+                    },
+                    seperatedBuilder: const Divider(),
+                  ),
 
                   // Age Dropdown
                   // const Text('Age',
@@ -1384,72 +1464,72 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           // _showSuccessDialog();
-                         
-                              
-                              if (_selectedKids != null) {
-                                final matchingItems =kidsData.data?.where(
-                                  (item) => item.kids == _selectedKids,
-                                );
-                                if (matchingItems != null && matchingItems.isNotEmpty) {
-                                  final selectedItem = matchingItems.first;
-                                  if (selectedItem.id != null) {
-                                    _selectedkidsIds = [selectedItem.id!];
-                                  }
-                                }
-                              }
 
-                         
-                              if (_selectedDrinking != null) {
-                                final matchingItems =drinkingData.data?.where(
-                                  (item) => item.preference == _selectedDrinking,
-                                );
-                                if (matchingItems != null && matchingItems.isNotEmpty) {
-                                  final selectedItem = matchingItems.first;
-                                  if (selectedItem.id != null) {
-                                    _selecteddrinkingIds  = [selectedItem.id!];
-                                  }
-                                }
+                          if (_selectedKids != null) {
+                            final matchingItems = kidsData.data?.where(
+                              (item) => item.kids == _selectedKids,
+                            );
+                            if (matchingItems != null &&
+                                matchingItems.isNotEmpty) {
+                              final selectedItem = matchingItems.first;
+                              if (selectedItem.id != null) {
+                                _selectedkidsIds = [selectedItem.id!];
                               }
+                            }
+                          }
 
-                         
-                          if ( _selectedMode != null) {
-                                final matchingItems =modeData.data?.where(
-                                  (item) => item.value ==  _selectedMode,
-                                );
-                                if (matchingItems != null && matchingItems.isNotEmpty) {
-                                  final selectedItem = matchingItems.first;
-                                  if (selectedItem.id != null) {
-                                    _selectedmodeId = [selectedItem.id!];
-                                  }
-                                }
+                          if (_selectedDrinking != null) {
+                            final matchingItems = drinkingData.data?.where(
+                              (item) => item.preference == _selectedDrinking,
+                            );
+                            if (matchingItems != null &&
+                                matchingItems.isNotEmpty) {
+                              final selectedItem = matchingItems.first;
+                              if (selectedItem.id != null) {
+                                _selecteddrinkingIds = [selectedItem.id!];
                               }
+                            }
+                          }
 
-                          
-                              if (_selectedReligion != null) {
-                                final matchingItems =religionData.data?.where(
-                                  (item) => item.religion == _selectedReligion,
-                                );
-                                if (matchingItems != null && matchingItems.isNotEmpty) {
-                                  final selectedItem = matchingItems.first;
-                                  if (selectedItem.id != null) {
-                                   _selectedreligionIds  = [selectedItem.id!];
-                                  }
-                                }
+                          if (_selectedMode != null) {
+                            final matchingItems = modeData.data?.where(
+                              (item) => item.value == _selectedMode,
+                            );
+                            if (matchingItems != null &&
+                                matchingItems.isNotEmpty) {
+                              final selectedItem = matchingItems.first;
+                              if (selectedItem.id != null) {
+                                _selectedmodeId = [selectedItem.id!];
                               }
-                          
-                              if (_selectedTheirGender != null) {
-                                final matchingItems =genderData.data?.where(
-                                  (item) => item.value == _selectedTheirGender,
-                                );
-                                if (matchingItems != null && matchingItems.isNotEmpty) {
-                                  final selectedItem = matchingItems.first;
-                                  if (selectedItem.id != null) {
-                                    _selectedgenderIds = [selectedItem.id!];
-                                  }
-                                }
+                            }
+                          }
+
+                          if (_selectedReligion != null) {
+                            final matchingItems = religionData.data?.where(
+                              (item) => item.religion == _selectedReligion,
+                            );
+                            if (matchingItems != null &&
+                                matchingItems.isNotEmpty) {
+                              final selectedItem = matchingItems.first;
+                              if (selectedItem.id != null) {
+                                _selectedreligionIds = [selectedItem.id!];
                               }
+                            }
+                          }
+
+                          if (_selectedTheirGender != null) {
+                            final matchingItems = genderData.data?.where(
+                              (item) => item.value == _selectedTheirGender,
+                            );
+                            if (matchingItems != null &&
+                                matchingItems.isNotEmpty) {
+                              final selectedItem = matchingItems.first;
+                              if (selectedItem.id != null) {
+                                _selectedgenderIds = [selectedItem.id!];
+                              }
+                            }
+                          }
                           print('seleted data$_selectedgenderIds');
-                          
 
                           try {
                             await ref
@@ -1474,7 +1554,10 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                     selectedqualities: _selectedqualitiesIds,
                                     finalheadline: _bioController.text,
                                     seletedprompts: prompts,
-                                    choosedimages: _selectedImages);
+                                    choosedimages: _selectedImages,
+                                    selectedHeight:
+                                        int.tryParse(_heightController.text),
+                                    defaultmessages: _selectedmesagesIds);
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

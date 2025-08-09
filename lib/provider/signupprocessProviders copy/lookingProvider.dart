@@ -87,94 +87,99 @@ class LookingNotifier extends StateNotifier<LookingFor> {
   }
 }
 
-// Future<int> updateProfile() async {
-//   final loadingState = ref.read(loadingProvider.notifier);
-//   final prefs = await SharedPreferences.getInstance();
+Future<int> updateLookingfor(int? lookingforId, String? lookingName) async {
+    final loadingState = ref.read(loadingProvider.notifier);
+    final prefs = await SharedPreferences.getInstance();
 
-//   loadingState.state = true;
+    loadingState.state = true;
 
-//   try {
-//     final userId = state.data?[0].id;
-//     if (userId == null) throw Exception("User ID is missing");
+    try {
+      final userId = state.data?[0].id;
+      if (userId == null) throw Exception("User ID is missing");
 
-//     final String apiUrl = Dgapi.;
+     final String apiUrl = "${Dgapi.updateLookingfor}/$lookingforId";
 
-//     // Prepare headers
-//     final headers = {
-//       'Content-Type': 'application/json',
-//       'Accept': 'application/json',
-//     };
 
-//     // Request body (change keys/values as per your API)
-//     final body = jsonEncode({
-      
-//     });
+      // Headers
+      final headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
 
-//     // Send PUT request
-//     final response = await http.put(
-//       Uri.parse(apiUrl),
-//       headers: headers,
-//       body: body,
-//     );
+      // Request body (adjust key names to match your backend)
+      final body = jsonEncode({
+        // "user_id": userId,
+        "": lookingName, // List of IDs
+      });
 
-//     print("📨 Response Status: ${response.statusCode}");
-//     print("📨 Response Body: ${response.body}");
+      final response = await http.put(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: body,
+      );
 
-//     if (response.statusCode == 200 || response.statusCode == 201) {
-//       final responseData = jsonDecode(response.body);
+      print("📨 Response Status: ${response.statusCode}");
+      print("📨 Response Body: ${response.body}");
 
-//       try {
-//         final user = UserModel.fromJson(responseData);
-//         // Save or update state
-//         await prefs.setString('userData', jsonEncode(user.toJson()));
-//         // state = yourState.copyWith(user: user); // if applicable
-//       } catch (e) {
-//         print("⚠️ Error parsing user: $e");
-//         throw Exception("Failed to parse updated Lookingfor");
-//       }
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        await getLookingFor();
 
-//       return response.statusCode;
-//     } else {
-//       final errorMessage = jsonDecode(response.body)['message'] ?? 'Unknown error';
-//       throw Exception("Update failed: $errorMessage");
-//     }
-//   } catch (e) {
-//     print("❗ Exception during update: $e");
-//     throw Exception("Update failed: $e");
-//   } finally {
-//     loadingState.state = false;
-//   }
-// }
-// Future<int> deleteLookingFor(int lookingId) async {
-//   final loadingState = ref.read(loadingProvider.notifier);
-//   loadingState.state = true;
+        // ✅ OPTIONAL: Only if API returns updated user object
+        if (responseData is Map && responseData.containsKey("user")) {
+          try {
+            final updatedUser = UserModel.fromJson(responseData["user"]);
+            await prefs.setString('userData', jsonEncode(updatedUser.toJson()));
+            // state = state.copyWith(user: updatedUser); // Update Riverpod state if needed
+          } catch (e) {
+            print("⚠️ Failed to parse updated user: $e");
+          }
+        }
 
-//   try {
-//     final String deleteUrl = "${Dgapi.}/$lookingId";
+        return response.statusCode;
+      } else {
+        final errorMessage =
+            jsonDecode(response.body)['message'] ?? 'Unknown error';
+        throw Exception("Update failed: $errorMessage");
+      }
+    } catch (e) {
+      print("❗ Exception during update: $e");
+      throw Exception("Update failed: $e");
+    } finally {
+      loadingState.state = false;
+    }
+  }
 
-//     final response = await http.delete(
-//       Uri.parse(deleteUrl),
-//       headers: {
-//         'Accept': 'application/json',
-//       },
-//     );
+Future<int> deleteLookingfor(int? lookingforId) async {
+  final loadingState = ref.read(loadingProvider.notifier);
+  loadingState.state = true;
 
-//     print("🗑️ Delete response: ${response.body}");
+  try {
+    final String deleteUrl = "${Dgapi.deleteLookingfor}/$lookingforId";
 
-//     if (response.statusCode == 200 || response.statusCode == 204) {
-//       print("✅ Deleted successfully");
-//       return response.statusCode;
-//     } else {
-//       throw Exception("Delete failed: ${response.statusCode}");
-//     }
-//   } catch (e) {
-//     print("❗ Delete error: $e");
-//     throw Exception("Delete error: $e");
-//   } finally {
-//     loadingState.state = false;
-//   }
-// }
+    final response = await http.delete(
+      Uri.parse(deleteUrl),
+      headers: {
+        'Accept': 'application/json',
+      },
+    );
 
+    print("🗑️ Delete response: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print("✅ Deleted successfully");
+      await getLookingFor();
+      return response.statusCode;
+    } else {
+      throw Exception("Delete failed: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("❗ Delete error: $e");
+    throw Exception("Delete error: $e");
+  } finally {
+    loadingState.state = false;
+  }
+}
 
 
 }
