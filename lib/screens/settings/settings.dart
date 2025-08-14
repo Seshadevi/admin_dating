@@ -72,7 +72,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   buildTile("Edit profile"),
                   buildTile("Change password"),
-                  buildTile("Signin processposts add", onTap: () {
+                  buildTile("Signin process data changes", onTap: () {
                     Navigator.pushNamed(context, '/postadminscreen');
                   }),
                   buildTile("Add a subcribtion method", icon: Icons.add),

@@ -149,7 +149,7 @@ Future<int> updateLanguages(int? languagesId, String? languagesName) async {
       // Request body (adjust key names to match your backend)
       final body = jsonEncode({
         // "user_id": userId,
-        "": languagesName, // List of IDs
+        "language": languagesName, // List of IDs
       });
 
       final response = await http.put(

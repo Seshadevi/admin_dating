@@ -11,8 +11,12 @@ import 'package:admin_dating/screens/settings/getsandpostsofadmin/defaultmesages
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/defaultmesagespost.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/dringkingget.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/dringkingpost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/experienceget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/experiencepost.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/genderget.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/genderpost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/industryget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/industrypost.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/interestsgetscren.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/interestspost.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/kidsget.dart';
@@ -25,6 +29,8 @@ import 'package:admin_dating/screens/settings/getsandpostsofadmin/modegetscreen.
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/modepost.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/qualitiesGet.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/qualitiespost.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/relationshipget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/relationshippost.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/religionget.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/religionpost.dart';
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/starsignget.dart';
@@ -150,9 +156,21 @@ class _MyAppState extends ConsumerState<MyApp> {
         '/starsignget':(context)=>StarsignGetScreen(),
         '/languagesget':(context)=>LanguagesGetScreen(),
         '/languagespost':(context)=>Languagespostscreen(),
+        '/industrypost':(context)=>Industrypostscreen(),
+        '/industryget':(context)=>IndustryGetScreen(),
+        '/relationshipget':(context)=>RelationshipGetScreen(),
+         '/relationshippost':(context)=>Relationshippostscreen(),
+        '/experienceget':(context)=>ExperienceGetScreen(),
+         '/experiencepost':(context)=>Experiencepostscreen(),
+        // '/':(context)=>(),
+         // '/':(context)=>(),
+        // '/':(context)=>(),
+         // '/':(context)=>(),
+        // '/':(context)=>(),
+         // '/':(context)=>(),
         // '/':(context)=>(),
         // '/':(context)=>(),
-        // '/':(context)=>(),
+
    
         
       },

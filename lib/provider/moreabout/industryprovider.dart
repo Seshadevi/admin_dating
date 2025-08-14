@@ -1,9 +1,12 @@
 
-import 'package:admin_dating/models/loginmodel.dart';
-import 'package:admin_dating/models/signupprocessmodels/lookingModel.dart';
-import 'package:admin_dating/provider/loader.dart';
-import 'package:admin_dating/utils/dgapi.dart';
 
+import 'package:admin_dating/models/loginmodel.dart';
+import 'package:admin_dating/models/more%20section/industrymodel.dart';
+import 'package:admin_dating/models/more%20section/starsign.dart';
+
+import 'package:admin_dating/provider/loader.dart';
+
+import 'package:admin_dating/utils/dgapi.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'dart:convert';
@@ -11,50 +14,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
-class LookingNotifier extends StateNotifier<LookingFor> {
+class Industryprovider extends StateNotifier<Industrymodel> {
   final Ref ref;
-  LookingNotifier(this.ref) : super(LookingFor.initial());
+  Industryprovider(this.ref) : super(Industrymodel.initial());
   
-  Future<void> getLookingFor() async {
+  Future<void> getIndustry() async {
+    
     final loadingState = ref.read(loadingProvider.notifier);
     try {
       loadingState.state = true;
-      
-      print('get LookingFor');
-      
+     
+      print('get Industry');
+
       final response = await http.get(
-        Uri.parse(Dgapi.lookingFor)
-      );
+        Uri.parse(Dgapi.industryget));
       final responseBody = response.body;
-      print('Get LookingFor Status Code: ${response.statusCode}');
-      print('Get LookingFor Response Body: $responseBody');
+      print('Get Industry Status Code: ${response.statusCode}');
+      print('Get Industry Response Body: $responseBody');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         try {
           final res = jsonDecode(responseBody);
-          final usersData = LookingFor.fromJson(res);
+          final usersData = Industrymodel.fromJson(res);
           state = usersData;
-          print("LookingFor fetched successfully: ${usersData.message}");
+          // print("starsign fetched successfully: ${usersData.message}");
         } catch (e) {
           print("Invalid response format: $e");
-          throw Exception("Error parsing LookingFor");
+          throw Exception("Error parsing Industry.");
         }
       } else {
-        print("Error fetching LookingFor: ${response.body}");
-        throw Exception("Error fetching LookingFor: ${response.body}");
+        print("Error fetching Industry: ${response.body}");
+        throw Exception("Error fetching Industry: ${response.body}");
       }
     } catch (e) {
-      print("Failed to fetch LookingFor: $e");
+      print("Failed to fetch Industry$e");
     }
   }
-  Future<bool> addLooking({required String value,required int? modeId}) async {
+  Future<bool> addIndustry({required String industry}) async {
   final loadingState = ref.read(loadingProvider.notifier);
   final prefs = await SharedPreferences.getInstance();
 
   try {
     loadingState.state = true;
+    
 
-    final apiUrl = Uri.parse(Dgapi.lookingAdd);
+    final apiUrl = Uri.parse(Dgapi.industrypost);
     final request = await http.post(
       apiUrl,
       headers: {
@@ -62,8 +66,7 @@ class LookingNotifier extends StateNotifier<LookingFor> {
        
       },
       body: jsonEncode({
-        'value':value,
-        'modeId':modeId
+        "industry":industry,
       }),
     );
 
@@ -71,24 +74,23 @@ class LookingNotifier extends StateNotifier<LookingFor> {
     print('Add Response Body: ${request.body}');
 
     if (request.statusCode == 201 || request.statusCode == 200) {
-      print("LookingFor added successfully!");
-      await getLookingFor(); // Refresh after add
+      print("industry added successfully!");
+      await getIndustry(); // Refresh after add
       return true;
     } else {
       final errorBody = jsonDecode(request.body);
       final errorMessage = errorBody['message'] ?? 'Unexpected error occurred.';
-      print("Error adding LookingFor: $errorMessage");
+      print("Error adding industry: $errorMessage");
       return false;
     }
   } catch (e) {
-    print("Failed to add LookingFor: $e");
+    print("Failed to add industry: $e");
     return false;
   } finally {
     loadingState.state = false;
   }
 }
-
-Future<int> updateLookingfor(int? lookingforId, String? lookingName,int? _selectedModeId) async {
+Future<int> updateindustry(int? industryId, String? industryName) async {
     final loadingState = ref.read(loadingProvider.notifier);
     final prefs = await SharedPreferences.getInstance();
 
@@ -98,7 +100,7 @@ Future<int> updateLookingfor(int? lookingforId, String? lookingName,int? _select
       final userId = state.data?[0].id;
       if (userId == null) throw Exception("User ID is missing");
 
-     final String apiUrl = "${Dgapi.updateLookingfor}/$lookingforId";
+     final String apiUrl = "${Dgapi.industryupdste}/$industryId";
 
 
       // Headers
@@ -110,8 +112,7 @@ Future<int> updateLookingfor(int? lookingforId, String? lookingName,int? _select
       // Request body (adjust key names to match your backend)
       final body = jsonEncode({
         // "user_id": userId,
-        "value": lookingName, // List of IDs
-        'modeId':_selectedModeId
+        "industry": industryName, // List of IDs
       });
 
       final response = await http.put(
@@ -125,7 +126,7 @@ Future<int> updateLookingfor(int? lookingforId, String? lookingName,int? _select
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = jsonDecode(response.body);
-        await getLookingFor();
+        await getIndustry();
 
         // ✅ OPTIONAL: Only if API returns updated user object
         if (responseData is Map && responseData.containsKey("user")) {
@@ -152,12 +153,12 @@ Future<int> updateLookingfor(int? lookingforId, String? lookingName,int? _select
     }
   }
 
-Future<int> deleteLookingfor(int? lookingforId) async {
+Future<int> deleteindustry(int? industryId) async {
   final loadingState = ref.read(loadingProvider.notifier);
   loadingState.state = true;
 
   try {
-    final String deleteUrl = "${Dgapi.deleteLookingfor}/$lookingforId";
+    final String deleteUrl = "${Dgapi.industrydelete}/$industryId";
 
     final response = await http.delete(
       Uri.parse(deleteUrl),
@@ -170,7 +171,7 @@ Future<int> deleteLookingfor(int? lookingforId) async {
 
     if (response.statusCode == 200 || response.statusCode == 204) {
       print("✅ Deleted successfully");
-      await getLookingFor();
+      await getIndustry();
       return response.statusCode;
     } else {
       throw Exception("Delete failed: ${response.statusCode}");
@@ -184,8 +185,10 @@ Future<int> deleteLookingfor(int? lookingforId) async {
 }
 
 
+
+
 }
 
-final lookingProvider = StateNotifierProvider<LookingNotifier,LookingFor>((ref) {
-  return LookingNotifier(ref);
+final industryProvider = StateNotifierProvider<Industryprovider, Industrymodel>((ref) {
+  return Industryprovider(ref);
 });

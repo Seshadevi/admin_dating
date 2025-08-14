@@ -99,15 +99,41 @@ class _interestsGetScreenState extends ConsumerState<interestsGetScreen> {
                                       
                                     ),
                                     IconButton(
-                                      icon: const Icon(Icons.delete,
-                                          color: Colors.red),
-                                      onPressed: ()async {
-                                         await ref.read(interestsProvider.notifier).deleteInterest(item.id);
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text("Deleted successfully")),
-                                          );
-                                      },
-                                    ),
+  icon: const Icon(Icons.delete, color: Colors.red),
+  onPressed: () async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Confirm Delete"),
+          content: const Text("Are you sure you want to delete this religion?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false), // Cancel
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              onPressed: () => Navigator.pop(context, true), // Confirm
+              child: const Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await ref.read(interestsProvider.notifier).deleteInterest(item.id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Deleted successfully")),
+      );
+    }
+  },
+),
+
+                                    
                                   ],
                                 ),
                               ),

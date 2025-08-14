@@ -1,20 +1,20 @@
 import 'package:admin_dating/constants/dating_colors.dart';
-import 'package:admin_dating/provider/moreabout/starsign.dart';
-import 'package:admin_dating/provider/signupprocessProviders%20copy/drinkingProvider.dart';
+import 'package:admin_dating/provider/moreabout/experienceprovider.dart';
+import 'package:admin_dating/provider/moreabout/industryprovider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Starsignpostscreen extends ConsumerStatefulWidget {
-  const Starsignpostscreen({super.key});
+class Experiencepostscreen extends ConsumerStatefulWidget {
+  const Experiencepostscreen({super.key});
 
   @override
-  ConsumerState<Starsignpostscreen> createState() =>
-      _StarsignpostscreenState();
+  ConsumerState<Experiencepostscreen> createState() =>
+      _ExperiencepostscreenState();
 }
 
-class _StarsignpostscreenState
-    extends ConsumerState<Starsignpostscreen> {
+class _ExperiencepostscreenState
+    extends ConsumerState<Experiencepostscreen> {
   final TextEditingController _textController = TextEditingController();
   int? _editingId; // null means adding mode
 
@@ -26,7 +26,7 @@ class _StarsignpostscreenState
 
     if (args != null) {
       _editingId = args['id'] as int?;
-      _textController.text = args['name'] ?? '';
+      _textController.text = args['experience'] ?? '';
     }
   }
 
@@ -48,14 +48,14 @@ class _StarsignpostscreenState
 
     if (_editingId == null) {
       // 🔹 Call ADD API (Uncomment this when implementing)
-      await ref.read(starsignProvider.notifier).starsignAdd(starsign:_textController.text);
+      await ref.read(experiencProvider.notifier).addExperience(experience:_textController.text);
       // _textController.text,
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Added successfully")),
       );
     } else {
       // 🔹 Call UPDATE API (Uncomment this when implementing)
-      // await ref.read(lookingProvider.notifier).updateLookingFor(_editingId!, text);
+      await ref.read(experiencProvider.notifier).updateexperience(_editingId!, text);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Updated successfully")),
       );
@@ -81,7 +81,7 @@ class _StarsignpostscreenState
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(_editingId == null ? "Add starsign" : "Edit starsign"),
+        title: Text(_editingId == null ? "Add experienc" : "Edit experienc"),
       ),
       body: SafeArea(
         child: Padding(
@@ -90,7 +90,7 @@ class _StarsignpostscreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              Container(
+             Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -145,7 +145,7 @@ class _StarsignpostscreenState
                     ),
                     onPressed: _handleSubmit,
                     child: Text(
-                      _editingId == null ? "Add Starsign" : "Update Starsign",
+                      _editingId == null ? "Add experienc" : "Update experienc",
                       style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),

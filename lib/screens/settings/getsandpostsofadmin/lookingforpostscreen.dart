@@ -1,5 +1,6 @@
 import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/lookingProvider.dart';
+import 'package:admin_dating/provider/signupprocessProviders%20copy/modeProvider.dart'; // <-- mode provider
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,10 +12,19 @@ class Lookingforpostscreen extends ConsumerStatefulWidget {
       _LookingforpostscreenState();
 }
 
-class _LookingforpostscreenState
-    extends ConsumerState<Lookingforpostscreen> {
+class _LookingforpostscreenState extends ConsumerState<Lookingforpostscreen> {
   final TextEditingController _textController = TextEditingController();
-  int? _editingId; // null means adding mode
+  int? _editingId;
+  int? _selectedModeId; // <-- mode selection
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch modes when screen opens
+    Future.microtask(() {
+      ref.read(modesProvider.notifier).getModes();
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -25,6 +35,7 @@ class _LookingforpostscreenState
     if (args != null) {
       _editingId = args['id'] as int?;
       _textController.text = args['value'] ?? '';
+      _selectedModeId = args['modeid'] as int?;
     }
   }
 
@@ -37,36 +48,42 @@ class _LookingforpostscreenState
   void _handleSubmit() async {
     final text = _textController.text.trim();
 
-    if (text.isEmpty) {
+    if (text.isEmpty || _selectedModeId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter a value.")),
+        const SnackBar(content: Text("Please enter value and select mode.")),
       );
       return;
     }
 
     if (_editingId == null) {
-      // 🔹 Call ADD API (Uncomment this when implementing)
-      await ref.read(lookingProvider.notifier).addLooking(value:_textController.text);
-      // _textController.text,
+      // ADD API
+      await ref
+          .read(lookingProvider.notifier)
+          .addLooking(value: text, modeId: _selectedModeId!);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Added successfully")),
       );
     } else {
-      // 🔹 Call UPDATE API (Uncomment this when implementing)
-      await ref.read(lookingProvider.notifier).updateLookingfor(_editingId!, text);
+      // UPDATE API
+      await ref
+          .read(lookingProvider.notifier)
+          .updateLookingfor(_editingId!, text, _selectedModeId!);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Updated successfully")),
       );
     }
 
-    Navigator.pop(context); // Go back to previous screen
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    final modeState = ref.watch(modesProvider);
+    final modeList = modeState.data ?? [];
+
     return Scaffold(
       appBar: AppBar(
-       flexibleSpace: Container(
+        flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [DatingColors.darkGreen, DatingColors.brown],
@@ -79,15 +96,19 @@ class _LookingforpostscreenState
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(_editingId == null ? "Add Looking For" : "Edit Looking For"),
+        title:
+            Text(_editingId == null ? "Add Looking For" : "Edit Looking For"),
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 16),
-            Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Value input
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
@@ -119,8 +140,50 @@ class _LookingforpostscreenState
                   ),
                 ),
               ),
-            const Spacer(),
-            Container(
+              const SizedBox(height: 20),
+
+              // Mode dropdown
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: DatingColors.darkGreen,
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: DropdownButtonFormField<int>(
+                  value: _selectedModeId,
+                  items: modeList.map((mode) {
+                    return DropdownMenuItem<int>(
+                      value: mode.id,
+                      child: Text(mode.value ?? ''),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedModeId = value;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    labelText: "Select Mode",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const Spacer(),
+
+              // Submit button
+              Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
@@ -146,7 +209,8 @@ class _LookingforpostscreenState
                   ),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
       ),
     );

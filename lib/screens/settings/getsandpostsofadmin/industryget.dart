@@ -1,33 +1,34 @@
 import 'package:admin_dating/constants/dating_colors.dart';
-import 'package:admin_dating/provider/signupprocessProviders%20copy/causesProvider.dart';
-// import 'package:admin_dating/provider/signupprocessProviders%20copy/drinkingProvider.dart';
-
+import 'package:admin_dating/provider/moreabout/industryprovider.dart';
+import 'package:admin_dating/provider/signupprocessProviders%20copy/drinkingProvider.dart';
+import 'package:admin_dating/provider/signupprocessProviders%20copy/lookingProvider.dart';
+import 'package:admin_dating/provider/signupprocessProviders%20copy/religionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CausesGetScreen extends ConsumerStatefulWidget {
-  const CausesGetScreen({super.key});
+class IndustryGetScreen extends ConsumerStatefulWidget {
+  const IndustryGetScreen({super.key});
 
   @override
-  ConsumerState<CausesGetScreen> createState() =>
-      _CausesGetScreenState();
+  ConsumerState<IndustryGetScreen> createState() =>
+      _IndustryGetScreenState();
 }
 
-class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
+class _IndustryGetScreenState extends ConsumerState<IndustryGetScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(causesProvider.notifier).getCauses());
+    Future.microtask(() => ref.read(industryProvider.notifier).getIndustry());
   }
 
   @override
   Widget build(BuildContext context) {
-    final causesState = ref.watch(causesProvider);
-    final dataList = causesState.data ?? [];
+    final religionState = ref.watch(industryProvider);
+    final dataList = religionState.data ?? [];
 
     return Scaffold(
       appBar: AppBar(
-        flexibleSpace: Container(
+       flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [DatingColors.darkGreen, Color.fromARGB(255, 40, 38, 38)],
@@ -40,7 +41,7 @@ class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text("Causes"),
+        title: const Text("Religions"),
       ),
       body: SafeArea(
         child: Column(
@@ -51,7 +52,7 @@ class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
             ),
             const Divider(height: 1),
             Expanded(
-              child: causesState.success == false
+              child: religionState.success == false
                   ? const Center(child: CircularProgressIndicator())
                   : dataList.isEmpty
                       ? const Center(child: Text("No data found"))
@@ -71,7 +72,7 @@ class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
                                 ),
                               ),
                               child: ListTile(
-                                title: Text(item.causesAndCommunities ?? ''),
+                                title: Text(item.industry ?? ''),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -82,10 +83,10 @@ class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
                                         onPressed: () {
                                         Navigator.pushNamed(
                                           context,
-                                          '/causespost',
+                                          '/industrypost',
                                           arguments: {
                                             'id': item.id,
-                                            'causesAndCommunities': item.causesAndCommunities,
+                                            'industry': item.industry,
                                           },
                                         );
                                       },
@@ -119,7 +120,7 @@ class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
     );
 
     if (confirm == true) {
-      await ref.read(causesProvider.notifier).deleteCauses(item.id);
+      await ref.read(religionProvider.notifier).deleteReligion(item.id);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Deleted successfully")),
       );
@@ -127,7 +128,17 @@ class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
   },
 ),
 
-                                    
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () async{
+                                        // TODO: Handle delete action
+                                        await ref.read(industryProvider.notifier).deleteindustry(item.id);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text("Deleted successfully")),
+                                          );
+                                      },
+                                    ),
                                   ],
                                 ),
                               ),
@@ -135,7 +146,7 @@ class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
                           },
                         ),
             ),
-           Container(
+            Container(
               width: double.infinity,
               margin: const EdgeInsets.all(16),
               child: Container(
@@ -157,7 +168,7 @@ class _CausesGetScreenState extends ConsumerState<CausesGetScreen> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/causespost');
+                    Navigator.pushNamed(context, '/industrypost');
                   },
                   child: const Text(
                     "Add",

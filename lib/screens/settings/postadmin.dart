@@ -80,17 +80,21 @@ class _PostAdminScreenState extends State<PostAdminScreen> {
             buildTile("StarSign", onTap: () {
               Navigator.pushNamed(context, '/starsignget');
             }),
-            buildTile("Laguages", onTap: () {
+            buildTile("Languages", onTap: () {
               Navigator.pushNamed(context, '/languagesget');
             }),
-            buildTile("Pronouns", onTap: () {
-              Navigator.pushNamed(context, '/');
+            buildTile("Experience", onTap: () {
+              Navigator.pushNamed(context, '/experienceget');
             }),
-            buildTile("Edit", onTap: () {}),
-            buildTile("Edit", onTap: () {}),
-            buildTile("Edit", onTap: () {}),
-            buildTile("Edit", onTap: () {}),
-            buildTile("Edit", onTap: () {}),
+            buildTile("relationship", onTap: () {
+              Navigator.pushNamed(context, '/relationshipget');
+            }),
+            buildTile("Industry", onTap: () {
+              Navigator.pushNamed(context, '/industryget');
+            }),
+            buildTile("", onTap: () {}),
+            buildTile("", onTap: () {}),
+            buildTile("", onTap: () {}),
           ],
         ),
       ),

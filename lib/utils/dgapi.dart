@@ -51,5 +51,23 @@ class Dgapi {
   static const String deleteReligion = "$baseUrl/user/religion";
   static const String updateLanguage = "$baseUrl/language";
   static const String deleteLanguage = "$baseUrl/language";
-  // static const String deletecause = "$baseUrl/";
+  static const String  relationshipget= "$baseUrl/user/relationAll";
+  static const String  relationshippost= "$baseUrl/user/relation";
+  static const String  relationshipupdate= "$baseUrl/user/relation";
+  static const String  relationshipdelete= "$baseUrl/user/relation";
+  static const String  industryget= "$baseUrl/user/industry";
+  static const String  industrypost= "$baseUrl/user/industry";
+  static const String  industryupdste= "$baseUrl/user/industry";
+  static const String  industrydelete= "$baseUrl/user/industry";
+  static const String  experienceget= "$baseUrl/user/experience";
+  static const String  experiencepost= "$baseUrl/user/experience";
+  static const String  experienceupdate= "$baseUrl/user/experience";
+  static const String  experiencedelete= "$baseUrl/user/experience";
+  // static const String  = "$baseUrl/";
+  // static const String  = "$baseUrl/";
+  // static const String  = "$baseUrl/";
+  // static const String  = "$baseUrl/";
+  // static const String  = "$baseUrl/";
+  // static const String  = "$baseUrl/";
+  // static const String  = "$baseUrl/";
 }

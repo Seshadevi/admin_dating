@@ -1,20 +1,19 @@
 import 'package:admin_dating/constants/dating_colors.dart';
-import 'package:admin_dating/provider/moreabout/starsign.dart';
-import 'package:admin_dating/provider/signupprocessProviders%20copy/drinkingProvider.dart';
+import 'package:admin_dating/provider/moreabout/relationshipprovider.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Starsignpostscreen extends ConsumerStatefulWidget {
-  const Starsignpostscreen({super.key});
+class Relationshippostscreen extends ConsumerStatefulWidget {
+  const Relationshippostscreen({super.key});
 
   @override
-  ConsumerState<Starsignpostscreen> createState() =>
-      _StarsignpostscreenState();
+  ConsumerState<Relationshippostscreen> createState() =>
+      _RelationshippostscreenState();
 }
 
-class _StarsignpostscreenState
-    extends ConsumerState<Starsignpostscreen> {
+class _RelationshippostscreenState
+    extends ConsumerState<Relationshippostscreen> {
   final TextEditingController _textController = TextEditingController();
   int? _editingId; // null means adding mode
 
@@ -26,7 +25,7 @@ class _StarsignpostscreenState
 
     if (args != null) {
       _editingId = args['id'] as int?;
-      _textController.text = args['name'] ?? '';
+      _textController.text = args['relation'] ?? '';
     }
   }
 
@@ -48,14 +47,14 @@ class _StarsignpostscreenState
 
     if (_editingId == null) {
       // 🔹 Call ADD API (Uncomment this when implementing)
-      await ref.read(starsignProvider.notifier).starsignAdd(starsign:_textController.text);
+      await ref.read(relationshipProvider.notifier).addRelationship(relationship:_textController.text);
       // _textController.text,
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Added successfully")),
       );
     } else {
       // 🔹 Call UPDATE API (Uncomment this when implementing)
-      // await ref.read(lookingProvider.notifier).updateLookingFor(_editingId!, text);
+      await ref.read(relationshipProvider.notifier).updateRelationship(_editingId!, text);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Updated successfully")),
       );
@@ -81,7 +80,7 @@ class _StarsignpostscreenState
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(_editingId == null ? "Add starsign" : "Edit starsign"),
+        title: Text(_editingId == null ? "Add relationship" : "Edit relationship"),
       ),
       body: SafeArea(
         child: Padding(
@@ -90,7 +89,7 @@ class _StarsignpostscreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              Container(
+             Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -145,7 +144,7 @@ class _StarsignpostscreenState
                     ),
                     onPressed: _handleSubmit,
                     child: Text(
-                      _editingId == null ? "Add Starsign" : "Update Starsign",
+                      _editingId == null ? "Add relationship" : "Update relationship",
                       style: const TextStyle(fontSize: 16, color: Colors.white),
                     ),
                   ),
