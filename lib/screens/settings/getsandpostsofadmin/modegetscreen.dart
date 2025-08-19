@@ -125,7 +125,7 @@ class _ModeGetScreenState extends ConsumerState<ModeGetScreen> {
                                       );
 
                                       if (confirm == true) {
-                                        // await ref.read(Provider.notifier).deleteReligion(item.id);
+                                        await ref.read(modesProvider.notifier).deleteMode(item.id);
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(content: Text("Deleted successfully")),
                                         );

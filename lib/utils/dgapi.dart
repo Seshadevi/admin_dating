@@ -63,6 +63,8 @@ class Dgapi {
   static const String  experiencepost= "$baseUrl/user/experience";
   static const String  experienceupdate= "$baseUrl/user/experience";
   static const String  experiencedelete= "$baseUrl/user/experience";
+  static const String modedelete="$baseUrl/user/user";
+  static const String modeupdate="$baseUrl/user/user";
   // static const String  = "$baseUrl/";
   // static const String  = "$baseUrl/";
   // static const String  = "$baseUrl/";

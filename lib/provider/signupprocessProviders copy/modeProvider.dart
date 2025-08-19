@@ -1,3 +1,4 @@
+import 'package:admin_dating/models/loginmodel.dart';
 import 'package:admin_dating/models/signupprocessmodels/modeModel.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/utils/dgapi.dart';
@@ -83,99 +84,99 @@ class ModeNotifier extends StateNotifier<ModeModel> {
     loadingState.state = false;
   }
 }
-// Future<int> updatemode(int? genderId, String? genderName) async {
-//     final loadingState = ref.read(loadingProvider.notifier);
-//     final prefs = await SharedPreferences.getInstance();
+Future<int> updatemode(int? modeId, String? modeName) async {
+    final loadingState = ref.read(loadingProvider.notifier);
+    final prefs = await SharedPreferences.getInstance();
 
-//     loadingState.state = true;
+    loadingState.state = true;
 
-//     try {
-//       final userId = state.data?[0].id;
-//       if (userId == null) throw Exception("User ID is missing");
+    try {
+      final userId = state.data?[0].id;
+      if (userId == null) throw Exception("User ID is missing");
 
-//      final String apiUrl = "${Dgapi.updateGender}/$genderId";
+     final String apiUrl = "${Dgapi.modeupdate}/$modeId";
 
 
-//       // Headers
-//       final headers = {
-//         'Content-Type': 'application/json',
-//         'Accept': 'application/json',
-//       };
+      // Headers
+      final headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
 
-//       // Request body (adjust key names to match your backend)
-//       final body = jsonEncode({
-//         // "user_id": userId,
-//         "preference": genderName, // List of IDs
-//       });
+      // Request body (adjust key names to match your backend)
+      final body = jsonEncode({
+        // "user_id": userId,
+        "": modeName, // List of IDs
+      });
 
-//       final response = await http.put(
-//         Uri.parse(apiUrl),
-//         headers: headers,
-//         body: body,
-//       );
+      final response = await http.put(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: body,
+      );
 
-//       print("📨 Response Status: ${response.statusCode}");
-//       print("📨 Response Body: ${response.body}");
+      print("📨 Response Status: ${response.statusCode}");
+      print("📨 Response Body: ${response.body}");
 
-//       if (response.statusCode == 200 || response.statusCode == 201) {
-//         final responseData = jsonDecode(response.body);
-//         await getGender();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        await getModes();
 
-//         // ✅ OPTIONAL: Only if API returns updated user object
-//         if (responseData is Map && responseData.containsKey("user")) {
-//           try {
-//             final updatedUser = UserModel.fromJson(responseData["user"]);
-//             await prefs.setString('userData', jsonEncode(updatedUser.toJson()));
-//             // state = state.copyWith(user: updatedUser); // Update Riverpod state if needed
-//           } catch (e) {
-//             print("⚠️ Failed to parse updated user: $e");
-//           }
-//         }
+        // ✅ OPTIONAL: Only if API returns updated user object
+        if (responseData is Map && responseData.containsKey("user")) {
+          try {
+            final updatedUser = UserModel.fromJson(responseData["user"]);
+            await prefs.setString('userData', jsonEncode(updatedUser.toJson()));
+            // state = state.copyWith(user: updatedUser); // Update Riverpod state if needed
+          } catch (e) {
+            print("⚠️ Failed to parse updated user: $e");
+          }
+        }
 
-//         return response.statusCode;
-//       } else {
-//         final errorMessage =
-//             jsonDecode(response.body)['message'] ?? 'Unknown error';
-//         throw Exception("Update failed: $errorMessage");
-//       }
-//     } catch (e) {
-//       print("❗ Exception during update: $e");
-//       throw Exception("Update failed: $e");
-//     } finally {
-//       loadingState.state = false;
-//     }
-//   }
+        return response.statusCode;
+      } else {
+        final errorMessage =
+            jsonDecode(response.body)['message'] ?? 'Unknown error';
+        throw Exception("Update failed: $errorMessage");
+      }
+    } catch (e) {
+      print("❗ Exception during update: $e");
+      throw Exception("Update failed: $e");
+    } finally {
+      loadingState.state = false;
+    }
+  }
 
-// Future<int> deleteGender(int? genderId) async {
-//   final loadingState = ref.read(loadingProvider.notifier);
-//   loadingState.state = true;
+Future<int> deleteMode(int? modeId) async {
+  final loadingState = ref.read(loadingProvider.notifier);
+  loadingState.state = true;
 
-//   try {
-//     final String deleteUrl = "${Dgapi.deleteGender}/$genderId";
+  try {
+    final String deleteUrl = "${Dgapi.modedelete}/$modeId";
 
-//     final response = await http.delete(
-//       Uri.parse(deleteUrl),
-//       headers: {
-//         'Accept': 'application/json',
-//       },
-//     );
+    final response = await http.delete(
+      Uri.parse(deleteUrl),
+      headers: {
+        'Accept': 'application/json',
+      },
+    );
 
-//     print("🗑️ Delete response: ${response.body}");
+    print("🗑️ Delete response: ${response.body}");
 
-//     if (response.statusCode == 200 || response.statusCode == 204) {
-//       print("✅ Deleted successfully");
-//       await getGender();
-//       return response.statusCode;
-//     } else {
-//       throw Exception("Delete failed: ${response.statusCode}");
-//     }
-//   } catch (e) {
-//     print("❗ Delete error: $e");
-//     throw Exception("Delete error: $e");
-//   } finally {
-//     loadingState.state = false;
-//   }
-// }
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      print("✅ Deleted successfully");
+      await getModes();
+      return response.statusCode;
+    } else {
+      throw Exception("Delete failed: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("❗ Delete error: $e");
+    throw Exception("Delete error: $e");
+  } finally {
+    loadingState.state = false;
+  }
+}
 
 
 

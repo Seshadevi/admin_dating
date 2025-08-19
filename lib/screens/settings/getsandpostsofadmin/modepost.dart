@@ -54,7 +54,7 @@ class _ModepostscreenState
       );
     } else {
       // 🔹 Call UPDATE API (Uncomment this when implementing)
-      // await ref.read(modeProvider.notifier).updateMode(_editingId!, text);
+      await ref.read(modesProvider.notifier).updatemode(_editingId!, text);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Updated successfully")),
       );
