@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:admin_dating/screens/profile/bottomnavbar.dart';
+import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
 // import 'package:admin_dating/screens/profile/notifications_screen.dart'; // make sure this exists
 
 class SettingsScreen extends StatefulWidget {
@@ -116,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           )
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
     );
   }
 
