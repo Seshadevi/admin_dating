@@ -43,6 +43,8 @@ import 'package:admin_dating/screens/profile/subscriptionscreem.dart';
 import 'package:admin_dating/screens/profile/swipes.dart';
 import 'package:admin_dating/screens/profile/users.dart';
 import 'package:admin_dating/models/loginmodel.dart';
+import 'package:admin_dating/screens/users/admincreateduserscreen.dart';
+import 'package:admin_dating/screens/users/likedislikescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -128,6 +130,7 @@ class _MyAppState extends ConsumerState<MyApp> {
          "notificationscreen": (context) =>NotificationsScreen(),
          "swipesscreen": (context) =>SwipesScreen(),
          "usersscreen": (context) => UsersScreen(),
+         "adminusersscreen": (context) =>AdminUsersScreen(),
          "/addprofilescreen": (context) => AddProfileScreen(),
          '/postadminscreen': (context) => PostAdminScreen(),
         '/lookingforgetscreen':(context)=>LookingForGetScreen(),
@@ -162,7 +165,8 @@ class _MyAppState extends ConsumerState<MyApp> {
          '/relationshippost':(context)=>Relationshippostscreen(),
         '/experienceget':(context)=>ExperienceGetScreen(),
          '/experiencepost':(context)=>Experiencepostscreen(),
-        // '/':(context)=>(),
+
+        '/likesdislikesscreen':(context)=>LikesDislikesScreen(),
          // '/':(context)=>(),
         // '/':(context)=>(),
          // '/':(context)=>(),

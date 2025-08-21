@@ -16,7 +16,7 @@ class CustomBottomNavBar extends StatelessWidget {
         Navigator.pushReplacementNamed(context, 'dashboardscreen');
         break;
       case 1:
-        Navigator.pushReplacementNamed(context, 'usersscreen');
+        Navigator.pushReplacementNamed(context, 'adminusersscreen');
         break;
       case 2:
         Navigator.pushReplacementNamed(context, 'reportscreen');
