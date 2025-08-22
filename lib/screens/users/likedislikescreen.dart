@@ -4,8 +4,7 @@ import 'package:admin_dating/provider/users/likeanddislikeprovider.dart';
 import 'package:admin_dating/models/users/likeansdislikemodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+
 
 class LikesDislikesScreen extends ConsumerStatefulWidget {
   const LikesDislikesScreen({Key? key}) : super(key: key);
@@ -17,7 +16,7 @@ class LikesDislikesScreen extends ConsumerStatefulWidget {
 class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
     with SingleTickerProviderStateMixin {
   String? accessToken;
-  int? userId;
+  dynamic userId; // Changed to dynamic to handle both int and String
   TabController? _tabController;
   
   List<Data> likedUsers = [];
@@ -38,41 +37,57 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
     super.didChangeDependencies();
     
     // Get arguments passed from previous screen
-    final Map<String, dynamic>? args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final args = ModalRoute.of(context)?.settings.arguments;
     
-    if (args != null) {
-      accessToken = args['accessToken'];
-      userId = args['userId'];
-      print('Received Access Token: $accessToken');
-      print('Received User ID: $userId');
+    if (args is Map<String, dynamic>) {
+      try {
+        accessToken = args['accessToken'] as String?;
+        // Handle userId safely - it could be int, String, or null
+        final userIdValue = args['userId'];
+        if (userIdValue != null) {
+          userId = userIdValue;
+        }
+        print('Received Access Token: $accessToken');
+        print('Received User ID: $userId (Type: ${userId.runtimeType})');
+      } catch (e) {
+        print('Error parsing arguments: $e');
+      }
     }
   }
 
   Future<void> _initializeAndFetchData() async {
-    await _setAccessTokenInPreferences();
-    ref.read(likeanddislikeprovider.notifier).getLikeanddislike();
-  }
-
-  Future<void> _setAccessTokenInPreferences() async {
+    // Don't set token in SharedPreferences, just use it directly
     if (accessToken != null) {
-      final prefs = await SharedPreferences.getInstance();
-      
-      // Create user data structure similar to your login response
-      final userData = {
-        'accessToken': accessToken,
-        'data': [
-          {
-            'access_token': accessToken,
-            'user_id': userId ?? 'unknown'
-          }
-        ]
-      };
-      
-      await prefs.setString('userData', jsonEncode(userData));
-      print('Access token set in SharedPreferences for API calls');
+      print('Fetching likes/dislikes with token: $accessToken');
+      // Pass the access token directly to the provider
+      ref.read(likeanddislikeprovider.notifier).getLikeanddislike(
+        specificToken: accessToken,
+      );
+    } else {
+      // Fallback to using token from SharedPreferences
+      ref.read(likeanddislikeprovider.notifier).getLikeanddislike();
     }
   }
+
+  // Future<void> _setAccessTokenInPreferences() async {
+  //   if (accessToken != null) {
+  //     final prefs = await SharedPreferences.getInstance();
+      
+  //     // Create user data structure similar to your login response
+  //     final userData = {
+  //       'accessToken': accessToken,
+  //       'data': [
+  //         {
+  //           'access_token': accessToken,
+  //           'user_id': userId?.toString() ?? 'unknown' // Convert to string safely
+  //         }
+  //       ]
+  //     };
+      
+  //     await prefs.setString('userData', jsonEncode(userData));
+  //     print('Access token set in SharedPreferences for API calls');
+  //   }
+  // }
 
   void _filterLikesAndDislikes(List<Data> data) {
     likedUsers.clear();
@@ -113,7 +128,7 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: DatingColors.White,
-          labelColor: DatingColors.White,
+          labelColor: DatingColors.lightpink,
           unselectedLabelColor: DatingColors.White.withOpacity(0.7),
           tabs: [
             Tab(
@@ -126,24 +141,24 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
             ),
           ],
         ),
-        actions: [
-          if (accessToken != null)
-            Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Text(
-                'Token Active',
-                style: TextStyle(
-                  color: DatingColors.White,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-        ],
+        // actions: [
+        //   if (accessToken != null)
+        //     Container(
+        //       margin: const EdgeInsets.only(right: 16),
+        //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        //       decoration: BoxDecoration(
+        //         color: Colors.white.withOpacity(0.2),
+        //         borderRadius: BorderRadius.circular(12),
+        //       ),
+        //       child: const Text(
+        //         'Token Active',
+        //         style: TextStyle(
+        //           color: DatingColors.White,
+        //           fontSize: 12,
+        //         ),
+        //       ),
+        //     ),
+        // ],
       ),
       body: isLoading
           ? const Center(
@@ -160,7 +175,14 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ref.read(likeanddislikeprovider.notifier).getLikeanddislike();
+          // Use the passed access token for refresh as well
+          if (accessToken != null) {
+            ref.read(likeanddislikeprovider.notifier).getLikeanddislike(
+              specificToken: accessToken,
+            );
+          } else {
+            ref.read(likeanddislikeprovider.notifier).getLikeanddislike();
+          }
         },
         backgroundColor: DatingColors.darkGreen,
         child: const Icon(Icons.refresh, color: DatingColors.White),
@@ -180,7 +202,13 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
     return RefreshIndicator(
       color: Colors.red,
       onRefresh: () async {
-        ref.read(likeanddislikeprovider.notifier).getLikeanddislike();
+        if (accessToken != null) {
+          ref.read(likeanddislikeprovider.notifier).getLikeanddislike(
+            specificToken: accessToken,
+          );
+        } else {
+          ref.read(likeanddislikeprovider.notifier).getLikeanddislike();
+        }
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -205,7 +233,13 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
     return RefreshIndicator(
       color: Colors.grey,
       onRefresh: () async {
-        ref.read(likeanddislikeprovider.notifier).getLikeanddislike();
+        if (accessToken != null) {
+          ref.read(likeanddislikeprovider.notifier).getLikeanddislike(
+            specificToken: accessToken,
+          );
+        } else {
+          ref.read(likeanddislikeprovider.notifier).getLikeanddislike();
+        }
       },
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -264,7 +298,7 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: isLiked ? Colors.red : Colors.grey,
+          color: isLiked ? DatingColors.darkGreen : Colors.grey,
           width: 1,
         ),
       ),
@@ -281,8 +315,8 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildUserName(user),
-                  const SizedBox(height: 8),
-                  _buildUserDetails(user),
+                  // const SizedBox(height: 8),
+                  // _buildUserDetails(user),
                   const SizedBox(height: 12),
                   _buildActionInfo(userData, isLiked),
                 ],

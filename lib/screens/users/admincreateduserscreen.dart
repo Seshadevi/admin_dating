@@ -350,7 +350,20 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
         _buildActionButton(
           icon: Icons.group,
           color: Colors.blue,
-          onPressed: () => _showUserDetails(user),
+          onPressed: () 
+          {
+             Navigator.pushNamed(
+            context,
+            '/realusersscreen',
+            arguments: {
+              'accessToken': user.accessToken,
+              'userId': user.id,
+              'modeId':user.modes!.first.id
+              
+            },
+          );
+          },
+          // => _showUserDetails(user),
           tooltip: 'View Details',
         ),
         const SizedBox(width: 12),
