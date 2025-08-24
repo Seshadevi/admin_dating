@@ -1,3 +1,4 @@
+import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/models/users/Realusersmodel.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/users/realusersprovider.dart';
@@ -12,16 +13,10 @@ class RealUsersScreen extends ConsumerStatefulWidget {
 }
 
 class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
-  ScrollController _scrollController = ScrollController();
   String? accessToken;
   int? userId;
   int? modeId;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_scrollListener);
-  }
+  int currentPage = 1;
 
   @override
   void didChangeDependencies() {
@@ -45,18 +40,12 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
     }
   }
 
-  void _scrollListener() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent * 0.8) {
-      // Load more when scrolled to 80%
-      ref.read(realusersprovider.notifier).loadMoreUsers();
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
+  void _loadPage(int page) {
+    setState(() {
+      currentPage = page;
+    });
+    // Load specific page
+    ref.read(realusersprovider.notifier).loadPage(page);
   }
 
   @override
@@ -68,7 +57,7 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Users'),
-        backgroundColor: Colors.pink.shade400,
+        backgroundColor: DatingColors.primaryGreen,
         elevation: 0,
         actions: [
           IconButton(
@@ -81,56 +70,46 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
           ? Center(child: CircularProgressIndicator())
           : usersState.data == null || usersState.data!.isEmpty
               ? _buildEmptyState()
-              : RefreshIndicator(
-                  onRefresh: () => provider.refreshUsers(),
-                  child: Column(
-                    children: [
-                      // Users count and pagination info
-                      Container(
-                        padding: EdgeInsets.all(16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Total Users: ${usersState.pagination?.total ?? 0}',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Text(
-                              'Page ${usersState.pagination?.page ?? 1} of ${usersState.pagination?.totalPages ?? 1}',
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
+              : Column(
+                  children: [
+                    // Users count info
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        // children: [
+                        //   Text(
+                        //     'Total Users: ${usersState.pagination?.total ?? 0}',
+                        //     style: TextStyle(fontWeight: FontWeight.bold),
+                        //   ),
+                        //   Text(
+                        //     'Page $currentPage of ${usersState.pagination?.totalPages ?? 1}',
+                        //     style: TextStyle(color: Colors.grey[600]),
+                        //   ),
+                        // ],
                       ),
-                      // Users grid
-                      Expanded(
-                        child: GridView.builder(
-                          controller: _scrollController,
+                    ),
+                    // Users list
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: () => provider.refreshUsers(),
+                        child: ListView.separated(
                           padding: EdgeInsets.all(16),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                          ),
-                          itemCount: usersState.data!.length +
-                              (provider.hasMore ? 1 : 0),
+                          itemCount: usersState.data!.length,
+                          separatorBuilder: (context, index) =>
+                              SizedBox(height: 12),
                           itemBuilder: (context, index) {
-                            if (index == usersState.data!.length) {
-                              // Loading indicator at the end
-                              return provider.isLoadingMore
-                                  ? Center(child: CircularProgressIndicator())
-                                  : SizedBox();
-                            }
-
                             final user = usersState.data![index];
-                            return _buildUserCard(user);
+                            return _buildUserRow(user);
                           },
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    // Pagination
+                    if (usersState.pagination != null &&
+                        (usersState.pagination?.totalPages ?? 0) > 1)
+                      _buildPagination(usersState.pagination!.totalPages!),
+                  ],
                 ),
     );
   }
@@ -158,7 +137,7 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
             icon: Icon(Icons.refresh),
             label: Text('Refresh'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.pink.shade400,
+              backgroundColor: DatingColors.primaryGreen,
               foregroundColor: Colors.white,
             ),
           ),
@@ -167,205 +146,210 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
     );
   }
 
-  Widget _buildUserCard(Data user) {
-    final primaryPhoto = user.profilePics?.firstWhere(
-      (pic) => pic.isPrimary == true,
-      orElse: () => user.profilePics?.isNotEmpty == true
-          ? user.profilePics!.first
-          : ProfilePics(),
-    );
-    print('photo..............$primaryPhoto');
-
-    return Card(
-      elevation: 8,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget _buildUserRow(Data user) {
+    // final primaryPhoto = user.profilePics?.firstWhere(
+    //   (pic) => pic.isPrimary == true,
+    //   orElse: () => user.profilePics?.isNotEmpty == true
+    //       ? user.profilePics!.first
+    //       : ProfilePics(),
+    // );
+    String baseUrl = "http://97.74.93.26:6100";
+    String? imageUrl = user.profilePics?.isNotEmpty == true
+    ? "$baseUrl${user.profilePics!.first.url}"  // 👈 prepend base URL
+    : null;
+    // print('primaryphoto.......$primaryPhoto');
+    return Container(
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
         children: [
-          // Photo section
+          // Profile Photo
+          Container(
+            width: 60,
+            height: 60,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: imageUrl!= null
+                  ? CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: Icon(Icons.person, color: Colors.grey[400]),
+                      ),
+                    )
+                  : Container(
+                      color: Colors.grey[200],
+                      child: Icon(Icons.person, color: Colors.grey[400]),
+                    ),
+            ),
+          ),
+          SizedBox(width: 16),
+          // User Info
           Expanded(
-            flex: 3,
-            child: Stack(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                  child: primaryPhoto?.url != null
-                      ? CachedNetworkImage(
-                          imageUrl: primaryPhoto!.url!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          placeholder: (context, url) => Container(
-                            color: Colors.grey[200],
-                            child: Center(child: CircularProgressIndicator()),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: Colors.grey[200],
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.person,
-                                    size: 40, color: Colors.grey[400]),
-                                Text('No Image',
-                                    style: TextStyle(color: Colors.grey[500])),
-                              ],
-                            ),
-                          ),
-                        )
-                      : Container(
-                          color: Colors.grey[200],
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.person,
-                                  size: 40, color: Colors.grey[400]),
-                              Text('No Image',
-                                  style: TextStyle(color: Colors.grey[500])),
-                            ],
-                          ),
-                        ),
-                ),
-                // Verified badge
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.verified, color: Colors.white, size: 16),
+                Text(
+                  '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
                 ),
-                // Age badge
-                if (user.dob != null)
-                  Positioned(
-                    top: 8,
-                    left: 8,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '${_calculateAge(user.dob!)}',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
+                // SizedBox(height: 4),
+                // if (user.dob != null)
+                //   Text(
+                //     'Age: ${_calculateAge(user.dob!)}',
+                //     style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                //   ),
+                // if (user.location?.name != null)
+                //   Text(
+                //     user.location!.name!,
+                //     style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                //   ),
               ],
             ),
           ),
-          // User info section
-          Expanded(
-            flex: 2,
-            child: Padding(
-              padding: EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Name
-                  Text(
-                    '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          // Action Buttons
+          Row(
+            children: [
+              // Dislike button
+              ElevatedButton(
+                onPressed: () => _handleDislike(user),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[300],
+                  foregroundColor: Colors.grey[700],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  SizedBox(height: 4),
-                  // Location or work
-                  if (user.location?.name != null)
-                    Row(
-                      children: [
-                        Icon(Icons.location_on,
-                            size: 14, color: Colors.grey[600]),
-                        SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            user.location!.name!,
-                            style: TextStyle(
-                                color: Colors.grey[600], fontSize: 12),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  if (user.work?.title != null)
-                    Row(
-                      children: [
-                        Icon(Icons.work, size: 14, color: Colors.grey[600]),
-                        SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            user.work!.title!,
-                            style: TextStyle(
-                                color: Colors.grey[600], fontSize: 12),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  Spacer(),
-                  // Action buttons
-                  Row(
-                    children: [
-                      // Dislike button
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _handleDislike(user),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey[300],
-                            foregroundColor: Colors.grey[700],
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                          ),
-                          child: Icon(Icons.close, size: 20),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      // Like button
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _handleLike(user),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.pink.shade400,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                          ),
-                          child: Icon(Icons.favorite, size: 20),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      // Details button
-                      ElevatedButton(
-                        onPressed: () => _showUserDetails(user),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue.shade400,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: EdgeInsets.all(8),
-                        ),
-                        child: Icon(Icons.arrow_forward, size: 20),
-                      ),
-                    ],
-                  ),
-                ],
+                  padding: EdgeInsets.all(8),
+                  minimumSize: Size(40, 40),
+                ),
+                child: Icon(Icons.close, size: 20),
               ),
+              SizedBox(width: 8),
+              // Like button
+              ElevatedButton(
+                onPressed: () => _handleLike(user),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: DatingColors.primaryGreen,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.all(8),
+                  minimumSize: Size(40, 40),
+                ),
+                child: Icon(Icons.favorite, size: 20),
+              ),
+              SizedBox(width: 8),
+              // Details button
+              ElevatedButton(
+                onPressed: () => _showUserDetails(user),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade400,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.all(8),
+                  minimumSize: Size(40, 40),
+                ),
+                child: Icon(Icons.arrow_forward, size: 20),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPagination(int totalPages) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Previous button
+          IconButton(
+            onPressed:
+                currentPage > 1 ? () => _loadPage(currentPage - 1) : null,
+            icon: Icon(Icons.chevron_left),
+            style: IconButton.styleFrom(
+              backgroundColor: currentPage > 1
+                  ? DatingColors.primaryGreen
+                  : Colors.grey[300],
+              foregroundColor:
+                  currentPage > 1 ? Colors.white : Colors.grey[600],
+            ),
+          ),
+          SizedBox(width: 16),
+          // Page numbers
+          ...List.generate(
+            totalPages > 5 ? 5 : totalPages,
+            (index) {
+              int pageNumber;
+              if (totalPages <= 5) {
+                pageNumber = index + 1;
+              } else {
+                // Show pages around current page
+                int start = currentPage - 2;
+                if (start < 1) start = 1;
+                if (start + 4 > totalPages) start = totalPages - 4;
+                pageNumber = start + index;
+              }
+
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 4),
+                child: ElevatedButton(
+                  onPressed: () => _loadPage(pageNumber),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: currentPage == pageNumber
+                        ? DatingColors.primaryGreen
+                        : Colors.white,
+                    foregroundColor: currentPage == pageNumber
+                        ? Colors.white
+                        : DatingColors.primaryGreen,
+                    side: BorderSide(color: DatingColors.primaryGreen),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    minimumSize: Size(40, 40),
+                  ),
+                  child: Text('$pageNumber'),
+                ),
+              );
+            },
+          ),
+          SizedBox(width: 16),
+          // Next button
+          IconButton(
+            onPressed: currentPage < totalPages
+                ? () => _loadPage(currentPage + 1)
+                : null,
+            icon: Icon(Icons.chevron_right),
+            style: IconButton.styleFrom(
+              backgroundColor: currentPage < totalPages
+                  ? DatingColors.primaryGreen
+                  : Colors.grey[300],
+              foregroundColor:
+                  currentPage < totalPages ? Colors.white : Colors.grey[600],
             ),
           ),
         ],
@@ -389,11 +373,10 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
   }
 
   void _handleLike(Data user) {
-    // Implement like functionality
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Liked ${user.firstName ?? 'User'}'),
-        backgroundColor: Colors.pink.shade400,
+        backgroundColor: DatingColors.primaryGreen,
         duration: Duration(seconds: 1),
       ),
     );
@@ -401,7 +384,6 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
   }
 
   void _handleDislike(Data user) {
-    // Implement dislike functionality
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Passed ${user.firstName ?? 'User'}'),
@@ -422,7 +404,7 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
   }
 }
 
-// User Details Modal
+// User Details Modal (keeping the same)
 class UserDetailsModal extends StatelessWidget {
   final Data user;
 
@@ -519,7 +501,7 @@ class UserDetailsModal extends StatelessWidget {
                     _buildListSection('Qualities',
                         user.qualities!.map((e) => e.name ?? '').toList()),
 
-                  SizedBox(height: 80), // Space for floating action buttons
+                  SizedBox(height: 80),
                 ],
               ),
             ),

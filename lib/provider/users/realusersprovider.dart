@@ -299,7 +299,22 @@ class Realusersprovider extends StateNotifier<Realusersmodel> {
     }
   }
 
-  // Load more users
+  // NEW METHOD: Load specific page (for pagination)
+  Future<void> loadPage(int page) async {
+    final loadingState = ref.read(loadingProvider.notifier);
+    loadingState.state = true;
+    
+    _currentPage = page;
+    
+    await getRealusers(
+      specificToken: _currentToken,
+      modeId: _currentModeId,
+      page: page,
+      loadMore: false,
+    );
+  }
+
+  // Load more users (for infinite scroll - if needed)
   Future<void> loadMoreUsers() async {
     await getRealusers(
       specificToken: _currentToken,
@@ -319,6 +334,9 @@ class Realusersprovider extends StateNotifier<Realusersmodel> {
     );
   }
 
+  // NEW METHOD: Get current page number
+  int get currentPage => _currentPage;
+  
   bool get hasMore => _hasMore;
   bool get isLoadingMore => _isLoadingMore;
 }
