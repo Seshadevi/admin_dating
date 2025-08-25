@@ -72,8 +72,8 @@ class Dgapi {
   static const String  admincreatedusers= "$baseUrl/admin/admincreatedusers";
   static const String  likedislike= "$baseUrl/admin/adminlikesordislikes";
   static const String  realUsers= "$baseUrl/admin/realusersforadmin";
-  // static const String  = "$baseUrl/";
-  // static const String  = "$baseUrl/";
+  static const String  likedislikepost= "$baseUrl/user/like-dislike";
+  static const String  matchesget = "$baseUrl/admin/adminmatches";
   // static const String  = "$baseUrl/";
   // static const String  = "$baseUrl/";
 }

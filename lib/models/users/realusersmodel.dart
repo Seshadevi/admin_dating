@@ -13,12 +13,12 @@ class Realusersmodel {
     this.pagination,
   });
 
-  // Initial/Empty constructor
+  // Initial constructor with default values
   Realusersmodel.initial()
       : statusCode = null,
         success = null,
-        messages = [],
-        data = [],
+        messages = null,
+        data = null,
         pagination = null;
 
   Realusersmodel.fromJson(Map<String, dynamic> json) {
@@ -103,11 +103,11 @@ class Data {
   int? height;
   List<SpokenLanguages>? spokenLanguages;
   dynamic createdByAdminId;
-  List<dynamic>? modes;
-  List<dynamic>? relationships;
-  List<dynamic>? industries;
-  dynamic newToArea;
-  List<dynamic>? experiences;
+  List<Modes>? modes;
+  List<Relationships>? relationships;
+  List<Industries>? industries;
+  String? newToArea;
+  List<Experiences>? experiences;
   String? accessToken;
   String? refreshToken;
 
@@ -155,7 +155,7 @@ class Data {
     this.refreshToken,
   });
 
-  // Initial/Empty constructor
+  // Initial constructor with default values
   Data.initial()
       : id = null,
         mobile = null,
@@ -166,17 +166,17 @@ class Data {
         gender = null,
         pronouns = null,
         dob = null,
-        showOnProfile = false,
-        qualities = [],
-        drinking = [],
-        kids = [],
-        religions = [],
-        interests = [],
-        lookingFor = [],
-        causesAndCommunities = [],
-        prompts = [],
-        defaultMessages = [],
-        profilePics = [],
+        showOnProfile = null,
+        qualities = null,
+        drinking = null,
+        kids = null,
+        religions = null,
+        interests = null,
+        lookingFor = null,
+        causesAndCommunities = null,
+        prompts = null,
+        defaultMessages = null,
+        profilePics = null,
         starSign = null,
         education = null,
         work = null,
@@ -184,18 +184,18 @@ class Data {
         educationLevel = null,
         exercise = null,
         haveKids = null,
-        genderIdentities = [],
+        genderIdentities = null,
         smoking = null,
         politics = null,
         hometown = null,
         height = null,
-        spokenLanguages = [],
+        spokenLanguages = null,
         createdByAdminId = null,
-        modes = [],
-        relationships = [],
-        industries = [],
+        modes = null,
+        relationships = null,
+        industries = null,
         newToArea = null,
-        experiences = [],
+        experiences = null,
         accessToken = null,
         refreshToken = null;
 
@@ -270,16 +270,14 @@ class Data {
         profilePics!.add(ProfilePics.fromJson(v));
       });
     }
-    starSign = json['starSign'] != null
-        ? Qualities.fromJson(json['starSign'])
-        : null;
+    starSign =
+        json['starSign'] != null ? Qualities.fromJson(json['starSign']) : null;
     education = json['education'] != null
         ? Education.fromJson(json['education'])
         : null;
     work = json['work'] != null ? Work.fromJson(json['work']) : null;
-    location = json['location'] != null
-        ? Location.fromJson(json['location'])
-        : null;
+    location =
+        json['location'] != null ? Location.fromJson(json['location']) : null;
     educationLevel = json['educationLevel'];
     exercise = json['exercise'];
     haveKids = json['haveKids'];
@@ -300,11 +298,31 @@ class Data {
       });
     }
     createdByAdminId = json['createdByAdminId'];
-    modes = json['modes'];
-    relationships = json['relationships'];
-    industries = json['industries'];
+    if (json['modes'] != null) {
+      modes = <Modes>[];
+      json['modes'].forEach((v) {
+        modes!.add(Modes.fromJson(v));
+      });
+    }
+    if (json['relationships'] != null) {
+      relationships = <Relationships>[];
+      json['relationships'].forEach((v) {
+        relationships!.add(Relationships.fromJson(v));
+      });
+    }
+    if (json['industries'] != null) {
+      industries = <Industries>[];
+      json['industries'].forEach((v) {
+        industries!.add(Industries.fromJson(v));
+      });
+    }
     newToArea = json['newToArea'];
-    experiences = json['experiences'];
+    if (json['experiences'] != null) {
+      experiences = <Experiences>[];
+      json['experiences'].forEach((v) {
+        experiences!.add(Experiences.fromJson(v));
+      });
+    }
     accessToken = json['accessToken'];
     refreshToken = json['refreshToken'];
   }
@@ -345,11 +363,11 @@ class Data {
     int? height,
     List<SpokenLanguages>? spokenLanguages,
     dynamic createdByAdminId,
-    List<dynamic>? modes,
-    List<dynamic>? relationships,
-    List<dynamic>? industries,
-    dynamic newToArea,
-    List<dynamic>? experiences,
+    List<Modes>? modes,
+    List<Relationships>? relationships,
+    List<Industries>? industries,
+    String? newToArea,
+    List<Experiences>? experiences,
     String? accessToken,
     String? refreshToken,
   }) {
@@ -470,11 +488,19 @@ class Data {
           spokenLanguages!.map((v) => v.toJson()).toList();
     }
     data['createdByAdminId'] = createdByAdminId;
-    data['modes'] = modes;
-    data['relationships'] = relationships;
-    data['industries'] = industries;
+    if (modes != null) {
+      data['modes'] = modes!.map((v) => v.toJson()).toList();
+    }
+    if (relationships != null) {
+      data['relationships'] = relationships!.map((v) => v.toJson()).toList();
+    }
+    if (industries != null) {
+      data['industries'] = industries!.map((v) => v.toJson()).toList();
+    }
     data['newToArea'] = newToArea;
-    data['experiences'] = experiences;
+    if (experiences != null) {
+      data['experiences'] = experiences!.map((v) => v.toJson()).toList();
+    }
     data['accessToken'] = accessToken;
     data['refreshToken'] = refreshToken;
     return data;
@@ -794,7 +820,7 @@ class ProfilePics {
   ProfilePics.initial()
       : id = null,
         url = null,
-        isPrimary = false;
+        isPrimary = null;
 
   ProfilePics.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -914,8 +940,8 @@ class Location {
         name = null;
 
   Location.fromJson(Map<String, dynamic> json) {
-    latitude = json['latitude']?.toDouble();
-    longitude = json['longitude']?.toDouble();
+    latitude = json['latitude'];
+    longitude = json['longitude'];
     name = json['name'];
   }
 
@@ -1007,6 +1033,138 @@ class SpokenLanguages {
   }
 }
 
+class Modes {
+  int? id;
+  String? mode;
+
+  Modes({this.id, this.mode});
+
+  Modes.initial()
+      : id = null,
+        mode = null;
+
+  Modes.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    mode = json['mode'];
+  }
+
+  Modes copyWith({
+    int? id,
+    String? mode,
+  }) {
+    return Modes(
+      id: id ?? this.id,
+      mode: mode ?? this.mode,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['mode'] = mode;
+    return data;
+  }
+}
+
+class Relationships {
+  int? id;
+  String? relation;
+
+  Relationships({this.id, this.relation});
+
+  Relationships.initial()
+      : id = null,
+        relation = null;
+
+  Relationships.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    relation = json['relation'];
+  }
+
+  Relationships copyWith({
+    int? id,
+    String? relation,
+  }) {
+    return Relationships(
+      id: id ?? this.id,
+      relation: relation ?? this.relation,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['relation'] = relation;
+    return data;
+  }
+}
+
+class Industries {
+  int? id;
+  String? industry;
+
+  Industries({this.id, this.industry});
+
+  Industries.initial()
+      : id = null,
+        industry = null;
+
+  Industries.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    industry = json['industry'];
+  }
+
+  Industries copyWith({
+    int? id,
+    String? industry,
+  }) {
+    return Industries(
+      id: id ?? this.id,
+      industry: industry ?? this.industry,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['industry'] = industry;
+    return data;
+  }
+}
+
+class Experiences {
+  int? id;
+  String? experience;
+
+  Experiences({this.id, this.experience});
+
+  Experiences.initial()
+      : id = null,
+        experience = null;
+
+  Experiences.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    experience = json['experience'];
+  }
+
+  Experiences copyWith({
+    int? id,
+    String? experience,
+  }) {
+    return Experiences(
+      id: id ?? this.id,
+      experience: experience ?? this.experience,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['experience'] = experience;
+    return data;
+  }
+}
+
 class Pagination {
   int? total;
   int? page;
@@ -1016,10 +1174,10 @@ class Pagination {
   Pagination({this.total, this.page, this.limit, this.totalPages});
 
   Pagination.initial()
-      : total = 0,
-        page = 1,
-        limit = 10,
-        totalPages = 0;
+      : total = null,
+        page = null,
+        limit = null,
+        totalPages = null;
 
   Pagination.fromJson(Map<String, dynamic> json) {
     total = json['total'];

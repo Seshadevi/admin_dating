@@ -45,6 +45,7 @@ import 'package:admin_dating/screens/profile/users.dart';
 import 'package:admin_dating/models/loginmodel.dart';
 import 'package:admin_dating/screens/users/admincreateduserscreen.dart';
 import 'package:admin_dating/screens/users/likedislikescreen.dart';
+import 'package:admin_dating/screens/users/matchesscreen.dart';
 import 'package:admin_dating/screens/users/realusersscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -168,8 +169,8 @@ class _MyAppState extends ConsumerState<MyApp> {
          '/experiencepost':(context)=>Experiencepostscreen(),
 
         '/likesdislikesscreen':(context)=>LikesDislikesScreen(),
-         '/realusersscreen':(context)=>RealUsersScreen(),
-        // '/':(context)=>(),
+        '/realusersscreen':(context)=>RealUsersScreen(),
+        '/matchesscreen':(context)=>MatchesScreen(),
          // '/':(context)=>(),
         // '/':(context)=>(),
          // '/':(context)=>(),

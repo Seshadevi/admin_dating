@@ -369,8 +369,21 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
         const SizedBox(width: 12),
         _buildActionButton(
           icon: Icons.message,
-          color: Colors.green,
-          onPressed: () => _editUser(user),
+          color: DatingColors.darkGreen,
+          
+          onPressed: () 
+          {
+             Navigator.pushNamed(
+  context,
+  '/matchesscreen',
+  arguments: {
+    'accessToken':user.accessToken ,
+    'userId': user.id,
+  },
+);
+
+          },
+          // => _editUser(user),
           tooltip: 'Edit User',
         ),
         const SizedBox(width: 12),
