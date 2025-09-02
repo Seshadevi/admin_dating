@@ -1,7 +1,7 @@
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/screens/login.dart';
-import 'package:admin_dating/screens/profile/add_proffile_screen.dart';
+import 'package:admin_dating/screens/users/add_proffile_screen.dart';
 import 'package:admin_dating/screens/profile/dashboard.dart';
 import 'package:admin_dating/screens/profile/notification.dart';
 import 'package:admin_dating/screens/profile/report.dart';

@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-// Real Users Screen
+// Real Users Screen with Enhanced Mode Filtering
 class RealUsersScreen extends ConsumerStatefulWidget {
   @override
   _RealUsersScreenState createState() => _RealUsersScreenState();
@@ -18,6 +18,16 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
   int? userId;
   int? modeId;
   int currentPage = 1;
+  static const int itemsPerPage = 30; // Adjust as needed
+
+  // For client-side pagination
+  List<Data> allFilteredUsers = [];
+  bool isLoadingMore = false;
+  bool hasMorePages = true;
+
+  // Add these variables to track pagination info
+  int totalBackendUsers = 0;
+  int totalBackendPages = 0;
 
   @override
   void didChangeDependencies() {
@@ -36,176 +46,362 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
       print("userId: $userId");
       print("modeId: $modeId");
       print("modeId type: ${modeId.runtimeType}");
+      print("itemsPerPage: $itemsPerPage");
       print("=============================");
 
-      // Initial load
+      // Validate modeId
+      if (modeId == null) {
+        _showErrorDialog("Mode ID is required to filter users");
+        return;
+      }
+
+      // Initial load - fetch multiple pages to get enough filtered data
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(realusersprovider.notifier).getRealusers(
-              specificToken: accessToken,
-              modeId: modeId,
-            );
+        _loadMultiplePagesForFiltering();
+      });
+    } else {
+      _showErrorDialog("Missing required parameters");
+    }
+  }
+
+  // Load multiple pages from backend to get enough data for client-side filtering
+  Future<void> _loadMultiplePagesForFiltering() async {
+    if (accessToken == null || modeId == null) {
+      print("ERROR: Missing accessToken or modeId");
+      return;
+    }
+
+    setState(() {
+      isLoadingMore = true;
+      allFilteredUsers.clear();
+    });
+
+    print("=== LOADING MULTIPLE PAGES FOR FILTERING ===");
+
+    try {
+      // Load multiple pages to get enough filtered data
+      for (int page = 1; page <= 5; page++) {
+        // Load first 5 pages
+        await _loadSinglePageAndFilter(page);
+
+        // If we have enough filtered users for current page, we can stop
+        if (allFilteredUsers.length >= currentPage * itemsPerPage) {
+          break;
+        }
+      }
+
+      print("Total filtered users loaded: ${allFilteredUsers.length}");
+    } catch (e) {
+      print("Error loading pages: $e");
+    } finally {
+      setState(() {
+        isLoadingMore = false;
       });
     }
   }
 
+  Future<void> _loadSinglePageAndFilter(int page) async {
+    print("Loading backend page: $page");
+
+    // Load users from this page
+    await ref.read(realusersprovider.notifier).getRealusers(
+          specificToken: accessToken,
+          modeId: null, // Don't filter on backend, do client-side filtering
+          page: page,
+          // limit: 50, // Get more users per page to increase chances of matches
+        );
+
+    // Get the loaded users and pagination info
+    final usersState = ref.read(realusersprovider);
+    final pageUsers = usersState.data ?? [];
+
+    // Update backend pagination info
+    if (usersState.pagination != null) {
+      totalBackendUsers = usersState.pagination!.total ?? 0;
+      totalBackendPages = usersState.pagination!.totalPages ?? 1;
+    }
+
+    // Filter users by modeId
+    final filteredPageUsers = pageUsers.where((user) {
+      return user.modes?.any((mode) => mode.id == modeId) ?? false;
+    }).toList();
+
+    print(
+        "Page $page: ${pageUsers.length} total users, ${filteredPageUsers.length} matching mode $modeId");
+
+    // Add to our filtered collection (avoid duplicates)
+    for (final user in filteredPageUsers) {
+      if (!allFilteredUsers.any((existingUser) => existingUser.id == user.id)) {
+        allFilteredUsers.add(user);
+      }
+    }
+
+    // Check if backend has more pages
+    if (page >= totalBackendPages) {
+      hasMorePages = false;
+    }
+  }
+
+  void _loadUsersWithModeFilter(int page) {
+    // This method is now used for refresh
+    _loadMultiplePagesForFiltering();
+  }
+
+  void _loadAllUsers(int page) {
+    if (accessToken == null) {
+      print("ERROR: Missing accessToken");
+      return;
+    }
+
+    print("=== LOADING ALL USERS (DEBUG) ===");
+    print("Loading page: $page");
+    print("Without mode filtering");
+    print("==================================");
+
+    // Load users without mode filtering for debugging
+    ref.read(realusersprovider.notifier).getRealusers(
+          specificToken: accessToken,
+          modeId: null, // No mode filtering
+          page: page,
+          // limit: itemsPerPage,
+        );
+  }
+
   void _loadPage(int page) {
+    if (page < 1) return;
+
     setState(() {
       currentPage = page;
     });
-    // Load specific page
-    ref.read(realusersprovider.notifier).loadPage(page);
+
+    // Check if we need to load more data from backend
+    int requiredUsers = page * itemsPerPage;
+
+    if (allFilteredUsers.length < requiredUsers && hasMorePages) {
+      // Need to load more pages from backend
+      _loadMorePagesForPagination(page);
+    }
   }
 
-  // Filter users based on modeId matching
-List<Data> _getFilteredUsers(List<Data>? allUsers) {
-  if (allUsers == null) return [];
-  
-  // DEBUG: Print information about filtering
-  print("=== FILTERING DEBUG ===");
-  print("Total users received: ${allUsers.length}");
-  print("Mode ID to filter by: $modeId");
-  
-  if (modeId == null) {
-    print("No modeId provided, returning all users");
-    return allUsers;
-  }
-  
-  List<Data> filteredUsers = [];
-  
-  for (int i = 0; i < allUsers.length; i++) {
-    Data user = allUsers[i];
-    print("\nUser ${i + 1}: ${user.firstName} ${user.lastName}");
-    print("User modes: ${user.modes}");
-    print("User modes type: ${user.modes.runtimeType}");
-    print("User modes length: ${user.modes?.length ?? 0}");
-    
-    // NEW LOGIC: Include users with no modes OR users with matching modes
-    if (user.modes == null || user.modes!.isEmpty) {
-      print("✅ User has no modes - INCLUDED (assuming they match all modes)");
-      filteredUsers.add(user);
-      continue;
-    }
-    
-    bool hasMatchingMode = false;
-    for (var mode in user.modes!) {
-      print("  Checking mode: $mode (type: ${mode.runtimeType})");
-      
-      if (mode is int) {
-        if (mode == modeId) {
-          hasMatchingMode = true;
-          print("  ✅ Found matching int mode: $mode");
+  Future<void> _loadMorePagesForPagination(int targetPage) async {
+    if (isLoadingMore) return;
+
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    try {
+      // Calculate how many more backend pages we might need
+      int currentBackendPage = (allFilteredUsers.length ~/ 20) +
+          1; // Assuming ~20 users per backend page
+      int maxPagesToLoad = currentBackendPage + 10; // Load up to 10 more pages
+
+      for (int page = currentBackendPage;
+          page <= maxPagesToLoad && hasMorePages;
+          page++) {
+        await _loadSinglePageAndFilter(page);
+
+        // If we have enough for the target page, stop
+        if (allFilteredUsers.length >= targetPage * itemsPerPage) {
           break;
-        }
-      } else if (mode is Map<String, dynamic>) {
-        var modeId_fromMap = mode;
-        print("  Mode object id: $modeId_fromMap");
-        if (modeId_fromMap == modeId) {
-          hasMatchingMode = true;
-          print("  ✅ Found matching object mode id: $modeId_fromMap");
-          break;
-        }
-      } else if (mode is String) {
-        try {
-          int parsedMode = int.parse(mode as String);
-          if (parsedMode == modeId) {
-            hasMatchingMode = true;
-            print("  ✅ Found matching string mode (parsed): $parsedMode");
-            break;
-          }
-        } catch (e) {
-          print("  ❌ Could not parse string mode: $mode");
         }
       }
-    }
-    
-    if (hasMatchingMode) {
-      filteredUsers.add(user);
-      print("✅ User INCLUDED in filtered results");
-    } else {
-      print("❌ User EXCLUDED - no matching mode");
+    } catch (e) {
+      print("Error loading more pages: $e");
+    } finally {
+      setState(() {
+        isLoadingMore = false;
+      });
     }
   }
-  
-  print("\n=== FILTERING RESULTS ===");
-  print("Filtered users count: ${filteredUsers.length}");
-  print("=========================\n");
-  
-  return filteredUsers;
-}
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop(); // Go back to previous screen
+            },
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final usersState = ref.watch(realusersprovider);
     final isLoading = ref.watch(loadingProvider);
-    final provider = ref.read(realusersprovider.notifier);
 
-    // Apply filtering based on modeId
-    final filteredUsers = _getFilteredUsers(usersState.data);
+    // Use our filtered collection instead of backend data
+    final allUsers = allFilteredUsers;
+
+    // Calculate pagination for filtered data
+    int startIndex = (currentPage - 1) * itemsPerPage;
+    int endIndex = (startIndex + itemsPerPage).clamp(0, allUsers.length);
+
+    // Get users for current page
+    final users =
+        allUsers.sublist(startIndex.clamp(0, allUsers.length), endIndex);
+
+    // Calculate total pages based on filtered data
+    int totalFilteredPages = (allUsers.length / itemsPerPage).ceil();
+    if (totalFilteredPages == 0) totalFilteredPages = 1;
+
+    // Debug print
+    print("=== PAGINATION DEBUG ===");
+    print("Total filtered users: ${allUsers.length}");
+    print("Current page: $currentPage");
+    print("Users on this page: ${users.length}");
+    print("Start index: $startIndex, End index: $endIndex");
+    print("Total filtered pages: $totalFilteredPages");
+    print("Is loading more: $isLoadingMore");
+    print("========================");
 
     return Scaffold(
       backgroundColor: DatingColors.cardBackground,
       appBar: AppBar(
         title: Text('Users'),
-        //  ${modeId != null ? "(Mode: $modeId)" : ""}
         backgroundColor: DatingColors.primaryGreen,
         elevation: 0,
         actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () => provider.refreshUsers(),
+          // IconButton(
+          //   icon: Icon(Icons.refresh),
+          //   onPressed: () => _loadUsersWithModeFilter(currentPage),
+          // ),
+          // // Add debug info button
+          // IconButton(
+          //   icon: Icon(Icons.info_outline),
+          //   onPressed: () => _showDebugInfo(
+          //       users.length, totalBackendUsers, totalBackendPages),
+          // ),
+          // Add option to load all users (for debugging)
+          PopupMenuButton(
+            icon: Icon(Icons.more_vert),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                child: Text('Load All Users (Debug)'),
+                value: 'load_all',
+              ),
+              PopupMenuItem(
+                child: Text('Load Mode Filtered'),
+                value: 'load_filtered',
+              ),
+            ],
+            onSelected: (value) {
+              if (value == 'load_all') {
+                _loadAllUsers(currentPage);
+              } else if (value == 'load_filtered') {
+                _loadUsersWithModeFilter(currentPage);
+              }
+            },
           ),
         ],
       ),
-      body: isLoading && (filteredUsers.isEmpty)
-          ? Center(child: CircularProgressIndicator())
-          : filteredUsers.isEmpty
-              ? _buildEmptyState()
+      body: isLoading && users.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading users '),
+                ],
+              ),
+            )
+          : users.isEmpty
+              ? _buildEmptyState(totalFilteredPages)
               : Column(
                   children: [
-                    // Users count info
-                    // Container(
-                    //   padding: EdgeInsets.all(16),
-                    //   child: Row(
-                    //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //     children: [
-                    //       Text(
-                    //         'Filtered Users: ${filteredUsers.length}',
-                    //         style: TextStyle(fontWeight: FontWeight.bold),
-                    //       ),
-                    //       if (modeId != null)
-                    //         Text(
-                    //           'Mode ID: $modeId',
-                    //           style: TextStyle(color: Colors.grey[600]),
-                    //         ),
-                    //     ],
-                    //   ),
-                    // ),
+                    // Enhanced users count info with pagination details
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 3,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Mode $modeId Users',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                'Total: $totalBackendUsers',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                          // SizedBox(height: 8),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          //   children: [
+                          //     Text(
+                          //       'Page $currentPage of $totalFilteredPages',
+                          //       style: TextStyle(
+                          //         color: Colors.grey[600],
+                          //         fontSize: 14,
+                          //       ),
+                          //     ),
+                          //     Text(
+                          //       'Showing ${users.length} users',
+                          //       style: TextStyle(
+                          //         color: Colors.grey[600],
+                          //         fontSize: 14,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
+                        ],
+                      ),
+                    ),
+
                     // Users list
                     Expanded(
                       child: RefreshIndicator(
-                        onRefresh: () => provider.refreshUsers(),
+                        onRefresh: () async =>
+                            _loadUsersWithModeFilter(currentPage),
                         child: ListView.separated(
                           padding: EdgeInsets.all(16),
-                          itemCount: filteredUsers.length,
+                          itemCount: users.length,
                           separatorBuilder: (context, index) =>
                               SizedBox(height: 12),
                           itemBuilder: (context, index) {
-                            final user = filteredUsers[index];
-                            return _buildUserRow(user);
+                            final user = users[index];
+                            return _buildUserRow(user, index);
                           },
                         ),
                       ),
                     ),
-                    // Pagination (Note: This might need adjustment for filtered results)
-                    if (usersState.pagination != null &&
-                        (usersState.pagination?.totalPages ?? 0) > 1)
-                      _buildPagination(usersState.pagination!.totalPages!),
+
+                    // Enhanced Pagination
+                    if (totalFilteredPages > 1)
+                      _buildEnhancedPagination(totalFilteredPages),
                   ],
                 ),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(int totalFilteredPages) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -213,24 +409,57 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
           Icon(Icons.people_outline, size: 80, color: Colors.grey[400]),
           SizedBox(height: 16),
           Text(
-            modeId != null 
-                ? 'No users found for Mode ID: $modeId'
-                : 'No users found',
+            'No users found with Mode ID: $modeId',
             style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+            textAlign: TextAlign.center,
           ),
           SizedBox(height: 8),
           Text(
-            'Try refreshing or check if users exist for this mode',
+            'Backend may not be filtering properly.\nUsing client-side filtering as backup.',
+            style: TextStyle(
+                color: Colors.orange[600], fontStyle: FontStyle.italic),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 8),
+          Text(
+            'Page $currentPage has no matching users.\nTry refreshing or check other pages.',
             style: TextStyle(color: Colors.grey[500]),
+            textAlign: TextAlign.center,
           ),
           SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => _loadUsersWithModeFilter(currentPage),
+                icon: Icon(Icons.refresh),
+                label: Text('Refresh'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: DatingColors.primaryGreen,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+              SizedBox(width: 16),
+              if (currentPage > 1)
+                ElevatedButton.icon(
+                  onPressed: () => _loadPage(1),
+                  icon: Icon(Icons.first_page),
+                  label: Text('First Page'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: 16),
+          // Debug button to show all users
           ElevatedButton.icon(
-            onPressed: () =>
-                ref.read(realusersprovider.notifier).refreshUsers(),
-            icon: Icon(Icons.refresh),
-            label: Text('Refresh'),
+            onPressed: () => _showAllUsersDebug(),
+            icon: Icon(Icons.bug_report),
+            label: Text('Debug: Show All Users'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: DatingColors.primaryGreen,
+              backgroundColor: Colors.orange,
               foregroundColor: Colors.white,
             ),
           ),
@@ -239,11 +468,14 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
     );
   }
 
-  Widget _buildUserRow(Data user) {
+  Widget _buildUserRow(Data user, int index) {
     String baseUrl = "http://97.74.93.26:6100";
     String? imageUrl = user.profilePics?.isNotEmpty == true
         ? "$baseUrl${user.profilePics!.first.url}"
         : null;
+
+    // Calculate global index for display
+    int globalIndex = ((currentPage - 1) * itemsPerPage) + index + 1;
 
     return Container(
       padding: EdgeInsets.all(12),
@@ -266,30 +498,55 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profile Photo
-          Container(
-            width: 60,
-            height: 60,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: imageUrl != null
-                  ? CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[200],
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[200],
-                        child: Icon(Icons.person, color: Colors.grey[400]),
-                      ),
-                    )
-                  : Container(
-                      color: Colors.grey[200],
-                      child: Icon(Icons.person, color: Colors.grey[400]),
+          // Profile Photo with index
+          Stack(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: imageUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey[200],
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[200],
+                            child: Icon(Icons.person, color: Colors.grey[400]),
+                          ),
+                        )
+                      : Container(
+                          color: Colors.grey[200],
+                          child: Icon(Icons.person, color: Colors.grey[400]),
+                        ),
+                ),
+              ),
+              // Index badge
+              Positioned(
+                top: -5,
+                right: -5,
+                child: Container(
+                  padding: EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: DatingColors.primaryGreen,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    // '$globalIndex'
+                    '',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
                     ),
-            ),
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(width: 16),
 
@@ -306,16 +563,24 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
                     fontSize: 16,
                   ),
                 ),
-                // Show user's modes
+                // Show user's modes with highlight for matching mode
                 if (user.modes != null && user.modes!.isNotEmpty)
                   Text(
-                    'Modes: ${_getModesDisplay(user.modes)}',
+                    'Mode: ${_getModesDisplayWithHighlight(user.modes)}',
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.blue[600],
                     ),
                   ),
-                SizedBox(height: 8),
+                // Show user ID for debugging
+                // Text(
+                //   'ID: ${user.id}',
+                //   style: TextStyle(
+                //     fontSize: 10,
+                //     color: Colors.grey[500],
+                //   ),
+                // ),
+                // SizedBox(height: 8),
 
                 // Buttons Row BELOW name
                 Row(
@@ -323,10 +588,9 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
                     // Dislike button
                     ElevatedButton(
                       onPressed: () => _handleDislike(user),
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: DatingColors.errorRed,
-                        foregroundColor: Colors.grey[700],
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -340,7 +604,6 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
                     // Like button
                     ElevatedButton(
                       onPressed: () => _handleLike(user),
-
                       style: ElevatedButton.styleFrom(
                         backgroundColor: DatingColors.primaryGreen,
                         foregroundColor: Colors.white,
@@ -378,89 +641,256 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
     );
   }
 
-  Widget _buildPagination(int totalPages) {
+  Widget _buildEnhancedPagination(int totalPages) {
     return Container(
-      padding: EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: EdgeInsets.all(0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
         children: [
-          // Previous button
-          IconButton(
-            onPressed: currentPage > 1 ? () => _loadPage(currentPage - 1) : null,
-            icon: Icon(Icons.chevron_left),
-            style: IconButton.styleFrom(
-              backgroundColor: currentPage > 1
-                  ? DatingColors.primaryGreen
-                  : Colors.grey[300],
-              foregroundColor:
-                  currentPage > 1 ? Colors.white : Colors.grey[600],
+          // Page info
+          Text(
+            'Page $currentPage of $totalPages',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[700],
             ),
           ),
-          SizedBox(width: 8),
+          // SizedBox(height: 12),
 
-          // Scrollable page numbers
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(totalPages, (index) {
-                  int pageNumber = index + 1;
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 4),
-                    child: ElevatedButton(
-                      onPressed: () => _loadPage(pageNumber),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: currentPage == pageNumber
-                            ? DatingColors.primaryGreen
-                            : Colors.white,
-                        foregroundColor: currentPage == pageNumber
-                            ? Colors.white
-                            : DatingColors.primaryGreen,
-                        side: BorderSide(color: DatingColors.primaryGreen),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        minimumSize: Size(40, 40),
-                      ),
-                      child: Text('$pageNumber'),
-                    ),
-                  );
-                }),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // First page button
+              IconButton(
+                onPressed: currentPage > 1 ? () => _loadPage(1) : null,
+                icon: Icon(Icons.first_page),
+                style: IconButton.styleFrom(
+                  backgroundColor: currentPage > 1
+                      ? DatingColors.primaryGreen
+                      : Colors.grey[300],
+                  foregroundColor:
+                      currentPage > 1 ? Colors.white : Colors.grey[600],
+                ),
               ),
-            ),
-          ),
 
-          SizedBox(width: 8),
-          // Next button
-          IconButton(
-            onPressed: currentPage < totalPages
-                ? () => _loadPage(currentPage + 1)
-                : null,
-            icon: Icon(Icons.chevron_right),
-            style: IconButton.styleFrom(
-              backgroundColor: currentPage < totalPages
-                  ? DatingColors.primaryGreen
-                  : Colors.grey[300],
-              foregroundColor:
-                  currentPage < totalPages ? Colors.white : Colors.grey[600],
-            ),
+              // Previous button
+              // IconButton(
+              //   onPressed:
+              //       currentPage > 1 ? () => _loadPage(currentPage - 1) : null,
+              //   icon: Icon(Icons.chevron_left),
+              //   style: IconButton.styleFrom(
+              //     backgroundColor: currentPage > 1
+              //         ? DatingColors.primaryGreen
+              //         : Colors.grey[300],
+              //     foregroundColor:
+              //         currentPage > 1 ? Colors.white : Colors.grey[600],
+              //   ),
+              // ),
+              // SizedBox(width: 8),
+
+              // Scrollable page numbers (show max 5 pages)
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _buildPageButtons(totalPages),
+                  ),
+                ),
+              ),
+
+              // SizedBox(width: 18),
+              // Next button
+              // IconButton(
+              //   onPressed: currentPage < totalPages
+              //       ? () => _loadPage(currentPage + 1)
+              //       : null,
+              //   icon: Icon(Icons.chevron_right),
+              //   style: IconButton.styleFrom(
+              //     backgroundColor: currentPage < totalPages
+              //         ? DatingColors.primaryGreen
+              //         : Colors.grey[300],
+              //     foregroundColor: currentPage < totalPages
+              //         ? Colors.white
+              //         : Colors.grey[600],
+              //   ),
+              // ),
+
+              // Last page button
+              IconButton(
+                onPressed: currentPage < totalPages
+                    ? () => _loadPage(totalPages)
+                    : null,
+                icon: Icon(Icons.last_page),
+                style: IconButton.styleFrom(
+                  backgroundColor: currentPage < totalPages
+                      ? DatingColors.primaryGreen
+                      : Colors.grey[300],
+                  foregroundColor: currentPage < totalPages
+                      ? Colors.white
+                      : Colors.grey[600],
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  // Helper method to display modes
-  String _getModesDisplay(List<dynamic>? modes) {
-    if (modes == null || modes.isEmpty) return 'None';
-    
-    return modes.map((mode) {
-      if (mode is int) {
-        return mode.toString();
-      } else if (mode is Map<String, dynamic>) {
-        return mode['id']?.toString() ?? mode.toString();
+  List<Widget> _buildPageButtons(int totalPages) {
+    List<Widget> buttons = [];
+    int start = (currentPage - 2).clamp(1, totalPages);
+    int end = (currentPage + 2).clamp(1, totalPages);
+
+    // Ensure we show at least 5 pages if available
+    if (end - start < 4) {
+      if (start == 1) {
+        end = (start + 4).clamp(1, totalPages);
+      } else if (end == totalPages) {
+        start = (end - 4).clamp(1, totalPages);
       }
-      return mode.toString();
+    }
+
+    for (int i = start; i <= end; i++) {
+      buttons.add(
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 2),
+          child: ElevatedButton(
+            onPressed: () => _loadPage(i),
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  currentPage == i ? DatingColors.primaryGreen : Colors.white,
+              foregroundColor:
+                  currentPage == i ? Colors.white : DatingColors.primaryGreen,
+              side: BorderSide(color: DatingColors.primaryGreen),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              minimumSize: Size(35, 35),
+            ),
+            child: Text('$i', style: TextStyle(fontSize: 12)),
+          ),
+        ),
+      );
+    }
+
+    return buttons;
+  }
+
+  void _showDebugInfo(
+      int currentUsersCount, int totalBackendUsers, int totalBackendPages) {
+    final usersState = ref.watch(realusersprovider);
+    final allUsers = usersState.data ?? [];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Debug Information'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Mode ID: $modeId'),
+              Text('Current Page: $currentPage'),
+              Text('All users from backend: ${allUsers.length}'),
+              Text('Users after filtering: $currentUsersCount'),
+              Text('Total Backend Users: $totalBackendUsers'),
+              Text('Total Backend Pages: $totalBackendPages'),
+              Text('Items per page: $itemsPerPage'),
+              Divider(),
+              Text('Sample User Modes:',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              ...allUsers
+                  .take(3)
+                  .map((user) => Text(
+                      '${user.firstName}: ${user.modes?.map((m) => '${m.id}(${m.mode})').join(', ') ?? 'No modes'}'))
+                  .toList(),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAllUsersDebug() {
+    final usersState = ref.watch(realusersprovider);
+    final allUsers = usersState.data ?? [];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('All Users Debug (${allUsers.length} users)'),
+        content: Container(
+          width: double.maxFinite,
+          height: 400,
+          child: ListView.builder(
+            //  controller: _scrollController,
+            itemCount: allUsers.length,
+            itemBuilder: (context, index) {
+              final user = allUsers[index];
+              final userModes =
+                  user.modes?.map((m) => '${m.id}(${m.mode})').join(', ') ??
+                      'No modes';
+              final hasTargetMode =
+                  user.modes?.any((mode) => mode.id == modeId) ?? false;
+
+              return ListTile(
+                title: Text(
+                    '${user.firstName ?? 'Unknown'} ${user.lastName ?? ''}'),
+                subtitle: Text('Modes: $userModes'),
+                trailing: hasTargetMode
+                    ? Icon(Icons.check_circle, color: Colors.green)
+                    : Icon(Icons.cancel, color: Colors.red),
+                tileColor: hasTargetMode ? Colors.green[50] : Colors.red[50],
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to display modes with highlighting
+  String _getModesDisplayWithHighlight(List<Modes>? modes) {
+    if (modes == null || modes.isEmpty) return 'None';
+
+    return modes.map((mode) {
+      String display = '${mode.id}';
+      return mode.id == modeId
+          ? '[$display]'
+          : display; // Highlight matching mode
+    }).join(', ');
+  }
+
+  // Helper method to display modes
+  String _getModesDisplay(List<Modes>? modes) {
+    if (modes == null || modes.isEmpty) return 'None';
+
+    return modes.map((mode) {
+      return '${mode.id} (${mode.mode ?? ''})';
     }).join(', ');
   }
 
@@ -479,6 +909,15 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
     }
   }
 
+  // void _handleLike(Data user) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text('Liked ${user.firstName ?? 'User'}'),
+  //       backgroundColor: DatingColors.primaryGreen,
+  //       duration: Duration(seconds: 1),
+  //     ),
+  //   );
+  //   ref.read(likeanddislikeprovider.notifier).addL
   void _handleLike(Data user) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -489,11 +928,9 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
     );
     // TODO: Make API call to like user
     ref.read(likeanddislikeprovider.notifier).addLikeDislike(
-              specificToken: accessToken,
-              realuserid:user.id,
-              swipedirection:"right"
-              
-            );
+        specificToken: accessToken,
+        realuserid: user.id,
+        swipedirection: "right");
   }
 
   void _handleDislike(Data user) {
@@ -506,11 +943,9 @@ List<Data> _getFilteredUsers(List<Data>? allUsers) {
     );
     // TODO: Make API call to dislike user
     ref.read(likeanddislikeprovider.notifier).addLikeDislike(
-              specificToken: accessToken,
-              realuserid:user.id,
-              swipedirection:"left"
-              
-            );
+        specificToken: accessToken,
+        realuserid: user.id,
+        swipedirection: "left");
   }
 
   void _showUserDetails(Data user) {
@@ -553,9 +988,10 @@ class UserCard extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final photo = user.profilePics![index];
                       final photoUrl = "$baseUrl${photo.url ?? ''}";
-          
+
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(12),
+                        // child: Cached
                         child: CachedNetworkImage(
                           imageUrl: photoUrl,
                           fit: BoxFit.cover,
@@ -567,7 +1003,8 @@ class UserCard extends StatelessWidget {
                           ),
                           errorWidget: (context, url, error) => Container(
                             color: Colors.grey[200],
-                            child: const Icon(Icons.image_not_supported, size: 50),
+                            child:
+                                const Icon(Icons.image_not_supported, size: 50),
                           ),
                         ),
                       );
@@ -583,9 +1020,9 @@ class UserCard extends StatelessWidget {
                   ),
                   child: const Icon(Icons.person, size: 80, color: Colors.grey),
                 ),
-          
+
               const SizedBox(height: 12),
-          
+
               // User basic info with Modes
               Text(
                 '${user.firstName ?? ''} ${user.lastName ?? ''}'.trim(),
@@ -597,35 +1034,38 @@ class UserCard extends StatelessWidget {
                   style: TextStyle(fontSize: 16, color: Colors.blue[600]),
                 ),
               if (user.dob != null)
-                Text(
-                  'Age: ${_calculateAge(user.dob!)}',
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                ),
+                // Text(
+                //   'Age: ${_calculateAge(user.dob!)}',
+                //   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                // ),
               SizedBox(height: 16),
-              
+
               // Work and Education
               if (user.work != null)
-                _buildInfoSection('Work', '${user.work!.title ?? ''} at ${user.work!.company ?? ''}'),
+                _buildInfoSection('Work',
+                    '${user.work!.title ?? ''} at ${user.work!.company ?? ''}'),
               if (user.education != null)
-                _buildInfoSection('Education', user.education!.institution ?? ''),
+                _buildInfoSection(
+                    'Education', user.education!.institution ?? ''),
               if (user.location != null)
                 _buildInfoSection('Location', user.location!.name ?? ''),
-              
+
               // Interests
               if (user.interests?.isNotEmpty == true)
-                _buildListSection('Interests', user.interests!.map((e) => e.interests ?? '').toList()),
-              
+                _buildListSection('Interests',
+                    user.interests!.map((e) => e.interests ?? '').toList()),
+
               // Qualities
               if (user.qualities?.isNotEmpty == true)
-                _buildListSection('Qualities', user.qualities!.map((e) => e.name ?? '').toList()),
+                _buildListSection('Qualities',
+                    user.qualities!.map((e) => e.name ?? '').toList()),
             ],
           ),
         ),
       ),
     );
   }
-
-  // Helper method to display modes
+   // Helper method to display modes
   String _getModesDisplay(List<dynamic>? modes) {
     if (modes == null || modes.isEmpty) return 'None';
     
@@ -658,8 +1098,7 @@ class UserCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildListSection(String title, List<String> items) {
+   Widget _buildListSection(String title, List<String> items) {
     if (items.isEmpty) return SizedBox();
 
     return Padding(
@@ -687,18 +1126,6 @@ class UserCard extends StatelessWidget {
     );
   }
 
-  int _calculateAge(String dob) {
-    try {
-      final birthDate = DateTime.parse(dob);
-      final today = DateTime.now();
-      int age = today.year - birthDate.year;
-      if (today.month < birthDate.month ||
-          (today.month == birthDate.month && today.day < birthDate.day)) {
-        age--;
-      }
-      return age;
-    } catch (e) {
-      return 0;
-    }
-  }
+
+ 
 }

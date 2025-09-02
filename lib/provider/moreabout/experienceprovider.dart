@@ -1,8 +1,8 @@
 
 
 import 'package:admin_dating/models/loginmodel.dart';
-import 'package:admin_dating/models/more%20section/ExperienceModel.dart';
-import 'package:admin_dating/models/more%20section/starsign.dart';
+import 'package:admin_dating/models/more%20section/experiencemodel.dart';
+
 
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';

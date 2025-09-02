@@ -1,4 +1,4 @@
-import 'package:admin_dating/screens/profile/add_proffile_screen.dart';
+import 'package:admin_dating/screens/users/add_proffile_screen.dart';
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
 import 'package:flutter/material.dart';
 

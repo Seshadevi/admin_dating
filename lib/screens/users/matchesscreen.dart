@@ -2,7 +2,6 @@ import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/provider/users/matchesprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:admin_dating/provider/matchesprovider.dart';
 import 'package:admin_dating/provider/loader.dart';
 
 import '../../models/users/Matchesmodel.dart';
@@ -50,7 +49,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
         backgroundColor: DatingColors.darkGreen,
         foregroundColor: DatingColors.cardBackground,
         title: const Text(
-          ' Matches',
+          'Matches',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -65,7 +64,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
                 valueColor: AlwaysStoppedAnimation<Color>(DatingColors.cardBackground),
               ),
             )
-          : matchesState.data == null || matchesState.data!.isEmpty
+          : (matchesState.data == null || matchesState.data!.isEmpty)
               ? _buildEmptyState()
               : _buildMatchesList(matchesState.data!),
     );
@@ -113,13 +112,7 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.8,
-        ),
+      child: ListView.builder(
         itemCount: matchedUsers.length,
         itemBuilder: (context, index) {
           final match = matchedUsers[index];
@@ -127,7 +120,10 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
           
           if (user == null) return const SizedBox.shrink();
           
-          return _buildMatchCard(user, match);
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: _buildMatchCard(user, match),
+          );
         },
       ),
     );
@@ -138,9 +134,11 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
     final String photoUrl = user.photoUrl ?? '';
     
     return Container(
+      height: 120, // Fixed height for ListView items
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: DatingColors.lightGreen,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: DatingColors.darkGreen),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -149,72 +147,72 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
           ),
         ],
       ),
-      child: Column(
+      child: Row(
         children: [
           // Profile Picture
-          Expanded(
-            flex: 3,
-            child: Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
-                ),
-                child: photoUrl.isNotEmpty
-                    ? Image.network(
-                        photoUrl,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _buildDefaultAvatar(displayName);
-                        },
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Container(
-                            color: Colors.grey[200],
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(DatingColors.darkGreen),
-                              ),
+          Container(
+            width: 100,
+            height: 100,
+            margin: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: photoUrl.isNotEmpty
+                  ? Image.network(
+                      photoUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return _buildDefaultAvatar(displayName);
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(DatingColors.darkGreen),
                             ),
-                          );
-                        },
-                      )
-                    : _buildDefaultAvatar(displayName),
-              ),
+                          ),
+                        );
+                      },
+                    )
+                  : _buildDefaultAvatar(displayName),
             ),
           ),
           
-          // Name Section
+          // Name and Info Section
           Expanded(
-            flex: 3,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     displayName,
                     style: const TextStyle(
-                      fontSize: 15,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
                   ),
-                  // const SizedBox(height: 4),
+                  const SizedBox(height: 4),
+                  if (user.gender != null)
+                    Text(
+                      user.gender!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  const SizedBox(height: 8),
                   Container(
-                    width: 30,
+                    width: 40,
                     height: 2,
                     decoration: BoxDecoration(
                       color: DatingColors.darkGreen,
@@ -223,6 +221,16 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
                   ),
                 ],
               ),
+            ),
+          ),
+          
+          // Action Button (optional)
+          Container(
+            padding: const EdgeInsets.only(right: 16),
+            child: Icon(
+              Icons.chat_bubble_outline,
+              color: DatingColors.black,
+              size: 24,
             ),
           ),
         ],
@@ -247,15 +255,20 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
   }
 
   String _getDisplayName(MatchedUser user) {
-    if (user.firstName != null && user.firstName!.isNotEmpty) {
-      if (user.lastName != null && user.lastName!.isNotEmpty) {
-        return '${user.firstName} ${user.lastName}';
+    // Use null-safe operators instead of null check operators
+    final firstName = user.firstName;
+    final lastName = user.lastName;
+    final username = user.username;
+    
+    if (firstName != null && firstName.isNotEmpty) {
+      if (lastName != null && lastName.isNotEmpty) {
+        return '$firstName $lastName';
       }
-      return user.firstName!;
+      return firstName;
     }
     
-    if (user.username != null && user.username!.isNotEmpty) {
-      return user.username!;
+    if (username != null && username.isNotEmpty) {
+      return username;
     }
     
     return 'Unknown User';

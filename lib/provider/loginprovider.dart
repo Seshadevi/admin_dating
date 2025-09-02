@@ -135,29 +135,32 @@ class LoginNotifier extends StateNotifier<UserModel> {
     String? dateOfBirth,
     String? selectedGender,
     bool? showGenderOnProfile,
-   List<int>? modeid,
-    //  String? modename,
-    
+    List<int>? modeid,
     List<int>? drinkingId,
     List<int>? selectedkidsIds,
     List<int>? selectedreligionIds,
     List<int>? selectedGenderIds,
     List<int>? selectedInterestIds,
     List<int>? selectedcauses,
-    
     List<int>? selectedLookingfor,
     List<int>? selectedqualities,
-    
-    // List<int>? selectedreligions,
-    
-    
-    // List<int>? selectedqualities,
     List<String>? seletedprompts,
-    List<File?>? choosedimages,
+    List<dynamic>? choosedimages,
     List<int>? defaultmessages,
     String? finalheadline,
     bool? termsAndCondition,
     int? selectedHeight,
+    List<int>? experience,
+    List<int>? industry,
+    List<int>?relationship,
+    List<int>?starsign,
+    List<int>?languages,
+    String?hometown,
+   String? newtotown,
+   String? politics,
+   String? pronoun,
+   String? educationlevel,
+   String? havekids,
   }) async {
     const String apiUrl = Dgapi.login1;
     final prefs = await SharedPreferences.getInstance();
@@ -168,7 +171,7 @@ class LoginNotifier extends StateNotifier<UserModel> {
         'sign in data.........userId:$userId:$email,mobile:$mobile,latitude:,longitude:,Name:$userName,dob:$dateOfBirth,selectedgender:$selectedGender:');
     print('data:::lookinfor:$selectedLookingfor,qualities::$selectedqualities,interests:$selectedInterestIds,kids:$selectedkidsIds,defaltmessages:$defaultmessages,drinking:$drinkingId,religion:$selectedreligionIds,');
     print(
-        'data.......show:$showGenderOnProfile,height:$selectedHeight,headline:$finalheadline,images:${choosedimages!.length},');
+        'data.......show:$showGenderOnProfile,height:$selectedHeight,headline:$finalheadline,images:${choosedimages!.length},mode:$modeid');
 
     try {
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
@@ -185,14 +188,18 @@ class LoginNotifier extends StateNotifier<UserModel> {
       // request.fields['gender'] = selectedGender?? '';
       request.fields['gender'] = 'Man';
       request.fields['showOnProfile'] = showGenderOnProfile.toString();
-
       request.fields['height'] = selectedHeight.toString();
       request.fields['headLine'] = finalheadline ?? '';
-      // request.fields['termsAndConditions'] = termsAndCondition.toString();
       request.fields['mobile'] = mobile ?? '';
       request.fields['createdByAdminId'] = userId?.toString() ?? '';
       request.fields['prompts'] = seletedprompts?.join(',') ?? '';
-      ;
+      request.fields['educationLevel'] = educationlevel.toString();
+      request.fields['newToArea'] = newtotown.toString();
+      request.fields['hometown'] = hometown.toString();
+      request.fields['haveKids'] = havekids.toString();
+      request.fields['politics'] = politics.toString();
+      request.fields['pronouns'] = pronoun.toString();
+      
 
       // // Safe list fields (skip empty ones)
       if (selectedGenderIds != null) {
@@ -205,6 +212,38 @@ class LoginNotifier extends StateNotifier<UserModel> {
       if (selectedInterestIds != null) {
         for (int i = 0; i < selectedInterestIds.length; i++) {
           request.fields['interests[$i]'] = selectedInterestIds[i].toString();
+        }
+      }
+      if (starsign != null) {
+        for (int i = 0; i < starsign.length; i++) {
+          request.fields['starSign[$i]'] = starsign[i].toString();
+        }
+      }
+      if (relationship != null) {
+        for (int i = 0; i < relationship.length; i++) {
+          request.fields['relationships[$i]'] = relationship[i].toString();
+        }
+      }
+      if (experience != null) {
+        for (int i = 0; i < experience.length; i++) {
+          request.fields['experiences[$i]'] = experience[i].toString();
+        }
+        
+      }
+       if (modeid != null) {
+        for (int i = 0; i < modeid.length; i++) {
+          request.fields['modeId[$i]'] = modeid[i].toString();
+        }
+        
+      }
+      if (industry != null) {
+        for (int i = 0; i < industry.length; i++) {
+          request.fields['industries[$i]'] = industry[i].toString();
+        }
+      }
+       if (languages != null) {
+        for (int i = 0; i < languages.length; i++) {
+          request.fields['spokenLanguages[$i]'] = languages[i].toString();
         }
       }
 

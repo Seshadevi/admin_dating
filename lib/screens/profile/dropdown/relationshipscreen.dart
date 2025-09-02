@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:admin_dating/models/signupprocessmodels/lookingModel.dart';
+import 'package:admin_dating/models/more section/relationshipmodel.dart';
 
-class LookingForSelection extends StatefulWidget {
-  final List<Data> alllooking;
+class Relationshipscreen extends StatefulWidget {
+  final List<Data> allrelationship;
   final List<int> initiallySelectedIds;
   final List<String> initiallySelectedNames;
 
-  const LookingForSelection({
+  const Relationshipscreen({
     super.key,
-    required this.alllooking,
+    required this.allrelationship,
     this.initiallySelectedIds = const [],
     this.initiallySelectedNames = const [],
   });
 
   @override
-  State<LookingForSelection> createState() => _LookingForSelectionState();
+  State<Relationshipscreen> createState() => _RelationshipscreenState();
 }
 
-class _LookingForSelectionState extends State<LookingForSelection> {
+class _RelationshipscreenState extends State<Relationshipscreen> {
   late List<int> _selectedLookingIds;
   late List<String> _selectedLookingNames;
 
@@ -32,10 +32,10 @@ class _LookingForSelectionState extends State<LookingForSelection> {
     setState(() {
       if (_selectedLookingIds.contains(item.id)) {
         _selectedLookingIds.remove(item.id);
-        _selectedLookingNames.remove(item.value);
+        _selectedLookingNames.remove(item.relation);
       } else {
         _selectedLookingIds.add(item.id!);
-        _selectedLookingNames.add(item.value ?? '');
+        _selectedLookingNames.add(item.relation ?? '');
       }
     });
   }
@@ -43,7 +43,7 @@ class _LookingForSelectionState extends State<LookingForSelection> {
   void _onDone() {
     Navigator.pop(context, {
       'id': _selectedLookingIds,
-      'value': _selectedLookingNames,
+      'relation': _selectedLookingNames,
     });
   }
 
@@ -57,7 +57,7 @@ Widget build(BuildContext context) {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Select lookingfor\n(Only 2 allowed)",
+              const Text("Select relation\n(Only 2 allowed)",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextButton(
                 onPressed: _onDone,
@@ -69,13 +69,13 @@ Widget build(BuildContext context) {
         const Divider(height: 1),
         Expanded(
           child: ListView.builder(
-            itemCount: widget.alllooking.length,
+            itemCount: widget.allrelationship.length,
             itemBuilder: (context, index) {
-              final item = widget.alllooking[index];
+              final item = widget.allrelationship[index];
               final isSelected = _selectedLookingIds.contains(item.id);
 
               return ListTile(
-                title: Text(item.value ?? ''),
+                title: Text(item.relation ?? ''),
                 trailing: isSelected
                     ? const Icon(Icons.check_box, color: Colors.green)
                     : const Icon(Icons.check_box_outline_blank),
@@ -85,7 +85,7 @@ Widget build(BuildContext context) {
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("You can select only 2 looking for"),
+                        content: Text("You can select only 2 relation"),
                       ),
                     );
                   }

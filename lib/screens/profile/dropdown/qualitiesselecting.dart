@@ -12,7 +12,7 @@ class QualitiesSelection extends StatefulWidget {
     required this.all,
     this.initiallySelectedIds = const [],
     this.initiallySelectedNames = const [],
-    //  required List<Data> alllooking,
+   
   });
 
   @override
@@ -111,8 +111,8 @@ Widget build(BuildContext context) {
               return ListTile(
                 title: Text(item.name ?? ''),
                 trailing: isSelected
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(Icons.circle_outlined),
+                    ? const Icon(Icons.check_box, color: Colors.green)
+                    : const Icon(Icons.check_box_outline_blank),
                 onTap: () {
                   if (isSelected || _selectedqualitiesIds.length < 4) {
                     _onItemTapped(item);

@@ -45,7 +45,11 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           IconButton(
             onPressed: () {
               // Add user functionality
-              _showAddUserDialog(context);
+              // _showAddUserDialog(context);
+              Navigator.pushNamed(
+                context,
+                '/addprofilescreen',
+              );
             },
             icon: const Icon(
               Icons.add_circle_outline,
@@ -167,8 +171,8 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
   Widget _buildProfileImage(Data user) {
     String baseUrl = "http://97.74.93.26:6100";
     String? imageUrl = user.profilePics?.isNotEmpty == true
-    ? "$baseUrl${user.profilePics!.first.url}"  // 👈 prepend base URL
-    : null;
+        ? "$baseUrl${user.profilePics!.first.url}" // 👈 prepend base URL
+        : null;
     print('images.......$imageUrl');
 
     return Container(
@@ -350,18 +354,16 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
         _buildActionButton(
           icon: Icons.group,
           color: Colors.blue,
-          onPressed: () 
-          {
-             Navigator.pushNamed(
-            context,
-            '/realusersscreen',
-            arguments: {
-              'accessToken': user.accessToken,
-              'userId': user.id,
-              'modeId':user.modes!.first.id
-              
-            },
-          );
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              '/realusersscreen',
+              arguments: {
+                'accessToken': user.accessToken,
+                'userId': user.id,
+                'modeId': user.modes!.first.id
+              },
+            );
           },
           // => _showUserDetails(user),
           tooltip: 'View Details',
@@ -370,21 +372,19 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
         _buildActionButton(
           icon: Icons.message,
           color: DatingColors.darkGreen,
-          
-          onPressed: () 
-          {
-             Navigator.pushNamed(
-  context,
-  '/matchesscreen',
-  arguments: {
-    'accessToken':user.accessToken ,
-    'userId': user.id,
-  },
-);
 
+          onPressed: () {
+            Navigator.pushNamed(
+              context,
+              '/matchesscreen',
+              arguments: {
+                'accessToken': user.accessToken,
+                'userId': user.id,
+              },
+            );
           },
           // => _editUser(user),
-          tooltip: 'Edit User',
+          tooltip: 'message User',
         ),
         const SizedBox(width: 12),
         _buildActionButton(
@@ -392,15 +392,14 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           color: Colors.orange,
           onPressed: () {
             Navigator.pushNamed(
-            context,
-            '/likesdislikesscreen',
-            arguments: {
-              'accessToken': user.accessToken,
-              'userId': user.id,
-              'userRole': user.role,
-            },
-          );
-
+              context,
+              '/likesdislikesscreen',
+              arguments: {
+                'accessToken': user.accessToken,
+                'userId': user.id,
+                'userRole': user.role,
+              },
+            );
           },
           tooltip: 'Contact',
         ),
@@ -408,7 +407,53 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
         _buildActionButton(
           icon: Icons.edit_outlined,
           color: Colors.red,
-          onPressed: () => _favoriteUser(user),
+          onPressed: () {
+          Navigator.pushNamed(
+  context,
+  '/addprofilescreen',
+  arguments: {
+    'userId': user.id,
+    'modeId': user.modes?.first.mode,
+    'userRole': user.role,
+    'firstName': user.firstName,
+    'lastName': user.lastName,
+    'dateOfBirth': user.dob,
+    'email': user.email,
+    'phoneNo': user.mobile,
+    'gender': user.gender,
+    'height': user.height,
+    'genderWant': user.genderIdentities?.map((e) => e.identity).toList() ?? [],
+    'causes': user.causesAndCommunities
+        ?.where((e) => e.causesAndCommunities != null)
+        .map((e) => e.causesAndCommunities!)
+        .toList() 
+        ?? [],
+
+    'interests': user.interests?.where((e) => e.interests != null).map((e) => e.interests).toList() ?? [],
+    'qualities': user.qualities?.where((e) => e.name != null).map((e) => e.name).toList() ?? [],
+    'lookingFor': user.lookingFor?.where((e) => e.value != null).map((e) => e.value).toList() ?? [],
+
+    // ✅ Fixed versions
+    // 'industry': user.industries?.map((e) => e.industry).toList() ?? [],
+    // 'experience': user.experiences?.map((e) => e.experience).toList() ?? [],
+    // 'relationship': user.relationships?.map((e) => e.value).toList() ?? [],
+
+    'starSign': user.starSign,
+    'educationLevel': user.educationLevel??'',
+    'newToArea': user.newToArea??"",
+    'hometown': user.hometown??'',
+    'defaultMessages': user.defaultMessages?.map((e) => e.message).toList() ?? [],
+    'kids': user.kids?.map((e) => e.kids).toList() ?? [],
+    'haveKids': user.haveKids??'',
+    'religion': user.religions?.map((e) => e.religion).toList() ?? [],
+    'pronoun': user.pronouns,
+    'prompts': user.prompts,
+    'profilePics': user.profilePics,
+    'politics':user.politics
+  },
+);
+
+          },
           tooltip: 'Add to Favorites',
         ),
       ],
@@ -452,10 +497,10 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
         actions: [
           TextButton(
             onPressed: () {
-                      Navigator.pushNamed(
-                      context,
-                     '/addprofilescreen',
-                    );
+              Navigator.pushNamed(
+                context,
+                '/addprofilescreen',
+              );
             },
             child: const Text('Add'),
           ),

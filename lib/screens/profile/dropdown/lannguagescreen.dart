@@ -1,49 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:admin_dating/models/signupprocessmodels/lookingModel.dart';
+import 'package:admin_dating/models/more section/languages.dart';
 
-class LookingForSelection extends StatefulWidget {
-  final List<Data> alllooking;
+class Lannguagescreen extends StatefulWidget {
+  final List<Data> allLanguage;
   final List<int> initiallySelectedIds;
   final List<String> initiallySelectedNames;
 
-  const LookingForSelection({
+  const Lannguagescreen({
     super.key,
-    required this.alllooking,
+    required this.allLanguage,
     this.initiallySelectedIds = const [],
     this.initiallySelectedNames = const [],
   });
 
   @override
-  State<LookingForSelection> createState() => _LookingForSelectionState();
+  State<Lannguagescreen> createState() => _LannguagescreenState();
 }
 
-class _LookingForSelectionState extends State<LookingForSelection> {
-  late List<int> _selectedLookingIds;
-  late List<String> _selectedLookingNames;
+class _LannguagescreenState extends State<Lannguagescreen> {
+  late List<int> _selectedLanguageIds;
+  late List<String> _selectedLanguagesNames;
 
   @override
   void initState() {
     super.initState();
-    _selectedLookingIds = List<int>.from(widget.initiallySelectedIds);
-    _selectedLookingNames = List<String>.from(widget.initiallySelectedNames);
+    _selectedLanguageIds = List<int>.from(widget.initiallySelectedIds);
+    _selectedLanguagesNames = List<String>.from(widget.initiallySelectedNames);
   }
 
   void _onItemTapped(Data item) {
     setState(() {
-      if (_selectedLookingIds.contains(item.id)) {
-        _selectedLookingIds.remove(item.id);
-        _selectedLookingNames.remove(item.value);
+      if (_selectedLanguageIds.contains(item.id)) {
+        _selectedLanguageIds.remove(item.id);
+        _selectedLanguagesNames.remove(item.name);
       } else {
-        _selectedLookingIds.add(item.id!);
-        _selectedLookingNames.add(item.value ?? '');
+        _selectedLanguageIds.add(item.id!);
+        _selectedLanguagesNames.add(item.name ?? '');
       }
     });
   }
 
   void _onDone() {
     Navigator.pop(context, {
-      'id': _selectedLookingIds,
-      'value': _selectedLookingNames,
+      'id': _selectedLanguageIds,
+      'name': _selectedLanguagesNames,
     });
   }
 
@@ -57,7 +57,7 @@ Widget build(BuildContext context) {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Select lookingfor\n(Only 2 allowed)",
+              const Text("Select 4 languages",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextButton(
                 onPressed: _onDone,
@@ -69,23 +69,23 @@ Widget build(BuildContext context) {
         const Divider(height: 1),
         Expanded(
           child: ListView.builder(
-            itemCount: widget.alllooking.length,
+            itemCount: widget.allLanguage.length,
             itemBuilder: (context, index) {
-              final item = widget.alllooking[index];
-              final isSelected = _selectedLookingIds.contains(item.id);
+              final item = widget.allLanguage[index];
+              final isSelected = _selectedLanguageIds.contains(item.id);
 
               return ListTile(
-                title: Text(item.value ?? ''),
+                title: Text(item.name ?? ''),
                 trailing: isSelected
                     ? const Icon(Icons.check_box, color: Colors.green)
                     : const Icon(Icons.check_box_outline_blank),
                 onTap: () {
-                  if (isSelected || _selectedLookingIds.length < 2) {
+                  if (isSelected || _selectedLanguageIds.length < 4) {
                     _onItemTapped(item);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("You can select only 2 looking for"),
+                        content: Text("You can select only 4 languages"),
                       ),
                     );
                   }

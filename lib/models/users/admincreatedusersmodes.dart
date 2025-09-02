@@ -104,7 +104,7 @@ class Data {
   Location? location;
   String? educationLevel;
   String? exercise;
-  bool? haveKids;
+  String? haveKids;
   List<GenderIdentities>? genderIdentities;
   String? smoking;
   String? politics;
@@ -115,7 +115,7 @@ class Data {
   List<Modes>? modes;
   List<String>? relationships;
   List<String>? industries;
-  bool? newToArea;
+  String? newToArea;
   List<String>? experiences;
   String? accessToken;
   String? refreshToken;
@@ -404,7 +404,7 @@ class Data {
       exercise = _parseString(json['exercise']);
       
       // Fixed haveKids parsing
-      haveKids = _parseBool(json['haveKids']);
+      // haveKids = _parseBool(json['haveKids']);
       
       // Parse genderIdentities
       if (json['genderIdentities'] != null && json['genderIdentities'] is List) {
@@ -423,6 +423,8 @@ class Data {
       smoking = _parseString(json['smoking']);
       politics = _parseString(json['politics']);
       hometown = _parseString(json['hometown']);
+      newToArea=_parseString(json['newToArea']);
+      haveKids=_parseString(json['haveKids']);
       height = json['height'];
       
       // Parse spokenLanguages
@@ -481,7 +483,7 @@ class Data {
       }
       
       // Fixed newToArea parsing
-      newToArea = _parseBool(json['newToArea']);
+      // newToArea = _parseBool(json['newToArea']);
       
       // Parse experiences
       if (json['experiences'] != null && json['experiences'] is List) {
@@ -617,7 +619,7 @@ class Data {
     Location? location,
     String? educationLevel,
     String? exercise,
-    bool? haveKids,
+    String? haveKids,
     List<GenderIdentities>? genderIdentities,
     String? smoking,
     String? politics,
@@ -628,7 +630,7 @@ class Data {
     List<Modes>? modes,
     List<String>? relationships,
     List<String>? industries,
-    bool? newToArea,
+    String? newToArea,
     List<String>? experiences,
     String? accessToken,
     String? refreshToken,

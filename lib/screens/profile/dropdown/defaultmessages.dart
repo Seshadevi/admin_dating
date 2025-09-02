@@ -123,8 +123,8 @@ Widget build(BuildContext context) {
               return ListTile(
                 title: Text(item.message ?? ''),
                 trailing: isSelected
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(Icons.circle_outlined),
+                    ? const Icon(Icons.check_box, color: Colors.green)
+                    : const Icon(Icons.check_box_outline_blank),
                 onTap: () {
                   if (isSelected || _selectedmesagesIds.length < 3) {
                     _onItemTapped(item);
