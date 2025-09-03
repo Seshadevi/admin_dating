@@ -3,6 +3,7 @@ import 'dart:convert';
 class Dgapi {
   static const String baseUrl = "http://97.74.93.26:6100";
   static const String login = "$baseUrl/user/userExistance";
+  static const String updateprofile="$baseUrl/profile/updateprofile";
   static const String login1 = "$baseUrl/user/login";
   static const String refreshToken = "$baseUrl/auth/refresh-token";
   static const String lookingFor = "$baseUrl/user/lookingFor";

@@ -110,13 +110,13 @@ class Data {
   String? politics;
   String? hometown;
   int? height;
-  List<String>? spokenLanguages;
+  List<Language>? spokenLanguages;
   int? createdByAdminId;
   List<Modes>? modes;
-  List<String>? relationships;
-  List<String>? industries;
+  List<Relationships>? relationships;
+  List<Industries>? industries;
   String? newToArea;
-  List<String>? experiences;
+  List<Experiences>? experiences;
   String? accessToken;
   String? refreshToken;
 
@@ -429,12 +429,13 @@ class Data {
       
       // Parse spokenLanguages
       if (json['spokenLanguages'] != null && json['spokenLanguages'] is List) {
-        spokenLanguages = <String>[];
+        spokenLanguages = <Language>[];
         json['spokenLanguages'].forEach((item) {
           if (item != null) {
-            String? parsed = _parseString(item);
-            if (parsed != null) {
-              spokenLanguages!.add(parsed);
+             try {
+              spokenLanguages!.add(Language.fromJson(item));
+            } catch (e) {
+              print('Error parsing Language: $e');
             }
           }
         });
@@ -458,25 +459,39 @@ class Data {
       
       // Parse relationships
       if (json['relationships'] != null && json['relationships'] is List) {
-        relationships = <String>[];
+        relationships = <Relationships>[];
         json['relationships'].forEach((item) {
           if (item != null) {
-            String? parsed = _parseString(item);
-            if (parsed != null) {
-              relationships!.add(parsed);
-            }
+            try {
+              relationships!.add(Relationships.fromJson(item));
+            } catch (e) {
+              print('Error parsing Relationships: $e');
+            } 
+          }
+        });
+      }
+       if (json['causesAndCommunities'] != null && json['causesAndCommunities'] is List) {
+        causesAndCommunities = <CausesAndCommunities>[];
+        json['causesAndCommunities'].forEach((v) {
+          if (v != null) {
+           try {
+              causesAndCommunities!.add(CausesAndCommunities.fromJson(v));
+            } catch (e) {
+              print('Error parsing causesAndCommunities: $e');
+            } 
           }
         });
       }
       
       // Parse industries
       if (json['industries'] != null && json['industries'] is List) {
-        industries = <String>[];
+        industries = <Industries>[];
         json['industries'].forEach((item) {
           if (item != null) {
-            String? parsed = _parseString(item);
-            if (parsed != null) {
-              industries!.add(parsed);
+            try {
+              industries!.add(Industries.fromJson(item));
+            } catch (e) {
+              print('Error parsing genderIdentities: $e');
             }
           }
         });
@@ -487,12 +502,13 @@ class Data {
       
       // Parse experiences
       if (json['experiences'] != null && json['experiences'] is List) {
-        experiences = <String>[];
+        experiences = <Experiences>[];
         json['experiences'].forEach((item) {
           if (item != null) {
-            String? parsed = _parseString(item);
-            if (parsed != null) {
-              experiences!.add(parsed);
+             try {
+              experiences!.add(Experiences.fromJson(item));
+            } catch (e) {
+              print('Error parsing Experiences: $e');
             }
           }
         });
@@ -625,13 +641,13 @@ class Data {
     String? politics,
     String? hometown,
     int? height,
-    List<String>? spokenLanguages,
+    List<Language>? spokenLanguages,
     int? createdByAdminId,
     List<Modes>? modes,
-    List<String>? relationships,
-    List<String>? industries,
+    List<Relationships>? relationships,
+    List<Industries>? industries,
     String? newToArea,
-    List<String>? experiences,
+    List<Experiences>? experiences,
     String? accessToken,
     String? refreshToken,
   }) {
@@ -861,6 +877,92 @@ class LookingFor {
     );
   }
 }
+class Relationships {
+  int? id;
+  String? relation;
+  UserRelation? userRelation;
+
+  Relationships({this.id, this.relation, this.userRelation});
+
+  factory Relationships.fromJson(Map<String, dynamic> json) {
+    return Relationships(
+      id: json['id'],
+      relation: json['relation'],
+      userRelation: json['user_relation'] != null
+          ? UserRelation.fromJson(json['user_relation'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['relation'] = relation;
+    if (userRelation != null) {
+      data['user_relation'] = userRelation!.toJson();
+    }
+    return data;
+  }
+
+  Relationships copyWith({
+    int? id,
+    String? relation,
+    UserRelation? userRelation,
+  }) {
+    return Relationships(
+      id: id ?? this.id,
+      relation: relation ?? this.relation,
+      userRelation: userRelation ?? this.userRelation,
+    );
+  }
+
+  factory Relationships.initial() {
+    return Relationships(
+      id: 0,
+      relation: '',
+      userRelation: UserRelation.initial(),
+    );
+  }
+}
+
+class UserRelation {
+  int? userId;
+  int? relationId;
+
+  UserRelation({this.userId, this.relationId});
+
+  factory UserRelation.fromJson(Map<String, dynamic> json) {
+    return UserRelation(
+      userId: json['user_id'],
+      relationId: json['relation_id'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['user_id'] = userId;
+    data['relation_id'] = relationId;
+    return data;
+  }
+
+  UserRelation copyWith({
+    int? userId,
+    int? relationId,
+  }) {
+    return UserRelation(
+      userId: userId ?? this.userId,
+      relationId: relationId ?? this.relationId,
+    );
+  }
+
+  factory UserRelation.initial() {
+    return UserRelation(
+      userId: 0,
+      relationId: 0,
+    );
+  }
+}
+
 
 class CausesAndCommunities {
   int? id;
@@ -1026,7 +1128,199 @@ class Location {
       name: name ?? this.name,
     );
   }
+
 }
+class Industries {
+  int? id;
+  String? industrie;
+  UserIndustries? userIndustries;
+
+  Industries({this.id, this.industrie, this.userIndustries});
+
+  factory Industries.fromJson(Map<String, dynamic> json) {
+    return Industries(
+      id: json['id'],
+      industrie: json['industry'],
+      userIndustries: json['user_industries'] != null
+          ? UserIndustries.fromJson(json['user_industries'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['industry'] = industrie;
+    if (userIndustries != null) {
+      data['user_industries'] = userIndustries!.toJson();
+    }
+    return data;
+  }
+
+  Industries copyWith({
+    int? id,
+    String? industrie,
+    UserIndustries? userIndustries,
+  }) {
+    return Industries(
+      id: id ?? this.id,
+      industrie: industrie ?? this.industrie,
+      userIndustries: userIndustries ?? this.userIndustries,
+    );
+  }
+
+  factory Industries.initial() {
+    return Industries(
+      id: 0,
+      industrie: '',
+      userIndustries: UserIndustries.initial(),
+    );
+  }
+}
+
+
+
+class UserIndustries {
+  int? userId;
+  int? industriesId;
+
+  UserIndustries({this.userId, this.industriesId});
+
+  UserIndustries.fromJson(Map<String, dynamic> json) {
+    userId = json['user_id'];
+    industriesId = json['industries_id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['user_id'] = userId;
+    data['industries_id'] = industriesId;
+    return data;
+  }
+
+  UserIndustries copyWith({
+    int? userId,
+    int? industriesId,
+  }) {
+    return UserIndustries(
+      userId: userId ?? this.userId,
+      industriesId: industriesId ?? this.industriesId,
+    );
+  }
+
+  static UserIndustries initial() {
+    return UserIndustries();
+  }
+}
+class Experiences {
+  int? id;
+  String? experience;
+  UserExperiences? userExperiences;
+
+  Experiences({
+    this.id,
+    this.experience,
+    this.userExperiences,
+  });
+
+  factory Experiences.fromJson(Map<String, dynamic> json) {
+    return Experiences(
+      id: json['id'],
+      experience: json['experience'],
+      userExperiences: json['user_experiences'] != null
+          ? UserExperiences.fromJson(json['user_experiences'])
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['experience'] = experience;
+    if (userExperiences != null) {
+      data['user_experiences'] = userExperiences!.toJson();
+    }
+    return data;
+  }
+
+  Experiences copyWith({
+    int? id,
+    String? experiences,
+    UserExperiences? userExperiences,
+  }) {
+    return Experiences(
+      id: id ?? this.id,
+      experience: experiences ?? this.experience,
+      userExperiences: userExperiences ?? this.userExperiences,
+    );
+  }
+
+  factory Experiences.initial() {
+    return Experiences(
+      id: 0,
+      experience: '',
+      userExperiences: UserExperiences.initial(),
+    );
+  }
+}
+
+class UserExperiences {
+  int? userId;
+  int? experiencesId;
+
+  UserExperiences({
+    this.userId,
+    this.experiencesId,
+  });
+
+  factory UserExperiences.fromJson(Map<String, dynamic> json) {
+    return UserExperiences(
+      userId: json['user_id'],
+      experiencesId: json['experiences_id'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['user_id'] = userId;
+    data['experiences_id'] = experiencesId;
+    return data;
+  }
+
+  UserExperiences copyWith({
+    int? userId,
+    int? experiencesId,
+  }) {
+    return UserExperiences(
+      userId: userId ?? this.userId,
+      experiencesId: experiencesId ?? this.experiencesId,
+    );
+  }
+
+  factory UserExperiences.initial() {
+    return UserExperiences(
+      userId: 0,
+      experiencesId: 0,
+    );
+  }
+}
+class Language {
+  int? id;
+  String? name;
+
+  Language({this.id, this.name});
+
+  Language.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+  }
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+      };
+}
+
 
 class GenderIdentities {
   int? id;

@@ -104,7 +104,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   List<int> _selectedrelationshipIds = [];
   List<String> _selectedrelationshipNames = [];
   List<int> _selectedstarsignIds = [];
-  List<String> _selectedstarsignNames = [];
+  String? _selectedstarsignNames;
   List<int> _selectedlanguageIds = [];
   List<String> _selectedlanguageNames = [];
   double? selectedLat;
@@ -118,6 +118,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   String? _selectedPronoun;
   int? userId;
   String? userrole;
+  String? accestoken;
   final List<String> _newtoarea = [
     "New to town",
     "Im a Local",
@@ -185,6 +186,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (arguments != null) {
+      accestoken = arguments['accestoken'];
       userId = arguments['userId'];
       userrole = arguments['userRole'] ?? '';
       _firstNameController.text = arguments['firstName'] ?? '';
@@ -197,21 +199,39 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
       // _selectedTheirGender = arguments['genderwant'] ?? '';
       // _selectedMode = arguments['modeId'] ?? [];
       _selectedcauseNames = List<String>.from(arguments['causes'] ?? []);
-      _selectedInterestNames =List<String>.from(arguments['interests'] ?? []);
-      _selectedqualitiesNames =List<String>.from(arguments['qualities'] ?? []);
-      _selectedLookingNames =List<String>.from(arguments['lookingFor'] ?? []);
-      // _selectedIndustryNames = arguments['industry'] ?? [];
-      // _selectedexperienceNames = arguments['experience'] ?? [];
-      // _selectedrelationshipNames = arguments['relationship'] ?? [];
-      // _selectedstarsignNames = arguments['starsign'] ?? '';   // ✅ FIXED
+      _selectedcauseIds = List<int>.from(arguments['causesId'] ?? []);
+
+      _selectedInterestNames = List<String>.from(arguments['interests'] ?? []);
+      _selectedInterestIds = List<int>.from(arguments['interestsId'] ?? []);
+      _selectedqualitiesNames = List<String>.from(arguments['qualities'] ?? []);
+       _selectedqualitiesIds = List<int>.from(arguments['qualitiesId'] ?? []);
+      _selectedLookingNames = List<String>.from(arguments['lookingFor'] ?? []);
+        _selectedLookingIds = List<int>.from(arguments['lookingForId'] ?? []);
+      _selectedIndustryNames = List<String>.from(arguments['industry'] ?? []);
+      _selectedIndustryIds = List<int>.from(arguments['industryId'] ?? []);
+      _selectedexperienceNames =
+          List<String>.from(arguments['experience'] ?? []);
+          _selectedexperienceIds =
+          List<int>.from(arguments['experienceId'] ?? []);
+      _selectedrelationshipNames =
+          List<String>.from(arguments['relationship'] ?? []);
+           _selectedrelationshipIds =
+          List<int>.from(arguments['relationshipId'] ?? []);
+      // _selectedstarsignNames = arguments['starSign'] ?? '';   // ✅ FIXED
       _selectedEducationlevel = arguments['educationLevel'] ?? '';
       _selectedNewtoarea = arguments['newToArea'] ?? '';
       _selectedHOmetown = arguments['hometown'] ?? '';
-      // _selectedlanguageNames = arguments['languages'] ?? [];
-      // _selectedmesagesNames = arguments['defaultsmessagess'] ?? [];
-      // _selectedKids = arguments['kids'] ?? [];
+      _selectedlanguageNames = List<String>.from(arguments['languages'] ?? []);
+       _selectedlanguageIds = List<int>.from(arguments['languagesId'] ?? []);
+      _selectedmesagesNames =
+          List<String>.from(arguments['defaultMessages'] ?? []);
+            _selectedmesagesIds =
+          List<int>.from(arguments['defaultMessagesId'] ?? []);
+      _selectedKids = arguments['kids'] ?? '';
       _selectedhavekids = arguments['haveKids'] ?? '';
-      // _selectedReligion = arguments['religion'] ?? [];
+      _selectedReligion = arguments['religion'] ?? '';
+      _selectedDrinking = arguments['drinking'] ?? '';
+
       _selectedPronoun = arguments['pronoun'] ?? '';
       _selectedPolitics = arguments['politics'] ?? '';
 
@@ -240,8 +260,8 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     print('hometown::::::::::$_selectedHOmetown');
     print('havekids::::::::::$_selectedhavekids');
     print('causes::::::::::$_selectedcauseNames');
-    // print('userid::::::::::$_selectedHOmetown');
-    // print('userid::::::::::$_selectedHOmetown');
+    print('language::::::::::$_selectedlanguageNames');
+    print('starsign::::::::::$_selectedstarsignNames');
     // print('userid::::::::::$_selectedHOmetown');
     // print('userid::::::::::$_selectedHOmetown');
   }
@@ -475,6 +495,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     print('industry..........$industrylist');
     print('experience..........$experiencelist');
     print('relationship..........$relationshiplist');
+    // print('starsign..........$starsig');
 
     return Scaffold(
       backgroundColor: const Color(0xffB2D12E),
@@ -1016,7 +1037,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                       _selectedLookingNames.isEmpty
+                        _selectedLookingNames.isEmpty
                             ? "Tap to select looking for"
                             : _selectedLookingNames.join(', '),
                         style: const TextStyle(fontSize: 14),
@@ -1093,7 +1114,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        _selectedIndustryIds.isEmpty
+                        _selectedIndustryNames.isEmpty
                             ? "Tap to select industry for"
                             : _selectedIndustryNames.join(', '),
                         style: const TextStyle(fontSize: 14),
@@ -1170,7 +1191,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        _selectedexperienceIds.isEmpty
+                        _selectedexperienceNames.isEmpty
                             ? "Tap to select experience"
                             : _selectedexperienceNames.join(', '),
                         style: const TextStyle(fontSize: 14),
@@ -1247,7 +1268,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        _selectedrelationshipIds.isEmpty
+                        _selectedrelationshipNames.isEmpty
                             ? "Tap to select raltionship"
                             : _selectedrelationshipNames.join(', '),
                         style: const TextStyle(fontSize: 14),
@@ -1269,80 +1290,47 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   // --- Startsign
                   // SECTION ---
                   const SizedBox(height: 10),
-                  const Text('Select starsign',
-                      style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () async {
-                      final result = await showModalBottomSheet<
-                              Map<String, dynamic>>(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors
-                              .transparent, // Important for rounded corner card
-                          builder: (context) {
-                            return Center(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20.0, vertical: 40),
-                                child: Material(
-                                  borderRadius: BorderRadius.circular(25),
-                                  color: const Color(
-                                      0xFFF3EDF7), // Background like the image
-                                  child: SizedBox(
-                                    height: MediaQuery.of(context).size.height *
-                                        0.9,
-                                    width: MediaQuery.of(context).size.width *
-                                        0.85,
-                                    child: StarsignSelection(
-                                      allstarsign: startsignlist,
-                                      initiallySelectedIds:
-                                          _selectedstarsignIds,
-                                      initiallySelectedNames:
-                                          _selectedstarsignNames,
-                                    ),
-                                  ),
+                  const Text(
+                    'Starsign',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: _selectedstarsignNames,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selectedstarsignNames != null)
+                          ? GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedstarsignNames = null;
+                                });
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Icon(
+                                  Icons.clear,
+                                  color: Colors.red,
                                 ),
                               ),
-                            );
-                          });
-
-                      if (result != null) {
-                        setState(() {
-                          _selectedstarsignIds =
-                              List<int>.from(result['id'] ?? []);
-                          _selectedstarsignNames =
-                              List<String>.from(result['name'] ?? []);
-                        });
-                      }
+                            )
+                          : null,
+                    ),
+                    items: (starsign.data ?? []).map((dataItem) {
+                      return DropdownMenuItem<String>(
+                        value: dataItem.name,
+                        child: Text(dataItem.name ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedstarsignNames = value);
                     },
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 14),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        _selectedstarsignIds.isEmpty
-                            ? "Tap to select starsign"
-                            : _selectedstarsignNames.join(', '),
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
                   ),
-                  if (_selectedstarsignIds.length < 2)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 6),
-                      child: Text(
-                        "",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 135, 116, 115),
-                          fontSize: 2,
-                        ),
-                      ),
-                    ),
 
                   // --- languages SECTION ---
                   const SizedBox(height: 10),
@@ -1402,7 +1390,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        _selectedlanguageIds.isEmpty
+                        _selectedlanguageNames.isEmpty
                             ? "Tap to select languages"
                             : _selectedlanguageNames.join(', '),
                         style: const TextStyle(fontSize: 14),
@@ -1552,16 +1540,6 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         });
                       }
                       print('selcetedmesages $_selectedmesagesNames');
-
-                      // if (result != null) {
-                      //   setState(() {
-                      //     _result = result;
-                      //     _selectedcauseNames = causessList
-                      //         .where((e) => result.contains(e.id))
-                      //         .map((e) => e.causesAndCommunities ?? '')
-                      //         .toList();
-                      //   });
-                      // }
                     },
                     child: Container(
                       width: double.infinity,
@@ -1572,7 +1550,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        _selectedmesagesIds.isEmpty
+                        _selectedmesagesNames.isEmpty
                             ? "Tap to select mesages"
                             : _selectedmesagesNames.join(', '),
                         style: const TextStyle(fontSize: 14),
@@ -2336,6 +2314,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       child: ElevatedButton(
                         onPressed: () async {
                           // _showSuccessDialog();
+                          print('presses..............');
 
                           if (_selectedKids != null) {
                             final matchingItems = kidsData.data?.where(
@@ -2403,6 +2382,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           }
                           print('seleted data$_selectedgenderIds');
                           if (userId == null) {
+                            print('signup part exicuted,,,,,,,,,,,');
                             try {
                               await ref
                                   .read(loginProvider.notifier)
@@ -2490,7 +2470,71 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                         'Failed to upload profile data: $e')),
                               );
                             }
-                          } else {}
+                          } else {
+                            try {
+                              print('updatedpart exicuted,,,,,,,,,,,');
+                              // if (pickedImage != null) {
+                              //   final File imageFile = File(pickedImage.path);
+                              //   final String key = 'photo1'; // Can also be 'profileImage', etc.
+                              print('home...........$_selectedHOmetown');
+                              print('lookingfor..........$_selectedLookingIds');
+                              print('lookingfor..........$_selectedLookingNames');
+                              print('lookingfor..........$_selectedLookingFor');
+                             
+                              await ref
+                                  .read(loginProvider.notifier)
+                                  .updateProfile(
+                                    specificToken: accestoken,
+                                    modeid: _selectedmodeId,
+
+                                    causeId: _selectedcauseIds,
+                                    bio: _bioController.text,
+                                    interestId: _selectedInterestIds,
+                                    qualityId: _selectedqualitiesIds,
+                                    prompt: prompts,
+                                    image: _selectedImages,
+                                    languagesId: _selectedlanguageIds,
+                                    starsignId: _selectedstarsignIds,
+                                    // jobId,
+                                    // educationId,
+                                    religionId: _selectedreligionIds,
+                                    lookingfor: _selectedLookingIds,
+                                    kidsId: _selectedkidsIds,
+                                    drinkingId: _selecteddrinkingIds,
+                                    // smoking,
+                                    gender: _selectedGender,
+                                    showOnProfile: _showProfile,
+                                    pronoun: _selectedPronoun,
+                                    // exercise,
+                                    industryId: _selectedIndustryIds,
+                                    experienceId: _selectedexperienceIds,
+                                    haveKids: _selectedhavekids,
+                                    educationLevel: _selectedEducationlevel,
+                                    newarea: _selectedNewtoarea,
+                                    height:
+                                        int.tryParse(_heightController.text),
+                                    relationshipId: _selectedrelationshipIds,
+                                    name: _firstNameController.text,
+                                    dob: _selectedBirth,
+                                    
+                                    hometown: _selectedHOmetown,
+                                    politics: _selectedPolitics,
+                                  );
+                              print('home...........$_selectedHOmetown');
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content:
+                                        Text('Image updated successfully!')),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content:
+                                        Text('Failed to upload image: $e')),
+                              );
+                            }
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,

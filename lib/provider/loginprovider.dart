@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:admin_dating/models/loginmodel.dart';
+import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/utils/dgapi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -216,17 +217,17 @@ class LoginNotifier extends StateNotifier<UserModel> {
       }
       if (starsign != null) {
         for (int i = 0; i < starsign.length; i++) {
-          request.fields['starSign[$i]'] = starsign[i].toString();
+          request.fields['starSignId[$i]'] = starsign[i].toString();
         }
       }
       if (relationship != null) {
         for (int i = 0; i < relationship.length; i++) {
-          request.fields['relationships[$i]'] = relationship[i].toString();
+          request.fields['relationshipId[$i]'] = relationship[i].toString();
         }
       }
       if (experience != null) {
         for (int i = 0; i < experience.length; i++) {
-          request.fields['experiences[$i]'] = experience[i].toString();
+          request.fields['experienceId[$i]'] = experience[i].toString();
         }
         
       }
@@ -238,12 +239,12 @@ class LoginNotifier extends StateNotifier<UserModel> {
       }
       if (industry != null) {
         for (int i = 0; i < industry.length; i++) {
-          request.fields['industries[$i]'] = industry[i].toString();
+          request.fields['industryId[$i]'] = industry[i].toString();
         }
       }
        if (languages != null) {
         for (int i = 0; i < languages.length; i++) {
-          request.fields['spokenLanguages[$i]'] = languages[i].toString();
+          request.fields['languageId[$i]'] = languages[i].toString();
         }
       }
 
@@ -343,6 +344,237 @@ class LoginNotifier extends StateNotifier<UserModel> {
       return 500;
     }
   }
+  Future<int> updateProfile({
+  String? specificToken,
+  List<int>? modeid,
+  String? modename,
+  List<int>? causeId,
+  String? bio,
+  List<int>? interestId,
+  List<int>? qualityId,
+  List<String>? prompt,
+  List<dynamic>? image,
+  List<int>? languagesId,
+  List<int>? starsignId,
+  int? jobId,
+  int? educationId,
+  List<int>? religionId,
+  List<int>? lookingfor,
+  List<int>? kidsId,
+  List<int>? drinkingId,
+  // int? eductionId,
+  String? smoking,
+  String? gender,
+  bool? showOnProfile,
+  String? pronoun,
+  String?exercise,
+  List<int>? industryId,
+  List<int>? experienceId,
+  String? haveKids,
+  String? educationLevel,
+  String? newarea,
+  int? height,
+  List<int>? relationshipId,
+  String? name,
+  String? dob,
+  // List<int>?causes,
+  String? hometown,
+  String? politics,
+}) async {
+  final loadingState = ref.read(loadingProvider.notifier);
+  loadingState.state = true;
+   print(
+        'updated data...industires:$industryId,expereince:$experienceId,.home:$hometown,causes:$causeId,lookingfor:$lookingfor,mode:$modeid,smoking:$smoking, modename:$modename,, intrestId:$interestId, qualityId:$qualityId, bio:$bio, prompt:$prompt, image:${image?.length},languages:$languagesId,work:$jobId,education:$educationId,starsign:$starsignId');
+  
+  try {
+    final String apiUrl = Dgapi.updateprofile;
+    final prefs = await SharedPreferences.getInstance();
+    loadingState.state = true;
+      
+      String? token;
+
+      // If a specific token is provided, use it directly
+      if (specificToken != null && specificToken.isNotEmpty) {
+        token = specificToken;
+        print('Using provided token: $token');
+      } else {
+        // Fallback to the original logic
+        String? userDataString = prefs.getString('userData');
+        if (userDataString == null || userDataString.isEmpty) {
+          throw Exception("User token is missing. Please log in again.");
+        }
+
+        final Map<String, dynamic> userData = jsonDecode(userDataString);
+
+        token = userData['accessToken'] ??
+            (userData['data'] != null &&
+                    (userData['data'] as List).isNotEmpty &&
+                    userData['data'][0]['access_token'] != null
+                ? userData['data'][0]['access_token']
+                : null);
+
+        if (token == null || token.isEmpty) {
+          throw Exception("User token is invalid. Please log in again.");
+        }
+
+        print('Retrieved Token from SharedPreferences: $token');
+      }
+
+      final client = RetryClient(
+        http.Client(),
+        retries: 3,
+        when: (response) =>
+            response.statusCode == 401 || response.statusCode == 400,
+        onRetry: (req, res, retryCount) async {
+          if (retryCount == 0 &&
+              (res?.statusCode == 401 || res?.statusCode == 400)) {
+            print("Token expired, refreshing...");
+            
+            // Only try to refresh if we're not using a specific token
+            if (specificToken == null) {
+              String? newAccessToken =
+                  await ref.read(loginProvider.notifier).restoreAccessToken();
+              
+              await prefs.setString('accessToken', newAccessToken);
+              token = newAccessToken;
+              req.headers['Authorization'] = 'Bearer $newAccessToken';
+              
+              print("New Token: $newAccessToken");
+            } else {
+              print("Cannot refresh specific token, using original");
+              req.headers['Authorization'] = 'Bearer $specificToken';
+            }
+          }
+        },
+      );
+
+     
+
+
+    
+    var request = http.MultipartRequest('PUT', Uri.parse(apiUrl));
+    request.headers['Authorization'] = 'Bearer $token';
+    request.headers['Accept'] = 'application/json';
+
+    // Add simple fields if not null
+    if (modeid != null) request.fields['modeId'] = modeid.toString();
+    if (modename != null) request.fields['modename'] = modename;
+    if (bio != null) request.fields['headLine'] = bio;
+    if (religionId != null) request.fields['religionId'] = religionId.toString();
+    if (experienceId != null) request.fields['experiences'] = experienceId.toString();
+    if (industryId != null) request.fields['industries'] = industryId.toString();
+    if (jobId != null) request.fields['workId'] = jobId.toString();
+    if (educationId != null) request.fields['educationId'] = educationId.toString();
+    if (starsignId != null) request.fields['starSignId'] = starsignId.toString();
+    if (smoking != null) request.fields['smoking'] = smoking.toString();
+    if (gender != null) request.fields['gender'] = gender.toString();
+    if (showOnProfile != null) request.fields['showOnProfile'] = showOnProfile.toString();
+    if (pronoun != null) request.fields['pronouns'] = pronoun.toString();
+    if (exercise != null) request.fields['exercise'] =exercise.toString();
+    if (haveKids != null) request.fields['haveKids'] =haveKids.toString();
+    if (educationLevel != null) request.fields['educationLevel'] =educationLevel.toString();
+    if (newarea != null) request.fields['newToArea'] =newarea.toString();
+    if (height != null) request.fields['height'] =height.toString();
+    if ( relationshipId != null) request.fields[' relationshipId'] = relationshipId.toString();
+    if (industryId != null) request.fields['industryId'] =industryId.toString();
+    if (experienceId != null) request.fields['experienceId'] =experienceId.toString();
+    
+    // Add list fields as indexed keys
+    void addListField(String key, List<int>? values) {
+      if (values != null && values.isNotEmpty) {
+        for (int i = 0; i < values.length; i++) {
+          request.fields['$key[$i]'] = values[i].toString();
+        }
+      }
+    }
+
+    addListField('causesAndCommunities', causeId);
+    addListField('interests', interestId);
+    addListField('qualities', qualityId);
+    addListField('lookingFor', lookingfor);
+    addListField('kids', kidsId);
+    addListField('drinking', drinkingId);
+    addListField('languageId', languagesId);
+    // addListField('languageId', languagesId);
+
+    // Handle prompt (List<Map<String,String>>) as JSON string if needed
+    // if (prompt != null && prompt.isNotEmpty) {
+    //   request.fields['prompts'] = jsonEncode(prompt);
+    // }
+    if (prompt != null && prompt.isNotEmpty) {
+        for (int i = 0; i < prompt.length; i++) {
+          request.fields['prompts[$i]'] = prompt[i].toString();
+        }
+      }
+
+    // Upload images if any
+   if (image != null && image.isNotEmpty) {
+  for (int i = 0; i < image.length; i++) {
+    final filePath = image[i]; // String path
+    final file = File(filePath);
+
+    if (await file.exists()) {
+      final fileExtension = filePath.split('.').last.toLowerCase();
+
+      MediaType? contentType;
+      if (fileExtension == 'jpg' || fileExtension == 'jpeg') {
+        contentType = MediaType('image', 'jpeg');
+      } else if (fileExtension == 'png') {
+        contentType = MediaType('image', 'png');
+      } else {
+        print('❌ Unsupported file type: $filePath');
+        continue;
+      }
+
+      final multipartFile = await http.MultipartFile.fromPath(
+        'profilePic', // confirm with backend
+        filePath,
+        contentType: contentType,
+      );
+
+      request.files.add(multipartFile);
+    } else {
+      print('⚠️ File not found: $filePath');
+    }
+  }
+}
+
+    final response = await request.send();
+    final responseBody = await response.stream.bytesToString();
+    print("📨 API Responsebody: $responseBody");
+    print("Status code: ${response.statusCode}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print("✅ Updated data parsed successfully");
+
+      final userDetails = jsonDecode(responseBody);
+
+      try {
+        final userModel = UserModel.fromJson(userDetails);
+        state = userModel;
+
+        final userData = json.encode(userDetails);
+        await prefs.setString('userData', userData);
+        print('User data saved in SharedPreferences.');
+      } catch (_) {
+        if (userDetails['data'] != null && userDetails['data'] is List) {
+          await prefs.setString('userData', responseBody);
+        } else {
+          throw Exception("Failed to parse updated profile data");
+        }
+      }
+
+      return response.statusCode;
+    } else {
+      throw Exception("Profile update failed with status: ${response.statusCode}");
+    }
+  } catch (e) {
+    print("❗ Exception during profile update: $e");
+    throw Exception("Update failed: $e");
+  } finally {
+    loadingState.state = false;
+  }
+}
 }
 
 final loginProvider = StateNotifierProvider<LoginNotifier, UserModel>((ref) {
