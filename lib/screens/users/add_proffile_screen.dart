@@ -759,10 +759,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           horizontal: 12, vertical: 8),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'Man', child: Text('Man')),
-                      DropdownMenuItem(value: 'Woman', child: Text('Woman')),
-                      DropdownMenuItem(
-                          value: 'Nonbinary', child: Text('Nonbinary')),
+                      DropdownMenuItem(value: 'He/Him', child: Text('He/Him')),
+                      DropdownMenuItem(value: 'She/Her', child: Text('She/Her')),
+                      
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -1716,7 +1715,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   GooglePlaceAutoCompleteTextField(
                     textEditingController: _locationController,
                     googleAPIKey:
-                        "AIzaSyB_7QtF9EUbVs_5mVFxZWS-NdzYwV9dbU0", // replace with your key
+                        "AIzaSyB_7VzP_TEnUsZ41tDzFSBZQgL9Om4v9Yg", // replace with your key
                     inputDecoration: InputDecoration(
                       hintText: "Search location",
                       border: OutlineInputBorder(
@@ -2382,13 +2381,12 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           }
                           print('seleted data$_selectedgenderIds');
                           if (userId == null) {
-                            print('signup part exicuted,,,,,,,,,,,');
+                            print('signup part exicuted');
                             try {
                               await ref
                                   .read(loginProvider.notifier)
                                   .signupuserApi(
 
-                                      // :_lastNameController ,
                                       email: _emailController.text,
                                       mobile: _phoneController.text,
                                       userName: _firstNameController.text,
@@ -2407,8 +2405,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                       finalheadline: _bioController.text,
                                       seletedprompts: prompts,
                                       choosedimages: _selectedImages,
-                                      selectedHeight:
-                                          int.tryParse(_heightController.text),
+                                      selectedHeight: int.tryParse(_heightController.text),
                                       defaultmessages: _selectedmesagesIds,
                                       experience: _selectedexperienceIds,
                                       industry: _selectedIndustryIds,
@@ -2472,7 +2469,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                             }
                           } else {
                             try {
-                              print('updatedpart exicuted,,,,,,,,,,,');
+                              print('updatedpart exicuted');
                               // if (pickedImage != null) {
                               //   final File imageFile = File(pickedImage.path);
                               //   final String key = 'photo1'; // Can also be 'profileImage', etc.
@@ -2511,8 +2508,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                     haveKids: _selectedhavekids,
                                     educationLevel: _selectedEducationlevel,
                                     newarea: _selectedNewtoarea,
-                                    height:
-                                        int.tryParse(_heightController.text),
+                                    height:int.tryParse(_heightController.text),
                                     relationshipId: _selectedrelationshipIds,
                                     name: _firstNameController.text,
                                     dob: _selectedBirth,

@@ -182,7 +182,7 @@ class Likeanddislikeprovider extends StateNotifier<Likeansdislikemodel> {
 
       print('Fetching Likes and Dislikes...');
 
-      final response = await http.get(
+      final response = await client.get(
         Uri.parse(Dgapi.likedislike),
         headers: {
           'Content-Type': 'application/json',
@@ -297,7 +297,7 @@ class Likeanddislikeprovider extends StateNotifier<Likeansdislikemodel> {
       
       
 
-      final  request= await http.post(
+      final  request= await client.post(
         apiUrl,
         headers: {
           "Authorization": "Bearer $token",

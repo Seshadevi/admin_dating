@@ -1,5 +1,12 @@
+
+
+
+
+
+
 import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/provider/users/matchesprovider.dart';
+import 'package:admin_dating/screens/users/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:admin_dating/provider/loader.dart';
@@ -224,15 +231,44 @@ class _MatchesScreenState extends ConsumerState<MatchesScreen> {
             ),
           ),
           
-          // Action Button (optional)
-          Container(
+          // Action Button → open chat
+          Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: Icon(
-              Icons.chat_bubble_outline,
-              color: DatingColors.black,
-              size: 24,
+            child: GestureDetector(
+              onTap: () {
+                if (accessToken == null || accessToken!.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Missing access token for chat')),
+                  );
+                  return;
+                }
+                if (user.id == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Invalid user id')),
+                  );
+                  return;
+                }
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AdminChatScreen(
+                      accessToken: accessToken!,           // from MatchesScreen state
+                      peerUserId: user.id!,                // user to chat with
+                      peerName: _getDisplayName(user),
+                      avatar: user.photoUrl ?? '',
+                    ),
+                  ),
+                );
+              },
+              child: const Icon(
+                Icons.chat_bubble_outline,
+                color: DatingColors.black,
+                size: 24,
+              ),
             ),
           ),
+
         ],
       ),
     );

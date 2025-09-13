@@ -1,15 +1,17 @@
+import 'package:admin_dating/provider/logout_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:admin_dating/screens/profile/notifications_screen.dart'; // make sure this exists
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool pushNotifications = true;
   bool darkMode = false;
 
@@ -110,6 +112,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   }),
                   buildTile("Analytics"),
                   buildTile("Trems And Conditions"),
+                  ElevatedButton(
+                    onPressed: () {
+                      _confirmLogout();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text(
+                      "Log Out",
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+
                 ],
               ),
             ),
@@ -119,6 +135,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
     );
   }
+   Future<void> _confirmLogout() async {
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Log out?'),
+      content: const Text('You will need to sign in again.'),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Log out')),
+      ],
+    ),
+  );
+
+  if (ok == true) {
+    await ref.read(logoutProvider.notifier).logout(context);
+  }
+}
+
 
   Widget buildTile(String title,
       {IconData icon = Icons.arrow_forward_ios, VoidCallback? onTap}) {

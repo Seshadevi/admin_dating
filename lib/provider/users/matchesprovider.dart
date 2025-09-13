@@ -81,7 +81,7 @@ class Matchesprovider extends StateNotifier<Matchesmodel> {
 
       print('Fetching Matches..');
 
-      final response = await http.get(
+      final response = await client.get(
         Uri.parse(Dgapi.matchesget),
         headers: {
           'Content-Type': 'application/json',

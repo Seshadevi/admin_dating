@@ -408,139 +408,139 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           icon: Icons.edit_outlined,
           color: Colors.red,
           onPressed: () {
-          Navigator.pushNamed(
-  context,
-  '/addprofilescreen',
-  arguments: {
-    'accestoken':user.accessToken,
-    'userId': user.id,
-    'modeId': user.modes?.first.mode,
-    'userRole': user.role,
-    'firstName': user.firstName,
-    'lastName': user.lastName,
-    'dateOfBirth': user.dob,
-    'email': user.email,
-    'phoneNo': user.mobile,
-    'gender': user.gender,
-    'height': user.height,
-    'genderWant': user.genderIdentities?.where((e) => e.identity != null)
-        .map((e) => e.identity!)
-        .toList() 
-        ?? [],
-    'causes': user.causesAndCommunities
-        ?.where((e) => e.causesAndCommunities != null)
-        .map((e) => e.causesAndCommunities!)
-        .toList() 
-        ?? [],
-        'causesId': user.causesAndCommunities
-        ?.where((e) => e.id != null)
-        .map((e) => e.id!)
-        .toList() 
-        ?? [],
-      'interests': user.interests
-        ?.map((e) => e.interests)
-        .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-        'interestsId': user.interests
-        ?.where((e) => e.id != null)
-        .map((e) => e.id)
-        // .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
+//           Navigator.pushNamed(
+//   context,
+//   '/addprofilescreen',
+//   arguments: {
+//     'accestoken':user.accessToken,
+//     'userId': user.id,
+//     'modeId': user.modes?.first.mode,
+//     'userRole': user.role,
+//     'firstName': user.firstName,
+//     'lastName': user.lastName,
+//     'dateOfBirth': user.dob,
+//     'email': user.email,
+//     'phoneNo': user.mobile,
+//     'gender': user.gender,
+//     'height': user.height,
+//     'genderWant': user.genderIdentities?.where((e) => e.identity != null)
+//         .map((e) => e.identity!)
+//         .toList() 
+//         ?? [],
+//     'causes': user.causesAndCommunities
+//         ?.where((e) => e.causesAndCommunities != null)
+//         .map((e) => e.causesAndCommunities!)
+//         .toList() 
+//         ?? [],
+//         'causesId': user.causesAndCommunities
+//         ?.where((e) => e.id != null)
+//         .map((e) => e.id!)
+//         .toList() 
+//         ?? [],
+//       'interests': user.interests
+//         ?.map((e) => e.interests)
+//         .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//         'interestsId': user.interests
+//         ?.where((e) => e.id != null)
+//         .map((e) => e.id)
+//         // .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
 
-    'qualities': user.qualities?.map((e) => e.name)
-        .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-        'qualitiesId': user.qualities?.map((e) => e.id)
-        .whereType<int>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-    'lookingFor': user.lookingFor?.map((e) => e.value)
-        .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-        'lookingForId': user.lookingFor?.map((e) => e.id)
-        .whereType<int>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
+//     'qualities': user.qualities?.map((e) => e.name)
+//         .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//         'qualitiesId': user.qualities?.map((e) => e.id)
+//         .whereType<int>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//     'lookingFor': user.lookingFor?.map((e) => e.value)
+//         .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//         'lookingForId': user.lookingFor?.map((e) => e.id)
+//         .whereType<int>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
 
-    // ✅ Fixed versions
-    'industry': user.industries?.map((e) => e.industrie)
-        .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-        'industryId': user.industries?.map((e) => e.id)
-        .whereType<int>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-    'experience': user.experiences?.map((e) => e.experience)
-        .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-        'experienceId': user.experiences?.map((e) => e.id)
-        .whereType<int>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-    'relationship': user.relationships?.map((e) => e.relation)
-        .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-        'relationshipId': user.relationships?.map((e) => e.id)
-        .whereType<int>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
+//     // ✅ Fixed versions
+//     'industry': user.industries?.map((e) => e.industrie)
+//         .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//         'industryId': user.industries?.map((e) => e.id)
+//         .whereType<int>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//     'experience': user.experiences?.map((e) => e.experience)
+//         .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//         'experienceId': user.experiences?.map((e) => e.id)
+//         .whereType<int>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//     'relationship': user.relationships?.map((e) => e.relation)
+//         .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//         'relationshipId': user.relationships?.map((e) => e.id)
+//         .whereType<int>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
 
-    'starSign': user.starSign??'',
-    'educationLevel': user.educationLevel??'',
-    'newToArea': user.newToArea??"",
-    'hometown': user.hometown??'',
-    'defaultMessages': user.defaultMessages?.map((e) => e.message)
-        .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-        'defaultMessagesId': user.defaultMessages?.map((e) => e.id)
-        .whereType<int>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
+//     'starSign': user.starSign??'',
+//     'educationLevel': user.educationLevel??'',
+//     'newToArea': user.newToArea??"",
+//     'hometown': user.hometown??'',
+//     'defaultMessages': user.defaultMessages?.map((e) => e.message)
+//         .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//         'defaultMessagesId': user.defaultMessages?.map((e) => e.id)
+//         .whereType<int>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
 
 
-    'haveKids': user.haveKids??'',
-   'religion': user.religions
-    ?.map((e) => e.religion)
-    .whereType<String>()
-    .join(', ')  // join list into one string
-    ?? '',
-    'kids': user.kids
-    ?.map((e) => e.kids)
-    .whereType<String>()
-    .join(', ')  // join list into one string
-    ?? '',
-    'drinking': user.drinking
-    ?.map((e) => e.preference)
-    .whereType<String>()
-    .join(', ')  // join list into one string
-    ?? '',
+//     'haveKids': user.haveKids??'',
+//    'religion': user.religions
+//     ?.map((e) => e.religion)
+//     .whereType<String>()
+//     .join(', ')  // join list into one string
+//     ?? '',
+//     'kids': user.kids
+//     ?.map((e) => e.kids)
+//     .whereType<String>()
+//     .join(', ')  // join list into one string
+//     ?? '',
+//     'drinking': user.drinking
+//     ?.map((e) => e.preference)
+//     .whereType<String>()
+//     .join(', ')  // join list into one string
+//     ?? '',
 
     
-    'pronoun': user.pronouns,
-    'prompts': user.prompts,
-    'profilePics': user.profilePics,
-    'politics':user.politics,
-    'languages':user.spokenLanguages?.map((e) => e.name)
-        .whereType<String>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
-        'languagesId':user.spokenLanguages?.map((e) => e.id)
-        .whereType<int>() // removes nulls and makes it List<String>
-        .toList()
-        ?? [],
+//     'pronoun': user.pronouns,
+//     'prompts': user.prompts,
+//     'profilePics': user.profilePics,
+//     'politics':user.politics,
+//     'languages':user.spokenLanguages?.map((e) => e.name)
+//         .whereType<String>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
+//         'languagesId':user.spokenLanguages?.map((e) => e.id)
+//         .whereType<int>() // removes nulls and makes it List<String>
+//         .toList()
+//         ?? [],
 
-  },
-);
+//   },
+// );
 
-          },
+        },
           tooltip: 'Add to Favorites',
         ),
       ],

@@ -5,7 +5,7 @@ class Dgapi {
   static const String login = "$baseUrl/user/userExistance";
   static const String updateprofile="$baseUrl/profile/updateprofile";
   static const String login1 = "$baseUrl/user/login";
-  static const String refreshToken = "$baseUrl/auth/refresh-token";
+  static const String refreshToken = "$baseUrl/refresh-token";
   static const String lookingFor = "$baseUrl/user/lookingFor";
   static const String modes = "$baseUrl/user/mode";
   static const String termsAndConditions = "$baseUrl/user/termsAndConditions";
@@ -48,10 +48,10 @@ class Dgapi {
   static const String deleteKids = "$baseUrl/user/kids";
   static const String updateLookingfor = "$baseUrl/user/lookingFor";
   static const String deleteLookingfor = "$baseUrl/user/lookingFor";
-  static const String updateReligion = "$baseUrl/user/religion";
-  static const String deleteReligion = "$baseUrl/user/religion";
-  static const String updateLanguage = "$baseUrl/language";
-  static const String deleteLanguage = "$baseUrl/language";
+  static const String  updateReligion = "$baseUrl/user/religion";
+  static const String  deleteReligion = "$baseUrl/user/religion";
+  static const String  updateLanguage = "$baseUrl/language";
+  static const String  deleteLanguage = "$baseUrl/language";
   static const String  relationshipget= "$baseUrl/user/relationAll";
   static const String  relationshippost= "$baseUrl/user/relation";
   static const String  relationshipupdate= "$baseUrl/user/relation";
@@ -64,17 +64,15 @@ class Dgapi {
   static const String  experiencepost= "$baseUrl/user/experience";
   static const String  experienceupdate= "$baseUrl/user/experience";
   static const String  experiencedelete= "$baseUrl/user/experience";
-  static const String modedelete="$baseUrl/user/user";
-  static const String modeupdate="$baseUrl/user/user";
-
-
-
-
+  static const String  modedelete="$baseUrl/user/user";
+  static const String  modeupdate="$baseUrl/user/user";
+  static const String  getverification ="$baseUrl/verifications";
+  static const String  updateverification ="$baseUrl/admin/users/userId/verification";
   static const String  admincreatedusers= "$baseUrl/admin/admincreatedusers";
   static const String  likedislike= "$baseUrl/admin/adminlikesordislikes";
   static const String  realUsers= "$baseUrl/admin/realusersforadmin";
   static const String  likedislikepost= "$baseUrl/user/like-dislike";
   static const String  matchesget = "$baseUrl/admin/adminmatches";
-  // static const String  = "$baseUrl/";
-  // static const String  = "$baseUrl/";
+  static const String  fetchadmins = "$baseUrl/admin/adminsforsuperAdmins";
+
 }

@@ -206,15 +206,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   letterSpacing: 1.2,
                                 ),
                               ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
+        );
+      }
+    }

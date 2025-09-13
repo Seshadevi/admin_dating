@@ -1,6 +1,7 @@
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/screens/login.dart';
+import 'package:admin_dating/screens/superAdminScreens/fetchadminscreen.dart';
 import 'package:admin_dating/screens/users/add_proffile_screen.dart';
 import 'package:admin_dating/screens/profile/dashboard.dart';
 import 'package:admin_dating/screens/profile/notification.dart';
@@ -127,10 +128,11 @@ class _MyAppState extends ConsumerState<MyApp> {
          "loginscreen": (context) => LoginScreen(),
          "reportscreen": (context) =>ReportScreen(),
          "dashboardscreen": (context) =>DashboardScreen(),
+         "superadmincreatedadminsscreen":(context) => AdminsScreen(),
          "subscriptionscreen": (context) =>SubscriptionsScreen(),
          "settingscreen": (context) =>SettingsScreen(),
          "notificationscreen": (context) =>NotificationsScreen(),
-         "swipesscreen": (context) =>SwipesScreen(),
+         "swipesscreen": (context) =>VerificationScreen(),
          "usersscreen": (context) => UsersScreen(),
          "adminusersscreen": (context) =>AdminUsersScreen(),
          "/addprofilescreen": (context) => AddProfileScreen(),

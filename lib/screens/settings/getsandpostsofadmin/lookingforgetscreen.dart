@@ -21,7 +21,7 @@ class _LookingForGetScreenState extends ConsumerState<LookingForGetScreen> {
   @override
   Widget build(BuildContext context) {
     final lookingState = ref.watch(lookingProvider);
-    final dataList = lookingState.data ?? [];
+    final dataList = lookingState.data?? [];
 
     return Scaffold(
       appBar: AppBar(
