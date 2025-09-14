@@ -40,12 +40,11 @@ class _AdminsScreenState extends ConsumerState<AdminsScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CreateAccountScreen(),
-                ),
+              Navigator.pushNamed(
+                context,'/createadmin',
+               
               );
+              ref.read(adminGetsProvider.notifier).getAdmins();
             },
             child: const Text(
               "Create Admin",
@@ -83,63 +82,78 @@ class _AdminsScreenState extends ConsumerState<AdminsScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 30,
-                            backgroundImage: (admin.profilePic != null &&
-                                    admin.profilePic!.isNotEmpty)
-                                ? NetworkImage(admin.profilePic!)
-                                : null,
-                            backgroundColor: DatingColors.darkGreen,
-                            child: (admin.profilePic == null ||
-                                    admin.profilePic!.isEmpty)
-                                ? Text(
-                                    (admin.username?.isNotEmpty ?? false)
-                                        ? admin.username![0].toUpperCase()
-                                        : "?",
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : null,
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  admin.username?.isNotEmpty ?? false
-                                      ? admin.username!
-                                      : "No Name",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  admin.email ?? "No Email",
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  admin.role?.roleName ?? "No Role",
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+  children: [
+    CircleAvatar(
+      radius: 30,
+      backgroundImage: (admin.profilePic != null && admin.profilePic!.isNotEmpty)
+          ? NetworkImage(
+              admin.profilePic!.startsWith("http")
+                  ? admin.profilePic!
+                  : "http://97.74.93.26:6100/${admin.profilePic!}",
+            )
+          : null,
+      backgroundColor: DatingColors.darkGreen,
+      child: (admin.profilePic == null || admin.profilePic!.isEmpty)
+          ? Text(
+              (admin.username?.isNotEmpty ?? false)
+                  ? admin.username![0].toUpperCase()
+                  : "?",
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            )
+          : null,
+    ),
+    const SizedBox(width: 14),
+
+    // ====== Info Section ======
+    Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(admin.username ?? "No Name",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 4),
+          Text(admin.email ?? "No Email",
+              style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          // Text(admin.password ?? "No Password",
+          //     style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          Text(admin.role?.roleName ?? "No Role",
+              style: const TextStyle(fontSize: 14, color: Colors.black54)),
+        ],
+      ),
+    ),
+
+    // ====== ACTION ICONS ======
+IconButton(
+  icon: const Icon(Icons.edit, color: Colors.blue),
+  onPressed: () {
+    Navigator.pushNamed(
+      context,
+      '/createadmin',
+      arguments: {
+        'id': admin.id,
+        'username': admin.username,
+        'email': admin.email,
+        'password': admin.password,
+        'roleId': admin.roleId,
+        'profilePic': admin.profilePic,
+      },
+    );
+  },
+),
+
+    IconButton(
+      icon: const Icon(Icons.delete, color: Colors.red),
+      onPressed: () {
+        //ref.read(adminGetsProvider.notifier).deleteAdmin(admin.id!);
+      },
+    ),
+  ],
+),
+
                     ),
                   );
                 },

@@ -127,7 +127,6 @@ class _LookingForGetScreenState extends ConsumerState<LookingForGetScreen> {
                                           );
                                         },
                                       );
-
                                       if (confirm == true) {
                                         await ref.read(lookingProvider.notifier).deleteLookingfor(item.id);
                                         ScaffoldMessenger.of(context).showSnackBar(

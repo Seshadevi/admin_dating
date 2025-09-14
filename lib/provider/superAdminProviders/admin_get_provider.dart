@@ -73,6 +73,12 @@ Future<void> getAdmins() async {
     required String password,
     required String roleId,
   }) async {
+    print("Sending username: ${firstName}");
+    print("Sending email: ${email}");
+    print("Sending password: ${password}");
+    print("Sending roleId: ${roleId}");
+    print("Sending profilePic: ${image.path}");
+
     try {
        ref.read(loadingProvider.notifier).state = true;
       var uri = Uri.parse(Dgapi.createadmin);
@@ -80,10 +86,11 @@ Future<void> getAdmins() async {
       var request = http.MultipartRequest("POST", uri);
 
       // Add text fields
-      request.fields['userame'] = firstName;
-      request.fields['email'] = email;
-      request.fields['password'] = password;
-      request.fields['roleId'] = roleId ; // fixed value based on Postman
+     request.fields['username'] = firstName;
+    request.fields['email'] = email;
+    request.fields['password'] = password;
+    request.fields['roleId'] = roleId;
+ // fixed value based on Postman
 
       // Add image file
       if (image.path.isNotEmpty) {
@@ -119,6 +126,67 @@ Future<void> getAdmins() async {
       ref.read(loadingProvider.notifier).state = false;
     }
   }
+
+
+  Future<bool> updateAdmin({
+  required int id,
+  File? image, // optional, only send if changed
+  required String firstName,
+  required String email,
+  required String password,
+  required String roleId,
+}) async {
+  print("Updating admin ID: $id");
+  print("Sending username: $firstName");
+  print("Sending email: $email");
+  print("Sending password: $password");
+  print("Sending roleId: $roleId");
+  print("Sending profilePic: ${image?.path}");
+
+  try {
+    ref.read(loadingProvider.notifier).state = true;
+    var uri = Uri.parse("http://97.74.93.26:6100/superAdmin/updateAdmin/$id");
+
+    var request = http.MultipartRequest("PUT", uri);
+
+    // Add text fields
+    request.fields['username'] = firstName;
+    request.fields['email'] = email;
+    request.fields['password'] = password;
+    request.fields['roleId'] = roleId;
+
+    // Add image only if user picked a new one
+    if (image != null && image.path.isNotEmpty) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'profilePic',
+        image.path,
+      ));
+    }
+
+    // Send request
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    print("Update Admin Status: ${response.statusCode}");
+    print("Update Admin Response: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final res = jsonDecode(response.body);
+      print("Admin updated: $res");
+      await getAdmins(); // refresh list
+      return true;
+    } else {
+      print("Error updating admin: ${response.body}");
+      return false;
+    }
+  } catch (e) {
+    print("Exception while updating admin: $e");
+    return false;
+  } finally {
+    ref.read(loadingProvider.notifier).state = false;
+  }
+}
+
 }
 
 

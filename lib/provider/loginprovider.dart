@@ -77,9 +77,11 @@ class LoginNotifier extends StateNotifier<UserModel> {
           messages: [decoded['message'] ?? 'Login failed.'],
         );
       }
-    } catch (e) {
-      return UserModel(success: false, messages: ["Server error occurred."]);
-    }
+    } catch (e, stack) {
+    print("Login exception: $e");
+    print("Stack trace: $stack");
+    return UserModel(success: false, messages: ["$e"]);
+  }
   }
 
   Future<int> signupuserApi({

@@ -27,10 +27,47 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
   Data? _selectedRole;
 
-
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  Map<String, dynamic>? args;
+  String? _profilePicUrl;
+  int? _editingId; // for update
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final receivedArgs = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+
+    if (receivedArgs != null && args == null) {
+      args = receivedArgs;
+
+      // Save for update use
+      _editingId = args!['id'];
+
+      // Prefill text fields
+      _nameController.text = args!['username'] ?? '';
+      _emailController.text = args!['email'] ?? '';
+      _passwordController.text = args!['password'] ?? '';
+      _profilePicUrl = args!['profilePic'];
+
+      // Preselect role if given
+      if (args!['roleId'] != null) {
+        Future.microtask(() {
+          final roles = ref.read(rolesProvider).data;
+          if (roles != null && roles.isNotEmpty) {
+            final role = roles.firstWhere(
+              (r) => r.id == args!['roleId'],
+              orElse: () => roles.first,
+            );
+            setState(() => _selectedRole = role);
+          }
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -41,11 +78,10 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   }
 
   @override
-void initState() {
-  super.initState();
-  Future.microtask(() => ref.read(rolesProvider.notifier).getroles());
-}
-
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(rolesProvider.notifier).getroles());
+  }
 
   // Pick image from gallery/camera
   Future<void> _pickImage() async {
@@ -59,8 +95,7 @@ void initState() {
                 leading: const Icon(Icons.photo_library),
                 title: const Text("Gallery"),
                 onTap: () async {
-                  final pickedFile =
-                      await _picker.pickImage(source: ImageSource.gallery);
+                  final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
                   if (pickedFile != null) {
                     setState(() => _imageFile = File(pickedFile.path));
                   }
@@ -71,8 +106,7 @@ void initState() {
                 leading: const Icon(Icons.camera_alt),
                 title: const Text("Camera"),
                 onTap: () async {
-                  final pickedFile =
-                      await _picker.pickImage(source: ImageSource.camera);
+                  final pickedFile = await _picker.pickImage(source: ImageSource.camera);
                   if (pickedFile != null) {
                     setState(() => _imageFile = File(pickedFile.path));
                   }
@@ -86,37 +120,43 @@ void initState() {
     );
   }
 
- void _submit() async {
-  if (_formKey.currentState!.validate()) {
-    if (_imageFile == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select a profile picture")),
-      );
-      return;
-    }
+  void _submit() async {
+    if (_formKey.currentState!.validate()) {
+      final notifier = ref.read(adminGetsProvider.notifier);
 
-    final success = await ref.read(adminGetsProvider.notifier).createAdmin(
-      image: _imageFile!,
-      firstName: _nameController.text.trim(),
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-      roleId: _selectedRole!.id.toString(),
-    );
+    final success = _editingId == null
+    ? await notifier.createAdmin(
+        image: _imageFile!,
+        firstName: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        roleId: _selectedRole?.id.toString() ?? '',
+      )
+    : await notifier.updateAdmin(
+        id: _editingId!,
+        image: _imageFile, 
+        firstName: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        roleId: _selectedRole?.id.toString() ?? '',
+      );
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Admin Created Successfully")),
-      
-      );
-      Navigator.pop(context) ;
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to create admin")),
-      );
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(_editingId == null
+                  ? "Admin Created Successfully"
+                  : "Admin Updated Successfully")),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to save admin")),
+        );
+      }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -140,12 +180,17 @@ void initState() {
                 child: CircleAvatar(
                   radius: 80,
                   backgroundColor: DatingColors.darkGreen,
-                  // Use the picked file to show the image
-                  backgroundImage:
-                      _imageFile != null ? FileImage(_imageFile!) : null,
-                  child: _imageFile == null
-                      ? const Icon(Icons.add_a_photo,
-                          size: 32, color: Colors.white)
+                  backgroundImage: _imageFile != null
+                      ? FileImage(_imageFile!)
+                      : (_profilePicUrl != null
+                          ? NetworkImage(
+                              _profilePicUrl!.startsWith("http")
+                                  ? _profilePicUrl!
+                                  : "http://97.74.93.26:6100/$_profilePicUrl",
+                            )
+                          : null) as ImageProvider?,
+                  child: (_imageFile == null && _profilePicUrl == null)
+                      ? const Icon(Icons.add_a_photo, size: 32, color: Colors.white)
                       : null,
                 ),
               ),
@@ -205,26 +250,48 @@ void initState() {
               ),
               const SizedBox(height: 24),
 
-              Consumer(
+             Consumer(
   builder: (context, ref, _) {
     final rolesState = ref.watch(rolesProvider);
+    final List<Data> roles = rolesState?.data ?? [];
 
-    if (rolesState == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (rolesState.data!.isEmpty) {
+    // If roles is empty, no dropdown, no value
+    if (roles.isEmpty) {
+      if (_selectedRole != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            _selectedRole = null;
+          });
+        });
+      }
       return const Text("No roles found");
     }
 
+    // If current selectedRole does not reference an actual role object from the list, try to select the matching one by ID
+    if (_selectedRole != null &&
+        !roles.contains(_selectedRole)) {
+      final selected = roles.firstWhere(
+          (role) => role.id == _selectedRole!.id,
+          orElse: () => roles.first);
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          // Use the in-list object as value, not a new instance
+          _selectedRole = selected;
+        });
+      });
+    }
+
     return DropdownButtonFormField<Data>(
-      value: _selectedRole,
+      value: _selectedRole != null && roles.contains(_selectedRole)
+        ? _selectedRole
+        : null,
       decoration: const InputDecoration(
         labelText: "Select Role",
         border: OutlineInputBorder(),
       ),
-      items: rolesState.data
-          ?.map((role) => DropdownMenuItem<Data>(
+      items: roles
+          .map((role) => DropdownMenuItem<Data>(
                 value: role,
                 child: Text(role.roleName.toString()),
               ))
@@ -235,7 +302,7 @@ void initState() {
         });
       },
       validator: (value) {
-        if (value == null) {
+        if (roles.isNotEmpty && value == null) {
           return "Please select a role";
         }
         return null;
@@ -243,38 +310,36 @@ void initState() {
     );
   },
 ),
-const SizedBox(height: 16),
 
+              const SizedBox(height: 16),
 
               // Submit Button
               Consumer(
-              builder: (context, ref, _) {
-                final isLoading = ref.watch(loadingProvider);
+                builder: (context, ref, _) {
+                  final isLoading = ref.watch(loadingProvider);
 
-                return isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: DatingColors.darkGreen,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 40, vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                  return isLoading
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: DatingColors.darkGreen,
+                            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                        ),
-                        onPressed: _submit,
-                        child: const Text(
-                          "Create Account",
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      );
-                  },
-                ),
-                ],
+                          onPressed: _submit,
+                          child: Text(
+                            _editingId == null ? "Create Account" : "Update Account",
+                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        );
+                },
               ),
-            ),
+            ],
           ),
-        );
-      }
-    }
+        ),
+      ),
+    );
+  }
+}
