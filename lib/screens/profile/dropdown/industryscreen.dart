@@ -79,15 +79,15 @@ Widget build(BuildContext context) {
               return ListTile(
                 title: Text(item.industry ?? ''),
                 trailing: isSelected
-                    ? const Icon(Icons.check_box, color: Colors.green)
+                    ? const Icon(Icons.radio_button_checked, color: Colors.green)
                     : const Icon(Icons.check_box_outline_blank),
                 onTap: () {
-                  if (isSelected || _selectedIndustryId.length < 2) {
+                  if (isSelected || _selectedIndustryId.length < 1) {
                     _onItemTapped(item);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("You can select only 1industry for"),
+                        content: Text("You can select only 1 industry "),
                       ),
                     );
                   }

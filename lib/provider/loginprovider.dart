@@ -82,12 +82,11 @@ class LoginNotifier extends StateNotifier<UserModel> {
     }
   }
 
-  
   Future<int> signupuserApi({
     String? email,
     String? mobile,
-    // double? latitude,
-    // double? longitude,
+    double? latitude,
+    double? longitude,
     String? userName,
     String? dateOfBirth,
     String? selectedGender,
@@ -109,15 +108,15 @@ class LoginNotifier extends StateNotifier<UserModel> {
     int? selectedHeight,
     List<int>? experience,
     List<int>? industry,
-    List<int>?relationship,
-    List<int>?starsign,
-    List<int>?languages,
-    String?hometown,
-   String? newtotown,
-   String? politics,
-   String? pronoun,
-   String? educationlevel,
-   String? havekids,
+    List<int>? relationship,
+    List<int>? starsign,
+    List<int>? languages,
+    String? hometown,
+    String? newtotown,
+    String? politics,
+    String? pronoun,
+    String? educationlevel,
+    String? havekids,
   }) async {
     const String apiUrl = Dgapi.login1;
     final prefs = await SharedPreferences.getInstance();
@@ -125,8 +124,9 @@ class LoginNotifier extends StateNotifier<UserModel> {
 
     print("✅ Proceeding with API request...");
     print(
-        'sign in data.........userId:$userId:$email,mobile:$mobile,latitude:,longitude:,Name:$userName,dob:$dateOfBirth,selectedgender:$selectedGender:');
-    print('data:::lookinfor:$selectedLookingfor,qualities::$selectedqualities,interests:$selectedInterestIds,kids:$selectedkidsIds,defaltmessages:$defaultmessages,drinking:$drinkingId,religion:$selectedreligionIds,');
+        'sign in data.........userId:$userId:$email,mobile:$mobile,latitude:$latitude,longitude:$longitude,Name:$userName,dob:$dateOfBirth,selectedgender:$selectedGender:');
+    print(
+        'data:::lookinfor:$selectedLookingfor,qualities::$selectedqualities,interests:$selectedInterestIds,kids:$selectedkidsIds,defaltmessages:$defaultmessages,drinking:$drinkingId,religion:$selectedreligionIds,');
     print(
         'data.......show:$showGenderOnProfile,height:$selectedHeight,headline:$finalheadline,images:${choosedimages!.length},mode:$modeid');
     print("havekids:$havekids,pronounces:$pronoun");
@@ -136,85 +136,84 @@ class LoginNotifier extends StateNotifier<UserModel> {
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
 
       // Basic fields
-       if (email != null) {
-        request.fields['email'] = email ;
-        }
+      if (email != null) {
+        request.fields['email'] = email;
+      }
 
       if (userName != null) {
-          request.fields['firstName'] = userName;
-        }
+        request.fields['firstName'] = userName;
+      }
 
-        // dob
-        if (dateOfBirth != null) {
-          request.fields['dob'] = dateOfBirth;
-        }
+      // dob
+      if (dateOfBirth != null) {
+        request.fields['dob'] = dateOfBirth;
+      }
 
-      
-      
-         request.fields['role'] = "user"; // remove this line if you truly want conditional only
-  
+      request.fields['role'] =
+          "user"; // remove this line if you truly want conditional only
 
-        // showOnProfile (bool)
-        if (showGenderOnProfile != null) {
-          request.fields['showOnProfile'] = showGenderOnProfile.toString();
-        }
+      // showOnProfile (bool)
+      if (showGenderOnProfile != null) {
+        request.fields['showOnProfile'] = showGenderOnProfile.toString();
+      }
 
-        // height (num)
-        if (selectedHeight != null) {
-          request.fields['height'] = selectedHeight.toString();
-        }
+      // height (num)
+      if (selectedHeight != null) {
+        request.fields['height'] = selectedHeight.toString();
+      }
 
-        // headLine
-        if (finalheadline != null) {
-          request.fields['headLine'] = finalheadline;
-        }
+      // headLine
+      if (finalheadline != null) {
+        request.fields['headLine'] = finalheadline;
+      }
 
-        // mobile
-        if (mobile != null) {
-          request.fields['mobile'] = mobile;
-        }
+      // mobile
+      if (mobile != null) {
+        request.fields['mobile'] = mobile;
+      }
 
-        // createdByAdminId (int)
-        if (userId != null) {
-          request.fields['createdByAdminId'] = userId.toString();
-        }
+      // createdByAdminId (int)
+      if (userId != null) {
+        request.fields['createdByAdminId'] = userId.toString();
+      }
 
-        // prompts (list)
-        if (seletedprompts != null && seletedprompts.isNotEmpty) {
-          request.fields['prompts'] = seletedprompts.join(',');
-        }
+      // prompts (list)
+      if (seletedprompts != null && seletedprompts.isNotEmpty) {
+        request.fields['prompts'] = seletedprompts.join(',');
+      }
 
-        // educationLevel
-        if (educationlevel != null) {
-          request.fields['educationLevel'] = educationlevel;
-        }
+      // educationLevel
+      if (educationlevel != null) {
+        request.fields['educationLevel'] = educationlevel;
+      }
 
-        // newToArea (bool)
-        if (newtotown != null) {
-          request.fields['newToArea'] = newtotown.toString();
-        }
+      // newToArea (bool)
+      if (newtotown != null) {
+        request.fields['newToArea'] = newtotown.toString();
+      }
 
-        // hometown
-        if (hometown != null) {
-          request.fields['hometown'] = hometown;
-        }
+      // hometown
+      if (hometown != null) {
+        request.fields['hometown'] = hometown;
+      }
 
-        // haveKids (bool)
-        if (havekids != null) {
-          request.fields['haveKids'] = havekids.toString();
-        }
+      // haveKids (bool)
+      if (havekids != null) {
+        request.fields['haveKids'] = havekids.toString();
+      }
 
-        // politics
-        if (politics != null) {
-          request.fields['politics'] = politics;
-        }
+      // politics
+      if (politics != null) {
+        request.fields['politics'] = politics;
+      }
 
-        // pronouns
-        if (pronoun != null) {
-          request.fields['pronouns'] = pronoun;
-        }
+      // pronouns
+      if (pronoun != null) {
+        request.fields['pronouns'] = pronoun;
+      }
+      request.fields['latitude'] = latitude.toString();
+      request.fields['longitude'] = longitude.toString();
 
-      
 
       // // Safe list fields (skip empty ones)
       if (selectedGenderIds != null) {
@@ -243,20 +242,18 @@ class LoginNotifier extends StateNotifier<UserModel> {
         for (int i = 0; i < experience.length; i++) {
           request.fields['experienceId[$i]'] = experience[i].toString();
         }
-        
       }
-       if (modeid != null) {
+      if (modeid != null) {
         for (int i = 0; i < modeid.length; i++) {
           request.fields['modeId[$i]'] = modeid[i].toString();
         }
-        
       }
       if (industry != null) {
         for (int i = 0; i < industry.length; i++) {
           request.fields['industryId[$i]'] = industry[i].toString();
         }
       }
-       if (languages != null) {
+      if (languages != null) {
         for (int i = 0; i < languages.length; i++) {
           request.fields['languageId[$i]'] = languages[i].toString();
         }
@@ -358,267 +355,279 @@ class LoginNotifier extends StateNotifier<UserModel> {
       return 500;
     }
   }
- Future<int> updateProfile({
-  String? specificToken,
-  List<int>? modeid,
-  String? modename,
-  List<int>? causeId,
-  String? bio,
-  List<int>? interestId,
-  List<int>? qualityId,
-  List<String>? prompt,
-  List<dynamic>? image,
-  List<int>? languagesId,
-  List<int>? starsignId,
-  int? jobId,
-  int? educationId,
-  List<int>? religionId,
-  List<int>? lookingfor,
-  List<int>? kidsId,
-  List<int>? drinkingId,
-  String? smoking,
-  String? gender,
-  bool? showOnProfile,
-  String? pronoun,
-  String? exercise,
-  List<int>? industryId,
-  List<int>? experienceId,
-  String? haveKids,
-  String? educationLevel,
-  String? newarea,
-  int? height,
-  List<int>? relationshipId,
-  String? name,
-  String? dob,
-  String? hometown,
-  String? politics,
-}) async {
-  final loadingState = ref.read(loadingProvider.notifier);
-  loadingState.state = true;
 
-  print(
-      'updated data...industires:$industryId,expereince:$experienceId,.home:$hometown,causes:$causeId,lookingfor:$lookingfor,mode:$modeid,smoking:$smoking, modename:$modename,, intrestId:$interestId, qualityId:$qualityId, bio:$bio, prompt:$prompt, image:${image?.length},languages:$languagesId,work:$jobId,education:$educationId,starsign:$starsignId');
+  Future<int> updateProfile({
+    String? specificToken,
+    List<int>? modeid,
+    String? modename,
+    List<int>? causeId,
+    String? bio,
+    List<int>? interestId,
+    List<int>? qualityId,
+    List<String>? prompt,
+    List<dynamic>? image,
+    List<int>? languagesId,
+    List<int>? starsignId,
+    int? jobId,
+    int? educationId,
+    List<int>? religionId,
+    List<int>? lookingfor,
+    List<int>? kidsId,
+    List<int>? drinkingId,
+    String? smoking,
+    String? gender,
+    bool? showOnProfile,
+    String? pronoun,
+    String? exercise,
+    List<int>? industryId,
+    List<int>? experienceId,
+    String? haveKids,
+    String? educationLevel,
+    String? newarea,
+    int? height,
+    List<int>? relationshipId,
+    String? name,
+    String? dob,
+    String? hometown,
+    String? politics,
+  }) async {
+    final loadingState = ref.read(loadingProvider.notifier);
+    loadingState.state = true;
 
-  RetryClient? client;
-  try {
-    final String apiUrl = Dgapi.updateprofile;
-    final prefs = await SharedPreferences.getInstance();
+    print(
+        'updated data...industires:$industryId,expereince:$experienceId,.home:$hometown,causes:$causeId,lookingfor:$lookingfor,mode:$modeid,smoking:$smoking, modename:$modename,, intrestId:$interestId, qualityId:$qualityId, bio:$bio, prompt:$prompt, image:${image?.length},languages:$languagesId,work:$jobId,education:$educationId,starsign:$starsignId');
 
-    // ---- Resolve token (specific token > stored token > refresh) ----
-    String? token = specificToken;
-    if (token == null || token.isEmpty) {
-      final userDataString = prefs.getString('userData');
-      if (userDataString == null || userDataString.isEmpty) {
-        throw Exception("User token is missing. Please log in again.");
-      }
-      final Map<String, dynamic> userData = jsonDecode(userDataString);
-      token = userData['accessToken'] ??
-          (userData['data'] != null &&
-                  (userData['data'] as List).isNotEmpty &&
-                  userData['data'][0]['access_token'] != null
-              ? userData['data'][0]['access_token']
-              : null);
-      token ??= prefs.getString('accessToken');
+    RetryClient? client;
+    try {
+      final String apiUrl = Dgapi.updateprofile;
+      final prefs = await SharedPreferences.getInstance();
+
+      // ---- Resolve token (specific token > stored token > refresh) ----
+      String? token = specificToken;
       if (token == null || token.isEmpty) {
-        throw Exception("User token is invalid. Please log in again.");
+        final userDataString = prefs.getString('userData');
+        if (userDataString == null || userDataString.isEmpty) {
+          throw Exception("User token is missing. Please log in again.");
+        }
+        final Map<String, dynamic> userData = jsonDecode(userDataString);
+        token = userData['accessToken'] ??
+            (userData['data'] != null &&
+                    (userData['data'] as List).isNotEmpty &&
+                    userData['data'][0]['access_token'] != null
+                ? userData['data'][0]['access_token']
+                : null);
+        token ??= prefs.getString('accessToken');
+        if (token == null || token.isEmpty) {
+          throw Exception("User token is invalid. Please log in again.");
+        }
       }
-    }
-    print('Using token: $token');
+      print('Using token: $token');
 
-    // ---- Build RetryClient with token refresh on 401/400 ----
-    client = RetryClient(
-      http.Client(),
-      retries: 3,
-      when: (res) => res.statusCode == 401 || res.statusCode == 400,
-      onRetry: (req, res, retryCount) async {
-        // Only refresh if not using caller-provided specificToken
-        if (retryCount == 0 && (res?.statusCode == 401 || res?.statusCode == 400)) {
-          if (specificToken == null) {
-            print("Token expired, refreshing...");
-            final newAccessToken =
-                await ref.read(loginProvider.notifier).restoreAccessToken();
-            if (newAccessToken != null && newAccessToken.isNotEmpty) {
-              await prefs.setString('accessToken', newAccessToken);
-              token = newAccessToken;
-              req.headers['Authorization'] = 'Bearer $newAccessToken';
-              print("New Token: $newAccessToken");
+      // ---- Build RetryClient with token refresh on 401/400 ----
+      client = RetryClient(
+        http.Client(),
+        retries: 3,
+        when: (res) => res.statusCode == 401 || res.statusCode == 400,
+        onRetry: (req, res, retryCount) async {
+          // Only refresh if not using caller-provided specificToken
+          if (retryCount == 0 &&
+              (res?.statusCode == 401 || res?.statusCode == 400)) {
+            if (specificToken == null) {
+              print("Token expired, refreshing...");
+              final newAccessToken =
+                  await ref.read(loginProvider.notifier).restoreAccessToken();
+              if (newAccessToken != null && newAccessToken.isNotEmpty) {
+                await prefs.setString('accessToken', newAccessToken);
+                token = newAccessToken;
+                req.headers['Authorization'] = 'Bearer $newAccessToken';
+                print("New Token: $newAccessToken");
+              }
+            } else {
+              // Keep using the provided token (cannot refresh it here)
+              req.headers['Authorization'] = 'Bearer $specificToken';
+              print("Using specific token provided by caller on retry");
             }
-          } else {
-            // Keep using the provided token (cannot refresh it here)
-            req.headers['Authorization'] = 'Bearer $specificToken';
-            print("Using specific token provided by caller on retry");
+          }
+        },
+      );
+
+      // ---- Build multipart PUT request ----
+      final request = http.MultipartRequest('PUT', Uri.parse(apiUrl));
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = 'application/json';
+
+      // Simple fields
+      if (modeid != null) request.fields['modeId'] = modeid.toString();
+      if (modename != null) request.fields['modename'] = modename;
+      if (bio != null) request.fields['headLine'] = bio;
+      if (religionId != null)
+        request.fields['religionId'] = religionId.toString();
+      if (experienceId != null)
+        request.fields['experiences'] = experienceId.toString();
+      if (industryId != null)
+        request.fields['industries'] = industryId.toString();
+      if (jobId != null) request.fields['workId'] = jobId.toString();
+      if (educationId != null)
+        request.fields['educationId'] = educationId.toString();
+      if (starsignId != null)
+        request.fields['starSignId'] = starsignId.toString();
+      if (smoking != null) request.fields['smoking'] = smoking;
+      if (gender != null) request.fields['gender'] = gender;
+      if (showOnProfile != null)
+        request.fields['showOnProfile'] = showOnProfile.toString();
+      if (pronoun != null) request.fields['pronouns'] = pronoun;
+      if (exercise != null) request.fields['exercise'] = exercise;
+      if (haveKids != null) request.fields['haveKids'] = haveKids;
+      if (educationLevel != null)
+        request.fields['educationLevel'] = educationLevel;
+      if (newarea != null) request.fields['newToArea'] = newarea;
+      if (height != null) request.fields['height'] = height.toString();
+      if (relationshipId != null)
+        request.fields['relationshipId'] =
+            relationshipId.toString(); // ⚠️ removed leading space bug
+      if (industryId != null)
+        request.fields['industryId'] = industryId.toString();
+      if (experienceId != null)
+        request.fields['experienceId'] = experienceId.toString();
+      if (name != null) request.fields['name'] = name;
+      if (dob != null) request.fields['dob'] = dob;
+      if (hometown != null) request.fields['hometown'] = hometown;
+      if (politics != null) request.fields['politics'] = politics;
+
+      // Indexed list fields
+      void addListField(String key, List<int>? values) {
+        if (values != null && values.isNotEmpty) {
+          for (int i = 0; i < values.length; i++) {
+            request.fields['$key[$i]'] = values[i].toString();
           }
         }
-      },
-    );
+      }
 
-    // ---- Build multipart PUT request ----
-    final request = http.MultipartRequest('PUT', Uri.parse(apiUrl));
-    request.headers['Authorization'] = 'Bearer $token';
-    request.headers['Accept'] = 'application/json';
+      addListField('causesAndCommunities', causeId);
+      addListField('interests', interestId);
+      addListField('qualities', qualityId);
+      addListField('lookingFor', lookingfor);
+      addListField('kids', kidsId);
+      addListField('drinking', drinkingId);
+      addListField('languageId', languagesId);
 
-    // Simple fields
-    if (modeid != null) request.fields['modeId'] = modeid.toString();
-    if (modename != null) request.fields['modename'] = modename;
-    if (bio != null) request.fields['headLine'] = bio;
-    if (religionId != null) request.fields['religionId'] = religionId.toString();
-    if (experienceId != null) request.fields['experiences'] = experienceId.toString();
-    if (industryId != null) request.fields['industries'] = industryId.toString();
-    if (jobId != null) request.fields['workId'] = jobId.toString();
-    if (educationId != null) request.fields['educationId'] = educationId.toString();
-    if (starsignId != null) request.fields['starSignId'] = starsignId.toString();
-    if (smoking != null) request.fields['smoking'] = smoking;
-    if (gender != null) request.fields['gender'] = gender;
-    if (showOnProfile != null) request.fields['showOnProfile'] = showOnProfile.toString();
-    if (pronoun != null) request.fields['pronouns'] = pronoun;
-    if (exercise != null) request.fields['exercise'] = exercise;
-    if (haveKids != null) request.fields['haveKids'] = haveKids;
-    if (educationLevel != null) request.fields['educationLevel'] = educationLevel;
-    if (newarea != null) request.fields['newToArea'] = newarea;
-    if (height != null) request.fields['height'] = height.toString();
-    if (relationshipId != null) request.fields['relationshipId'] = relationshipId.toString(); // ⚠️ removed leading space bug
-    if (industryId != null) request.fields['industryId'] = industryId.toString();
-    if (experienceId != null) request.fields['experienceId'] = experienceId.toString();
-    if (name != null) request.fields['name'] = name;
-    if (dob != null) request.fields['dob'] = dob;
-    if (hometown != null) request.fields['hometown'] = hometown;
-    if (politics != null) request.fields['politics'] = politics;
-
-    // Indexed list fields
-    void addListField(String key, List<int>? values) {
-      if (values != null && values.isNotEmpty) {
-        for (int i = 0; i < values.length; i++) {
-          request.fields['$key[$i]'] = values[i].toString();
+      // Prompts (as array items)
+      if (prompt != null && prompt.isNotEmpty) {
+        for (int i = 0; i < prompt.length; i++) {
+          request.fields['prompts[$i]'] = prompt[i];
         }
       }
-    }
 
-    addListField('causesAndCommunities', causeId);
-    addListField('interests', interestId);
-    addListField('qualities', qualityId);
-    addListField('lookingFor', lookingfor);
-    addListField('kids', kidsId);
-    addListField('drinking', drinkingId);
-    addListField('languageId', languagesId);
-
-    // Prompts (as array items)
-    if (prompt != null && prompt.isNotEmpty) {
-      for (int i = 0; i < prompt.length; i++) {
-        request.fields['prompts[$i]'] = prompt[i];
-      }
-    }
-
-    // Images
-    if (image != null && image.isNotEmpty) {
-      for (int i = 0; i < image.length; i++) {
-        final filePath = image[i]; // String path
-        final file = File(filePath);
-        if (await file.exists()) {
-          final ext = filePath.split('.').last.toLowerCase();
-          MediaType? contentType;
-          if (ext == 'jpg' || ext == 'jpeg') {
-            contentType = MediaType('image', 'jpeg');
-          } else if (ext == 'png') {
-            contentType = MediaType('image', 'png');
+      // Images
+      if (image != null && image.isNotEmpty) {
+        for (int i = 0; i < image.length; i++) {
+          final filePath = image[i]; // String path
+          final file = File(filePath);
+          if (await file.exists()) {
+            final ext = filePath.split('.').last.toLowerCase();
+            MediaType? contentType;
+            if (ext == 'jpg' || ext == 'jpeg') {
+              contentType = MediaType('image', 'jpeg');
+            } else if (ext == 'png') {
+              contentType = MediaType('image', 'png');
+            } else {
+              print('❌ Unsupported file type: $filePath');
+              continue;
+            }
+            final multipartFile = await http.MultipartFile.fromPath(
+              'profilePic', // confirm with backend
+              filePath,
+              contentType: contentType,
+            );
+            request.files.add(multipartFile);
           } else {
-            print('❌ Unsupported file type: $filePath');
-            continue;
+            print('⚠️ File not found: $filePath');
           }
-          final multipartFile = await http.MultipartFile.fromPath(
-            'profilePic', // confirm with backend
-            filePath,
-            contentType: contentType,
-          );
-          request.files.add(multipartFile);
-        } else {
-          print('⚠️ File not found: $filePath');
-        }
-      }
-    }
-
-    // ---- Send via RetryClient (IMPORTANT) ----
-    final streamed = await client.send(request);
-    final response = await http.Response.fromStream(streamed);
-
-    print("📨 API Responsebody: ${response.body}");
-    print("Status code: ${response.statusCode}");
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      print("✅ Updated data parsed successfully");
-      final userDetails = jsonDecode(response.body);
-
-      try {
-        final userModel = UserModel.fromJson(userDetails);
-        state = userModel;
-
-        final userData = json.encode(userDetails);
-        await prefs.setString('userData', userData);
-        print('User data saved in SharedPreferences.');
-      } catch (_) {
-        if (userDetails['data'] != null && userDetails['data'] is List) {
-          await prefs.setString('userData', response.body);
-        } else {
-          throw Exception("Failed to parse updated profile data");
         }
       }
 
-      return response.statusCode;
-    } else {
-      throw Exception("Profile update failed with status: ${response.statusCode}");
-    }
-  } catch (e) {
-    print("❗ Exception during profile update: $e");
-    throw Exception("Update failed: $e");
-  } finally {
-    loadingState.state = false;
-    // await client?.close(); // 🔒 important
-  }
-}
+      // ---- Send via RetryClient (IMPORTANT) ----
+      final streamed = await client.send(request);
+      final response = await http.Response.fromStream(streamed);
 
+      print("📨 API Responsebody: ${response.body}");
+      print("Status code: ${response.statusCode}");
 
-Future<String> restoreAccessToken() async {
-  final url = Uri.parse(Dgapi.refreshToken);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("✅ Updated data parsed successfully");
+        final userDetails = jsonDecode(response.body);
 
-  // read from current state (source of truth)
-  final current = ref.read(loginProvider);
-  final currentRefreshToken = current.data?.first.refreshToken;
+        try {
+          final userModel = UserModel.fromJson(userDetails);
+          state = userModel;
 
-  if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
-    throw Exception("No valid refresh token found.");
-  }
+          final userData = json.encode(userDetails);
+          await prefs.setString('userData', userData);
+          print('User data saved in SharedPreferences.');
+        } catch (_) {
+          if (userDetails['data'] != null && userDetails['data'] is List) {
+            await prefs.setString('userData', response.body);
+          } else {
+            throw Exception("Failed to parse updated profile data");
+          }
+        }
 
-  try {
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: jsonEncode({"refresh_token": currentRefreshToken}),
-    );
-
-    final Map<String, dynamic> body = jsonDecode(response.body);
-
-    if (response.statusCode == 200) {
-      final newAccessToken  = body['data']?['access_token'] as String?;
-      final newRefreshToken = body['data']?['refresh_token'] as String?;
-
-      if (newAccessToken == null || newAccessToken.isEmpty) {
-        throw Exception("Refresh endpoint did not return access_token.");
+        return response.statusCode;
+      } else {
+        throw Exception(
+            "Profile update failed with status: ${response.statusCode}");
       }
-
-      // write back to UserModel + SharedPreferences
-      await ref
-          .read(loginProvider.notifier)
-          .updateTokens(accessToken: newAccessToken, refreshToken: newRefreshToken);
-
-      return newAccessToken;
-    } else {
-      final msg = body['message'] ?? 'Failed to refresh token';
-      throw Exception("$msg (status ${response.statusCode})");
+    } catch (e) {
+      print("❗ Exception during profile update: $e");
+      throw Exception("Update failed: $e");
+    } finally {
+      loadingState.state = false;
+      // await client?.close(); // 🔒 important
     }
-  } catch (e) {
-    // bubble up so caller (e.g., RetryClient) can handle
-    rethrow;
   }
-}
+
+  Future<String> restoreAccessToken() async {
+    final url = Uri.parse(Dgapi.refreshToken);
+
+    // read from current state (source of truth)
+    final current = ref.read(loginProvider);
+    final currentRefreshToken = current.data?.first.refreshToken;
+
+    if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
+      throw Exception("No valid refresh token found.");
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json; charset=UTF-8'},
+        body: jsonEncode({"refresh_token": currentRefreshToken}),
+      );
+
+      final Map<String, dynamic> body = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        final newAccessToken = body['data']?['access_token'] as String?;
+        final newRefreshToken = body['data']?['refresh_token'] as String?;
+
+        if (newAccessToken == null || newAccessToken.isEmpty) {
+          throw Exception("Refresh endpoint did not return access_token.");
+        }
+
+        // write back to UserModel + SharedPreferences
+        await ref.read(loginProvider.notifier).updateTokens(
+            accessToken: newAccessToken, refreshToken: newRefreshToken);
+
+        return newAccessToken;
+      } else {
+        final msg = body['message'] ?? 'Failed to refresh token';
+        throw Exception("$msg (status ${response.statusCode})");
+      }
+    } catch (e) {
+      // bubble up so caller (e.g., RetryClient) can handle
+      rethrow;
+    }
+  }
 
   Future<void> updateTokens({
     required String accessToken,
@@ -650,7 +659,6 @@ Future<String> restoreAccessToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userData', jsonEncode(state.toJson()));
   }
-
 }
 
 final loginProvider = StateNotifierProvider<LoginNotifier, UserModel>((ref) {

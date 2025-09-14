@@ -43,8 +43,9 @@ import 'package:admin_dating/screens/settings/settings.dart';
 import 'package:admin_dating/screens/profile/subscriptionscreem.dart';
 import 'package:admin_dating/screens/profile/swipes.dart';
 import 'package:admin_dating/screens/profile/users.dart';
-import 'package:admin_dating/models/loginmodel.dart';
+// import 'package:admin_dating/models/loginmodel.dart';
 import 'package:admin_dating/screens/users/admincreateduserscreen.dart';
+import 'package:admin_dating/screens/users/edit_profilescreen.dart';
 import 'package:admin_dating/screens/users/likedislikescreen.dart';
 import 'package:admin_dating/screens/users/matchesscreen.dart';
 import 'package:admin_dating/screens/users/realusersscreen.dart';
@@ -173,7 +174,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         '/likesdislikesscreen':(context)=>LikesDislikesScreen(),
         '/realusersscreen':(context)=>RealUsersScreen(),
         '/matchesscreen':(context)=>MatchesScreen(),
-         // '/':(context)=>(),
+         '/editprofilesscreen':(context)=>EditProfileScreen(),
         // '/':(context)=>(),
          // '/':(context)=>(),
         // '/':(context)=>(),

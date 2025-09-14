@@ -77,18 +77,18 @@ Widget build(BuildContext context) {
               return ListTile(
                 title: Text(item.experience ?? ''),
                 trailing: isSelected
-                    ? const Icon(Icons.check_box, color: Colors.green)
-                    : const Icon(Icons.check_box_outline_blank),
+                    ? const Icon(Icons.radio_button_checked, color: Colors.green)
+                    : const Icon(Icons.radio_button_unchecked),
                 onTap: () {
-                  // if (isSelected || _selectedExperienceIds.length < 2) {
+                  if (isSelected || _selectedExperienceIds.length < 1) {
                     _onItemTapped(item);
-                  // } else {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     const SnackBar(
-                  //       content: Text("You can select only 2 looking for"),
-                  //     ),
-                  //   );
-                  // }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("You can select only 1 experience"),
+                      ),
+                    );
+                  }
                 },
               );
             },

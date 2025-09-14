@@ -57,7 +57,7 @@ Widget build(BuildContext context) {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text("Select relation\n(Only 2 allowed)",
+              const Text("Select relation\n(Only 1 allowed)",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               TextButton(
                 onPressed: _onDone,
@@ -77,15 +77,15 @@ Widget build(BuildContext context) {
               return ListTile(
                 title: Text(item.relation ?? ''),
                 trailing: isSelected
-                    ? const Icon(Icons.check_box, color: Colors.green)
-                    : const Icon(Icons.check_box_outline_blank),
+                    ? const Icon(Icons.radio_button_checked, color: Colors.green)
+                    : const Icon(Icons.radio_button_unchecked),
                 onTap: () {
-                  if (isSelected || _selectedLookingIds.length < 2) {
+                  if (isSelected || _selectedLookingIds.length < 1) {
                     _onItemTapped(item);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("You can select only 2 relation"),
+                        content: Text("You can select only 1 relation"),
                       ),
                     );
                   }

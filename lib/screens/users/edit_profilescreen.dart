@@ -34,14 +34,14 @@ import 'dart:io';
 import '../../models/users/admincreatedusersmodes.dart';
 import '../../provider/signupprocessProviders copy/genderProvider.dart';
 
-class AddProfileScreen extends ConsumerStatefulWidget {
-  const AddProfileScreen({super.key});
+class EditProfileScreen extends ConsumerStatefulWidget {
+  const EditProfileScreen({super.key});
 
   @override
-  ConsumerState<AddProfileScreen> createState() => _AddProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
+class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   List<dynamic> _selectedImages = List.filled(6, null);
 
   final ImagePicker _picker = ImagePicker();
@@ -180,92 +180,92 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
         () => ref.read(relationshipProvider.notifier).getRelationship());
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-  //   final arguments =
-  //       ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    final arguments =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-  //   if (arguments != null) {
-  //     accestoken = arguments['accestoken'];
-  //     userId = arguments['userId'];
-  //     userrole = arguments['userRole'] ?? '';
-  //     _firstNameController.text = arguments['firstName'] ?? '';
-  //     _lastNameController.text = arguments['lastname'] ?? '';
-  //     _selectedBirth = arguments['dateOfBirth'] ?? '';
-  //     _emailController.text = arguments['email'] ?? '';
-  //     _phoneController.text = arguments['phoneNo'] ?? '';
-  //     // _selectedGender = arguments['gender'] ?? ''; // ✅ FIXED
-  //     _heightController.text = arguments['height']?.toString() ?? '';
-  //     // _selectedTheirGender = arguments['genderwant'] ?? '';
-  //     // _selectedMode = arguments['modeId'] ?? [];
-  //     _selectedcauseNames = List<String>.from(arguments['causes'] ?? []);
-  //     _selectedcauseIds = List<int>.from(arguments['causesId'] ?? []);
+    if (arguments != null) {
+      accestoken = arguments['accestoken'];
+      userId = arguments['userId'];
+      userrole = arguments['userRole'] ?? '';
+      _firstNameController.text = arguments['firstName'] ?? '';
+      _lastNameController.text = arguments['lastname'] ?? '';
+      _selectedBirth = arguments['dateOfBirth'] ?? '';
+      _emailController.text = arguments['email'] ?? '';
+      _phoneController.text = arguments['phoneNo'] ?? '';
+      // _selectedGender = arguments['gender'] ?? ''; // ✅ FIXED
+      _heightController.text = arguments['height']?.toString() ?? '';
+      // _selectedTheirGender = arguments['genderwant'] ?? '';
+      // _selectedMode = arguments['modeId'] ?? [];
+      _selectedcauseNames = List<String>.from(arguments['causes'] ?? []);
+      _selectedcauseIds = List<int>.from(arguments['causesId'] ?? []);
 
-  //     _selectedInterestNames = List<String>.from(arguments['interests'] ?? []);
-  //     _selectedInterestIds = List<int>.from(arguments['interestsId'] ?? []);
-  //     _selectedqualitiesNames = List<String>.from(arguments['qualities'] ?? []);
-  //     _selectedqualitiesIds = List<int>.from(arguments['qualitiesId'] ?? []);
-  //     _selectedLookingNames = List<String>.from(arguments['lookingFor'] ?? []);
-  //     _selectedLookingIds = List<int>.from(arguments['lookingForId'] ?? []);
-  //     _selectedIndustryNames = List<String>.from(arguments['industry'] ?? []);
-  //     _selectedIndustryIds = List<int>.from(arguments['industryId'] ?? []);
-  //     _selectedexperienceNames =
-  //         List<String>.from(arguments['experience'] ?? []);
-  //     _selectedexperienceIds = List<int>.from(arguments['experienceId'] ?? []);
-  //     _selectedrelationshipNames =
-  //         List<String>.from(arguments['relationship'] ?? []);
-  //     _selectedrelationshipIds =
-  //         List<int>.from(arguments['relationshipId'] ?? []);
-  //     // _selectedstarsignNames = arguments['starSign'] ?? '';   // ✅ FIXED
-  //     _selectedEducationlevel = arguments['educationLevel'] ?? '';
-  //     _selectedNewtoarea = arguments['newToArea'] ?? '';
-  //     _selectedHOmetown = arguments['hometown'] ?? '';
-  //     _selectedlanguageNames = List<String>.from(arguments['languages'] ?? []);
-  //     _selectedlanguageIds = List<int>.from(arguments['languagesId'] ?? []);
-  //     _selectedmesagesNames =
-  //         List<String>.from(arguments['defaultMessages'] ?? []);
-  //     _selectedmesagesIds =
-  //         List<int>.from(arguments['defaultMessagesId'] ?? []);
-  //     _selectedKids = arguments['kids'] ?? '';
-  //     _selectedhavekids = arguments['haveKids'] ?? '';
-  //     _selectedReligion = arguments['religion'] ?? '';
-  //     _selectedDrinking = arguments['drinking'] ?? '';
+      _selectedInterestNames = List<String>.from(arguments['interests'] ?? []);
+      _selectedInterestIds = List<int>.from(arguments['interestsId'] ?? []);
+      _selectedqualitiesNames = List<String>.from(arguments['qualities'] ?? []);
+      _selectedqualitiesIds = List<int>.from(arguments['qualitiesId'] ?? []);
+      _selectedLookingNames = List<String>.from(arguments['lookingFor'] ?? []);
+      _selectedLookingIds = List<int>.from(arguments['lookingForId'] ?? []);
+      _selectedIndustryNames = List<String>.from(arguments['industry'] ?? []);
+      _selectedIndustryIds = List<int>.from(arguments['industryId'] ?? []);
+      _selectedexperienceNames =
+          List<String>.from(arguments['experience'] ?? []);
+      _selectedexperienceIds = List<int>.from(arguments['experienceId'] ?? []);
+      _selectedrelationshipNames =
+          List<String>.from(arguments['relationship'] ?? []);
+      _selectedrelationshipIds =
+          List<int>.from(arguments['relationshipId'] ?? []);
+      // _selectedstarsignNames = arguments['starSign'] ?? '';   // ✅ FIXED
+      _selectedEducationlevel = arguments['educationLevel'] ?? '';
+      _selectedNewtoarea = arguments['newToArea'] ?? '';
+      _selectedHOmetown = arguments['hometown'] ?? '';
+      _selectedlanguageNames = List<String>.from(arguments['languages'] ?? []);
+      _selectedlanguageIds = List<int>.from(arguments['languagesId'] ?? []);
+      _selectedmesagesNames =
+          List<String>.from(arguments['defaultMessages'] ?? []);
+      _selectedmesagesIds =
+          List<int>.from(arguments['defaultMessagesId'] ?? []);
+      _selectedKids = arguments['kids'] ?? '';
+      _selectedhavekids = arguments['haveKids'] ?? '';
+      _selectedReligion = arguments['religion'] ?? '';
+      _selectedDrinking = arguments['drinking'] ?? '';
 
-  //     _selectedPronoun = arguments['pronoun'] ?? '';
-  //     _selectedPolitics = arguments['politics'] ?? '';
+      _selectedPronoun = arguments['pronoun'] ?? '';
+      _selectedPolitics = arguments['politics'] ?? '';
 
-  //     // promptController.text = (arguments['prompts'] as List).join(', ');
-  //     const String baseUrl =
-  //         "http://97.74.93.26:6100"; // 👈 change to your API base
+      // promptController.text = (arguments['prompts'] as List).join(', ');
+      const String baseUrl =
+          "http://97.74.93.26:6100"; // 👈 change to your API base
 
-  //     List<dynamic>? pics = arguments['profilePics'];
-  //     if (pics != null) {
-  //       for (int i = 0; i < pics.length && i < 6; i++) {
-  //         final profilePic = pics[i] as ProfilePics;
-  //         _selectedImages[i] = "$baseUrl${profilePic.url}";
-  //       }
-  //     }
-  //   }
-  //   print('userid::::::::::$userId');
-  //   print('name:::::::::$_firstNameController');
-  //   print('mode.........$_selectedMode');
+      List<dynamic>? pics = arguments['profilePics'];
+      if (pics != null) {
+        for (int i = 0; i < pics.length && i < 6; i++) {
+          final profilePic = pics[i] as ProfilePics;
+          _selectedImages[i] = "$baseUrl${profilePic.url}";
+        }
+      }
+    }
+    print('userid::::::::::$userId');
+    print('name:::::::::$_firstNameController');
+    print('mode.........$_selectedMode');
 
-  //   // print("Profile Pics: ${arguments!['profilePics']}");
-  //   print('email::::::::::$_emailController');
-  //   print('number::::::::::${_phoneController.text}');
-  //   print('dob::::::::::$_selectedBirth');
-  //   print('educationlevel::::::::::$_selectedEducationlevel');
-  //   print('newto area::::::::::$_selectedNewtoarea');
-  //   print('hometown::::::::::$_selectedHOmetown');
-  //   print('havekids::::::::::$_selectedhavekids');
-  //   print('causes::::::::::$_selectedcauseNames');
-  //   print('language::::::::::$_selectedlanguageNames');
-  //   print('starsign::::::::::$_selectedstarsignNames');
-  //   // print('userid::::::::::$_selectedHOmetown');
-  //   // print('userid::::::::::$_selectedHOmetown');
-  // }
+    // print("Profile Pics: ${arguments!['profilePics']}");
+    print('email::::::::::$_emailController');
+    print('number::::::::::${_phoneController.text}');
+    print('dob::::::::::$_selectedBirth');
+    print('educationlevel::::::::::$_selectedEducationlevel');
+    print('newto area::::::::::$_selectedNewtoarea');
+    print('hometown::::::::::$_selectedHOmetown');
+    print('havekids::::::::::$_selectedhavekids');
+    print('causes::::::::::$_selectedcauseNames');
+    print('language::::::::::$_selectedlanguageNames');
+    print('starsign::::::::::$_selectedstarsignNames');
+    // print('userid::::::::::$_selectedHOmetown');
+    // print('userid::::::::::$_selectedHOmetown');
+  }
 
   Future<void> _pickImage(int index) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);

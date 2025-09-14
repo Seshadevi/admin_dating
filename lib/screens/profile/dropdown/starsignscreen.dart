@@ -77,18 +77,18 @@ Widget build(BuildContext context) {
               return ListTile(
                 title: Text(item.name ?? ''),
                 trailing: isSelected
-                    ? const Icon(Icons.check_box, color: Colors.green)
-                    : const Icon(Icons.check_box_outline_blank),
+                    ? const Icon(Icons.radio_button_checked, color: Colors.green)
+                    : const Icon(Icons.radio_button_unchecked),
                 onTap: () {
-                  // if (isSelected || _selectedStarsignIds.length < 2) {
+                  if (isSelected || _selectedStarsignIds.length < 1) {
                     _onItemTapped(item);
-                  // } else {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     const SnackBar(
-                  //       content: Text("You can select Starsign"),
-                  //     ),
-                  //   );
-                  // }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("You can select Starsign"),
+                      ),
+                    );
+                  }
                 },
               );
             },
