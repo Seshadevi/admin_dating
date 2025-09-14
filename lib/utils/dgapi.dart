@@ -2,7 +2,7 @@ import 'dart:convert';
 
 class Dgapi {
   static const String baseUrl = "http://97.74.93.26:6100";
-  static const String login = "$baseUrl/user/userExistance";
+  static const String login = "$baseUrl/superAdmin/loginadmin";
   static const String updateprofile="$baseUrl/profile/updateprofile";
   static const String login1 = "$baseUrl/user/login";
   static const String refreshToken = "$baseUrl/refresh-token";
@@ -73,6 +73,8 @@ class Dgapi {
   static const String  realUsers= "$baseUrl/admin/realusersforadmin";
   static const String  likedislikepost= "$baseUrl/user/like-dislike";
   static const String  matchesget = "$baseUrl/admin/adminmatches";
-  static const String  fetchadmins = "$baseUrl/admin/adminsforsuperAdmins";
-
+  static const String  fetchadmins = "$baseUrl/superAdmin/getAdmin";
+  static const String  createadmin = "$baseUrl/superAdmin/createAdmin";
+  static const String  fetchroles = "$baseUrl/superAdmin/adminRole";
+  static const String  addroles = "$baseUrl/superAdmin/adminRole";
 }

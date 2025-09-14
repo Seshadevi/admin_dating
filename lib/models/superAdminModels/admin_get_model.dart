@@ -1,405 +1,146 @@
 class AdminGetModel {
-  int? statusCode;
-  bool? success;
-  List<String>? messages;
-  List<Data>? data;
+  int? id;
+  String? username;
+  String? email;
+  String? password;
+  String? profilePic;
+  int? roleId;
+  String? createdAt;
+  String? updatedAt;
+  Role? role;
 
   AdminGetModel({
-    this.statusCode,
-    this.success,
-    this.messages,
-    this.data,
-  });
-
-  /// Initial empty state
-  factory AdminGetModel.initial() => AdminGetModel(
-        statusCode: 0,
-        success: false,
-        messages: [],
-        data: [],
-      );
-
-  /// CopyWith
-  AdminGetModel copyWith({
-    int? statusCode,
-    bool? success,
-    List<String>? messages,
-    List<Data>? data,
-  }) {
-    return AdminGetModel(
-      statusCode: statusCode ?? this.statusCode,
-      success: success ?? this.success,
-      messages: messages ?? this.messages,
-      data: data ?? this.data,
-    );
-  }
-
-  /// From JSON
-  factory AdminGetModel.fromJson(Map<String, dynamic> json) {
-    return AdminGetModel(
-      statusCode: json['statusCode'],
-      success: json['success'],
-      messages: (json['messages'] as List?)?.map((e) => e.toString()).toList(),
-      data: (json['data'] as List?)?.map((e) => Data.fromJson(e)).toList(),
-    );
-  }
-
-  /// To JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'statusCode': statusCode,
-      'success': success,
-      'messages': messages,
-      'data': data?.map((e) => e.toJson()).toList(),
-    };
-  }
-}
-
-class Data {
-  int? id;
-  String? mobile;
-  String? role;
-  String? email;
-  String? firstName;
-  String? lastName;
-  String? gender;
-  String? pronouns;
-  String? dob;
-  bool? showOnProfile;
-
-  List<dynamic>? qualities;
-  List<dynamic>? drinking;
-  List<dynamic>? kids;
-  List<dynamic>? religions;
-  List<dynamic>? interests;
-  List<dynamic>? lookingFor;
-  List<dynamic>? causesAndCommunities;
-  List<dynamic>? prompts;
-  List<dynamic>? defaultMessages;
-  List<dynamic>? profilePics;
-
-  String? starSign;
-  String? education;
-  String? work;
-  Location? location;
-  String? educationLevel;
-  String? exercise;
-  String? haveKids;
-  List<dynamic>? genderIdentities;
-  String? smoking;
-  String? politics;
-  String? hometown;
-  String? height;
-  List<dynamic>? spokenLanguages;
-  String? createdByAdminId;
-  List<dynamic>? modes;
-  List<dynamic>? relationships;
-  List<dynamic>? industries;
-  String? newToArea;
-  List<dynamic>? experiences;
-
-  String? accessToken;
-  String? refreshToken;
-
-  Data({
     this.id,
-    this.mobile,
-    this.role,
+    this.username,
     this.email,
-    this.firstName,
-    this.lastName,
-    this.gender,
-    this.pronouns,
-    this.dob,
-    this.showOnProfile,
-    this.qualities,
-    this.drinking,
-    this.kids,
-    this.religions,
-    this.interests,
-    this.lookingFor,
-    this.causesAndCommunities,
-    this.prompts,
-    this.defaultMessages,
-    this.profilePics,
-    this.starSign,
-    this.education,
-    this.work,
-    this.location,
-    this.educationLevel,
-    this.exercise,
-    this.haveKids,
-    this.genderIdentities,
-    this.smoking,
-    this.politics,
-    this.hometown,
-    this.height,
-    this.spokenLanguages,
-    this.createdByAdminId,
-    this.modes,
-    this.relationships,
-    this.industries,
-    this.newToArea,
-    this.experiences,
-    this.accessToken,
-    this.refreshToken,
+    this.password,
+    this.profilePic,
+    this.roleId,
+    this.createdAt,
+    this.updatedAt,
+    this.role,
   });
 
-  /// Initial empty state
-  factory Data.initial() => Data(
-        id: 0,
-        mobile: '',
-        role: '',
-        email: '',
-        firstName: '',
-        lastName: '',
-        gender: '',
-        pronouns: '',
-        dob: '',
-        showOnProfile: false,
-        qualities: [],
-        drinking: [],
-        kids: [],
-        religions: [],
-        interests: [],
-        lookingFor: [],
-        causesAndCommunities: [],
-        prompts: [],
-        defaultMessages: [],
-        profilePics: [],
-        starSign: '',
-        education: '',
-        work: '',
-        location: Location.initial(),
-        educationLevel: '',
-        exercise: '',
-        haveKids: '',
-        genderIdentities: [],
-        smoking: '',
-        politics: '',
-        hometown: '',
-        height: '',
-        spokenLanguages: [],
-        createdByAdminId: '',
-        modes: [],
-        relationships: [],
-        industries: [],
-        newToArea: '',
-        experiences: [],
-        accessToken: '',
-        refreshToken: '',
-      );
+  /// Factory constructor for creating an empty/initial object
+  factory AdminGetModel.initial() {
+    return AdminGetModel(
+      id: 0,
+      username: '',
+      email: '',
+      password: '',
+      profilePic: '',
+      roleId: 0,
+      createdAt: '',
+      updatedAt: '',
+      role: Role.initial(),
+    );
+  }
 
-  /// CopyWith
-  Data copyWith({
+  /// Creates a new object while allowing selective field updates
+  AdminGetModel copyWith({
     int? id,
-    String? mobile,
-    String? role,
+    String? username,
     String? email,
-    String? firstName,
-    String? lastName,
-    String? gender,
-    String? pronouns,
-    String? dob,
-    bool? showOnProfile,
-    List<dynamic>? qualities,
-    List<dynamic>? drinking,
-    List<dynamic>? kids,
-    List<dynamic>? religions,
-    List<dynamic>? interests,
-    List<dynamic>? lookingFor,
-    List<dynamic>? causesAndCommunities,
-    List<dynamic>? prompts,
-    List<dynamic>? defaultMessages,
-    List<dynamic>? profilePics,
-    String? starSign,
-    String? education,
-    String? work,
-    Location? location,
-    String? educationLevel,
-    String? exercise,
-    String? haveKids,
-    List<dynamic>? genderIdentities,
-    String? smoking,
-    String? politics,
-    String? hometown,
-    String? height,
-    List<dynamic>? spokenLanguages,
-    String? createdByAdminId,
-    List<dynamic>? modes,
-    List<dynamic>? relationships,
-    List<dynamic>? industries,
-    String? newToArea,
-    List<dynamic>? experiences,
-    String? accessToken,
-    String? refreshToken,
+    String? password,
+    String? profilePic,
+    int? roleId,
+    String? createdAt,
+    String? updatedAt,
+    Role? role,
   }) {
-    return Data(
+    return AdminGetModel(
       id: id ?? this.id,
-      mobile: mobile ?? this.mobile,
-      role: role ?? this.role,
+      username: username ?? this.username,
       email: email ?? this.email,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      gender: gender ?? this.gender,
-      pronouns: pronouns ?? this.pronouns,
-      dob: dob ?? this.dob,
-      showOnProfile: showOnProfile ?? this.showOnProfile,
-      qualities: qualities ?? this.qualities,
-      drinking: drinking ?? this.drinking,
-      kids: kids ?? this.kids,
-      religions: religions ?? this.religions,
-      interests: interests ?? this.interests,
-      lookingFor: lookingFor ?? this.lookingFor,
-      causesAndCommunities: causesAndCommunities ?? this.causesAndCommunities,
-      prompts: prompts ?? this.prompts,
-      defaultMessages: defaultMessages ?? this.defaultMessages,
-      profilePics: profilePics ?? this.profilePics,
-      starSign: starSign ?? this.starSign,
-      education: education ?? this.education,
-      work: work ?? this.work,
-      location: location ?? this.location,
-      educationLevel: educationLevel ?? this.educationLevel,
-      exercise: exercise ?? this.exercise,
-      haveKids: haveKids ?? this.haveKids,
-      genderIdentities: genderIdentities ?? this.genderIdentities,
-      smoking: smoking ?? this.smoking,
-      politics: politics ?? this.politics,
-      hometown: hometown ?? this.hometown,
-      height: height ?? this.height,
-      spokenLanguages: spokenLanguages ?? this.spokenLanguages,
-      createdByAdminId: createdByAdminId ?? this.createdByAdminId,
-      modes: modes ?? this.modes,
-      relationships: relationships ?? this.relationships,
-      industries: industries ?? this.industries,
-      newToArea: newToArea ?? this.newToArea,
-      experiences: experiences ?? this.experiences,
-      accessToken: accessToken ?? this.accessToken,
-      refreshToken: refreshToken ?? this.refreshToken,
+      password: password ?? this.password,
+      profilePic: profilePic ?? this.profilePic,
+      roleId: roleId ?? this.roleId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      role: role ?? this.role,
     );
   }
 
-  /// From JSON
-  factory Data.fromJson(Map<String, dynamic> json) {
-    return Data(
-      id: json['id'],
-      mobile: json['mobile'],
-      role: json['role'],
-      email: json['email'],
-      firstName: json['firstName'],
-      lastName: json['lastName'],
-      gender: json['gender'],
-      pronouns: json['pronouns'],
-      dob: json['dob'],
-      showOnProfile: json['showOnProfile'],
-      qualities: json['qualities'] ?? [],
-      drinking: json['drinking'] ?? [],
-      kids: json['kids'] ?? [],
-      religions: json['religions'] ?? [],
-      interests: json['interests'] ?? [],
-      lookingFor: json['lookingFor'] ?? [],
-      causesAndCommunities: json['causesAndCommunities'] ?? [],
-      prompts: json['prompts'] ?? [],
-      defaultMessages: json['defaultMessages'] ?? [],
-      profilePics: json['profile_pics'] ?? [],
-      starSign: json['starSign'],
-      education: json['education'],
-      work: json['work'],
-      location: json['location'] != null ? Location.fromJson(json['location']) : null,
-      educationLevel: json['educationLevel'],
-      exercise: json['exercise'],
-      haveKids: json['haveKids'],
-      genderIdentities: json['genderIdentities'] ?? [],
-      smoking: json['smoking'],
-      politics: json['politics'],
-      hometown: json['hometown'],
-      height: json['height'],
-      spokenLanguages: json['spokenLanguages'] ?? [],
-      createdByAdminId: json['createdByAdminId'],
-      modes: json['modes'] ?? [],
-      relationships: json['relationships'] ?? [],
-      industries: json['industries'] ?? [],
-      newToArea: json['newToArea'],
-      experiences: json['experiences'] ?? [],
-      accessToken: json['accessToken'],
-      refreshToken: json['refreshToken'],
-    );
+  AdminGetModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    username = json['username'];
+    email = json['email'];
+    password = json['password'];
+    profilePic = json['profilePic'];
+    roleId = json['roleId'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+    role = json['role'] != null ? Role.fromJson(json['role']) : null;
   }
 
-  /// To JSON
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'mobile': mobile,
-      'role': role,
-      'email': email,
-      'firstName': firstName,
-      'lastName': lastName,
-      'gender': gender,
-      'pronouns': pronouns,
-      'dob': dob,
-      'showOnProfile': showOnProfile,
-      'qualities': qualities,
-      'drinking': drinking,
-      'kids': kids,
-      'religions': religions,
-      'interests': interests,
-      'lookingFor': lookingFor,
-      'causesAndCommunities': causesAndCommunities,
-      'prompts': prompts,
-      'defaultMessages': defaultMessages,
-      'profile_pics': profilePics,
-      'starSign': starSign,
-      'education': education,
-      'work': work,
-      'location': location?.toJson(),
-      'educationLevel': educationLevel,
-      'exercise': exercise,
-      'haveKids': haveKids,
-      'genderIdentities': genderIdentities,
-      'smoking': smoking,
-      'politics': politics,
-      'hometown': hometown,
-      'height': height,
-      'spokenLanguages': spokenLanguages,
-      'createdByAdminId': createdByAdminId,
-      'modes': modes,
-      'relationships': relationships,
-      'industries': industries,
-      'newToArea': newToArea,
-      'experiences': experiences,
-      'accessToken': accessToken,
-      'refreshToken': refreshToken,
-    };
+    final Map<String, dynamic> data = {};
+    data['id'] = this.id;
+    data['username'] = this.username;
+    data['email'] = this.email;
+    data['password'] = this.password;
+    data['profilePic'] = this.profilePic;
+    data['roleId'] = this.roleId;
+    data['createdAt'] = this.createdAt;
+    data['updatedAt'] = this.updatedAt;
+    if (this.role != null) {
+      data['role'] = this.role!.toJson();
+    }
+    return data;
   }
 }
 
-class Location {
-  double? latitude;
-  double? longitude;
-  String? name;
+class Role {
+  int? id;
+  String? roleName;
+  String? createdAt;
+  String? updatedAt;
 
-  Location({this.latitude, this.longitude, this.name});
+  Role({
+    this.id,
+    this.roleName,
+    this.createdAt,
+    this.updatedAt,
+  });
 
-  factory Location.initial() => Location(
-        latitude: 0.0,
-        longitude: 0.0,
-        name: '',
-      );
-
-  factory Location.fromJson(Map<String, dynamic> json) {
-    return Location(
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
-      name: json['name'],
+  /// Factory constructor for initial empty role
+  factory Role.initial() {
+    return Role(
+      id: 0,
+      roleName: '',
+      createdAt: '',
+      updatedAt: '',
     );
   }
 
+  /// Copy with method for Role
+  Role copyWith({
+    int? id,
+    String? roleName,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return Role(
+      id: id ?? this.id,
+      roleName: roleName ?? this.roleName,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  Role.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    roleName = json['role_name'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+  }
+
   Map<String, dynamic> toJson() {
-    return {
-      'latitude': latitude,
-      'longitude': longitude,
-      'name': name,
-    };
+    final Map<String, dynamic> data = {};
+    data['id'] = this.id;
+    data['role_name'] = this.roleName;
+    data['createdAt'] = this.createdAt;
+    data['updatedAt'] = this.updatedAt;
+    return data;
   }
 }

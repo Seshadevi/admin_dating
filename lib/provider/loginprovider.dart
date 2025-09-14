@@ -59,7 +59,7 @@ class LoginNotifier extends StateNotifier<UserModel> {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {"Content-Type": "application/json"},
-        body: json.encode({"email": email, "password": password}),
+        body: json.encode({"emailOrUsername": email, "password": password}),
       );
 
       final decoded = json.decode(response.body);

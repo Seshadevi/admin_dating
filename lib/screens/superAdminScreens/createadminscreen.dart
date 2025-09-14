@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/superAdminProviders/admin_get_provider.dart';
+import 'package:admin_dating/provider/superAdminProviders/roles_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../models/superAdminModels/roles_get_model.dart';
 
 class CreateAccountScreen extends ConsumerStatefulWidget {
   const CreateAccountScreen({super.key});
@@ -22,6 +25,9 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
   final ImagePicker _picker = ImagePicker();
 
+  Data? _selectedRole;
+
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -33,6 +39,13 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
     _passwordController.dispose();
     super.dispose();
   }
+
+  @override
+void initState() {
+  super.initState();
+  Future.microtask(() => ref.read(rolesProvider.notifier).getroles());
+}
+
 
   // Pick image from gallery/camera
   Future<void> _pickImage() async {
@@ -87,6 +100,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
       firstName: _nameController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
+      roleId: _selectedRole!.id.toString(),
     );
 
     if (success) {
@@ -190,6 +204,47 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 },
               ),
               const SizedBox(height: 24),
+
+              Consumer(
+  builder: (context, ref, _) {
+    final rolesState = ref.watch(rolesProvider);
+
+    if (rolesState == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (rolesState.data!.isEmpty) {
+      return const Text("No roles found");
+    }
+
+    return DropdownButtonFormField<Data>(
+      value: _selectedRole,
+      decoration: const InputDecoration(
+        labelText: "Select Role",
+        border: OutlineInputBorder(),
+      ),
+      items: rolesState.data
+          ?.map((role) => DropdownMenuItem<Data>(
+                value: role,
+                child: Text(role.roleName.toString()),
+              ))
+          .toList(),
+      onChanged: (value) {
+        setState(() {
+          _selectedRole = value;
+        });
+      },
+      validator: (value) {
+        if (value == null) {
+          return "Please select a role";
+        }
+        return null;
+      },
+    );
+  },
+),
+const SizedBox(height: 16),
+
 
               // Submit Button
               Consumer(

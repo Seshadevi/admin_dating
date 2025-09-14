@@ -8,58 +8,82 @@ import 'package:http/http.dart' as http;
 
 
 
-class AdminGetsProvider extends StateNotifier<AdminGetModel> {
+class AdminGetsProvider extends StateNotifier<List<AdminGetModel>>
+ {
   final Ref ref;
-  AdminGetsProvider(this.ref) : super(AdminGetModel.initial());
+AdminGetsProvider(this.ref) : super([]);
 
-  Future<void> getAdmins() async {
-    try {
-      print('Fetching Admins...');
 
-      final response = await http.get(
-        Uri.parse(Dgapi.fetchadmins),
-      );
 
-      final responseBody = response.body;
-      print('Get Admins Status Code: ${response.statusCode}');
-      print('Get Admins Response Body: $responseBody');
+  // Future<void> getAdmins() async {
+  //   try {
+  //     print('Fetching Admins...');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        try {
-          final res = jsonDecode(responseBody);
-          final usersData = AdminGetModel.fromJson(res);
-          state = usersData;
+  //     final response = await http.get(
+  //       Uri.parse(Dgapi.fetchadmins),
+  //     );
+
+  //     final responseBody = response.body;
+  //     print('Get Admins Status Code: ${response.statusCode}');
+  //     print('Get Admins Response Body: $responseBody');
+
+  //     if (response.statusCode == 200 || response.statusCode == 201) {
+  //       try {
+  //         final res = jsonDecode(responseBody);
+  //         final usersData = AdminGetModel.fromJson(res);
+  //         state = usersData;
           
-          print('Admins fetched successfully');
-        } catch (e) {
-          print("Invalid response format: $e");
-          throw Exception("Error parsing Admins.");
-        }
-      } else {
-        print("Error fetching Admins: ${response.body}");
-        throw Exception("Error fetching Admins: ${response.body}");
-      }
-    } catch (e) {
-      print("Failed to fetch Admins: $e");
+  //         print('Admins fetched successfully');
+  //       } catch (e) {
+  //         print("Invalid response format: $e");
+  //         throw Exception("Error parsing Admins.");
+  //       }
+  //     } else {
+  //       print("Error fetching Admins: ${response.body}");
+  //       throw Exception("Error fetching Admins: ${response.body}");
+  //     }
+  //   } catch (e) {
+  //     print("Failed to fetch Admins: $e");
+  //   }
+  // }
+
+
+Future<void> getAdmins() async {
+  try {
+    final response = await http.get(Uri.parse(Dgapi.fetchadmins));
+    final responseBody = response.body;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final res = jsonDecode(responseBody);
+      final usersData = (res as List).map((json) => AdminGetModel.fromJson(json)).toList();
+      state = usersData; // <- state must now be List<AdminGetModel>
+    } else {
+      throw Exception("Error fetching Admins: ${response.body}");
     }
+  } catch (e) {
+    print("Failed to fetch Admins: $e");
   }
+}
+
+
+  
    Future<bool> createAdmin({
     required File image,
     required String firstName,
     required String email,
     required String password,
+    required String roleId,
   }) async {
     try {
        ref.read(loadingProvider.notifier).state = true;
-      var uri = Uri.parse(Dgapi.login1);
+      var uri = Uri.parse(Dgapi.createadmin);
 
       var request = http.MultipartRequest("POST", uri);
 
       // Add text fields
-      request.fields['firstName'] = firstName;
+      request.fields['userame'] = firstName;
       request.fields['email'] = email;
       request.fields['password'] = password;
-      request.fields['role'] = "admin"; // fixed value based on Postman
+      request.fields['roleId'] = roleId ; // fixed value based on Postman
 
       // Add image file
       if (image.path.isNotEmpty) {
@@ -101,6 +125,6 @@ class AdminGetsProvider extends StateNotifier<AdminGetModel> {
 
 // Riverpod provider
 final adminGetsProvider =
-    StateNotifierProvider<AdminGetsProvider, AdminGetModel>((ref) {
+    StateNotifierProvider<AdminGetsProvider, List<AdminGetModel>>((ref) {
   return AdminGetsProvider(ref);
 });
