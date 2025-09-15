@@ -36,7 +36,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           'Users',
           style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: DatingColors.White,
+              color: DatingColors.white,
               fontSize: 26),
         ),
         backgroundColor: DatingColors.primaryGreen,
@@ -53,7 +53,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
             },
             icon: const Icon(
               Icons.add_circle_outline,
-              color: DatingColors.White,
+              color: DatingColors.white,
               size: 48,
             ),
           ),
@@ -74,7 +74,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           ref.read(admincreatedusersprovider.notifier).getAdmincreatedusers();
         },
         backgroundColor: DatingColors.darkGreen,
-        child: const Icon(Icons.refresh, color: DatingColors.White),
+        child: const Icon(Icons.refresh, color: DatingColors.white),
       ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: 1,

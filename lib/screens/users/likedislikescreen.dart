@@ -119,7 +119,7 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
           'Likes & Dislikes',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: DatingColors.White,
+            color: DatingColors.white,
             fontSize: 24,
           ),
         ),
@@ -127,9 +127,9 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: DatingColors.White,
+          indicatorColor: DatingColors.white,
           labelColor: DatingColors.lightpink,
-          unselectedLabelColor: DatingColors.White.withOpacity(0.7),
+          unselectedLabelColor: DatingColors.white.withOpacity(0.7),
           tabs: [
             Tab(
               icon: const Icon(Icons.favorite),
@@ -185,7 +185,7 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
           }
         },
         backgroundColor: DatingColors.darkGreen,
-        child: const Icon(Icons.refresh, color: DatingColors.White),
+        child: const Icon(Icons.refresh, color: DatingColors.white),
       ),
     );
   }
