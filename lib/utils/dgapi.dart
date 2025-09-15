@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class Dgapi {
-  static const String baseUrl = "https://pixegnenterprises.in";
+  static const String baseUrl = "http://97.74.93.26:6100";
   static const String login = "$baseUrl/superAdmin/loginadmin";
   static const String updateprofile="$baseUrl/profile/updateprofile";
   static const String login1 = "$baseUrl/user/login";

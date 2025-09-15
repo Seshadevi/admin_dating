@@ -41,14 +41,15 @@ class _AdminsScreenState extends ConsumerState<AdminsScreen> {
           TextButton(
             onPressed: () {
               Navigator.pushNamed(
-                context,'/createadmin',
-               
+                context,
+                '/createadmin',
               );
               ref.read(adminGetsProvider.notifier).getAdmins();
             },
             child: const Text(
               "Create Admin",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
           IconButton(
@@ -82,78 +83,111 @@ class _AdminsScreenState extends ConsumerState<AdminsScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Row(
-  children: [
-    CircleAvatar(
-      radius: 30,
-      backgroundImage: (admin.profilePic != null && admin.profilePic!.isNotEmpty)
-          ? NetworkImage(
-              admin.profilePic!.startsWith("http")
-                  ? admin.profilePic!
-                  : "http://97.74.93.26:6100/${admin.profilePic!}",
-            )
-          : null,
-      backgroundColor: DatingColors.darkGreen,
-      child: (admin.profilePic == null || admin.profilePic!.isEmpty)
-          ? Text(
-              (admin.username?.isNotEmpty ?? false)
-                  ? admin.username![0].toUpperCase()
-                  : "?",
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            )
-          : null,
-    ),
-    const SizedBox(width: 14),
+                        children: [
+                          CircleAvatar(
+                            radius: 30,
+                            backgroundImage: (admin.profilePic != null &&
+                                    admin.profilePic!.isNotEmpty)
+                                ? NetworkImage(
+                                    admin.profilePic!.startsWith("http")
+                                        ? admin.profilePic!
+                                        : "http://97.74.93.26:6100/${admin.profilePic!}",
+                                  )
+                                : null,
+                            backgroundColor: DatingColors.darkGreen,
+                            child: (admin.profilePic == null ||
+                                    admin.profilePic!.isEmpty)
+                                ? Text(
+                                    (admin.username?.isNotEmpty ?? false)
+                                        ? admin.username![0].toUpperCase()
+                                        : "?",
+                                    style: const TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 14),
 
-    // ====== Info Section ======
-    Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(admin.username ?? "No Name",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 4),
-          Text(admin.email ?? "No Email",
-              style: const TextStyle(fontSize: 14, color: Colors.grey)),
-          // Text(admin.password ?? "No Password",
-          //     style: const TextStyle(fontSize: 14, color: Colors.grey)),
-          Text(admin.role?.roleName ?? "No Role",
-              style: const TextStyle(fontSize: 14, color: Colors.black54)),
-        ],
-      ),
-    ),
+                          // ====== Info Section ======
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(admin.username ?? "No Name",
+                                    style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold)),
+                                const SizedBox(height: 4),
+                                Text(admin.email ?? "No Email",
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Colors.grey)),
+                                // Text(admin.password ?? "No Password",
+                                //     style: const TextStyle(fontSize: 14, color: Colors.grey)),
+                                Text(admin.role?.roleName ?? "No Role",
+                                    style: const TextStyle(
+                                        fontSize: 14, color: Colors.black54)),
+                              ],
+                            ),
+                          ),
 
-    // ====== ACTION ICONS ======
-IconButton(
-  icon: const Icon(Icons.edit, color: Colors.blue),
-  onPressed: () {
-    Navigator.pushNamed(
-      context,
-      '/createadmin',
-      arguments: {
-        'id': admin.id,
-        'username': admin.username,
-        'email': admin.email,
-        'password': admin.password,
-        'roleId': admin.roleId,
-        'profilePic': admin.profilePic,
-      },
-    );
-  },
-),
+                          // ====== ACTION ICONS ======
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/createadmin',
+                                arguments: {
+                                  'id': admin.id,
+                                  'username': admin.username,
+                                  'email': admin.email,
+                                  'password': admin.password,
+                                  'roleId': admin.roleId,
+                                  'profilePic': admin.profilePic,
+                                },
+                              );
+                            },
+                          ),
 
-    IconButton(
-      icon: const Icon(Icons.delete, color: Colors.red),
-      onPressed: () {
-        //ref.read(adminGetsProvider.notifier).deleteAdmin(admin.id!);
-      },
-    ),
-  ],
-),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text("Delete Admin"),
+                                  content: const Text(
+                                      "Are you sure you want to delete this admin?"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text("Cancel"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text(
+                                        "Delete",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
 
+                              if (confirm == true) {
+                                ref
+                                    .read(adminGetsProvider.notifier)
+                                    .deleteAdmin(admin.id!, context: context);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },

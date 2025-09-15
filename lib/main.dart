@@ -1,6 +1,7 @@
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/screens/login.dart';
+import 'package:admin_dating/screens/superAdminScreens/add_roles.dart';
 import 'package:admin_dating/screens/superAdminScreens/createadminscreen.dart';
 import 'package:admin_dating/screens/superAdminScreens/fetchadminscreen.dart';
 import 'package:admin_dating/screens/users/add_proffile_screen.dart';
@@ -176,7 +177,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         '/realusersscreen':(context)=>RealUsersScreen(),
         '/matchesscreen':(context)=>MatchesScreen(),
          '/editprofilesscreen':(context)=>EditProfileScreen(),
-        // '/':(context)=>(),
+         '/addroles':(context)=> RolesScreen(),
         '/createadmin':(context)=>CreateAccountScreen(),
         // '/':(context)=>(),
         // '/':(context)=>(),

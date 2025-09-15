@@ -39,11 +39,9 @@ class _GetRolesState extends ConsumerState<GetRoles> {
           IconButton(
             icon: const Icon(Icons.add_circle_outline, size: 32),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const RolesScreen(),
-                ),
+              Navigator.pushNamed(
+                context,'/addroles',
+              
               );
             },
           ),
@@ -84,6 +82,7 @@ class _GetRolesState extends ConsumerState<GetRoles> {
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.blue),
                           onPressed: () {
+                            Navigator.pushNamed(context, '/addroles');
                             // TODO: Implement edit role
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -94,17 +93,55 @@ class _GetRolesState extends ConsumerState<GetRoles> {
                         ),
 
                         // Delete icon
-                        IconButton(
+                       IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {
-                            // TODO: Implement delete role
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      "Deleted role: ${admin.roleName ?? ''}")),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Delete Role"),
+                                content: Text(
+                                  "Are you sure you want to delete the role: ${admin.roleName ?? ''}?",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text("Cancel"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text(
+                                      "Delete",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             );
+
+                            if (confirm == true) {
+                              final success =
+                                  await ref.read(rolesProvider.notifier).deleteRole(admin.id);
+
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Deleted role: ${admin.roleName ?? ''}",style: TextStyle(color: Colors.white),),
+                                    backgroundColor: DatingColors.successGreen,
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Failed to delete role"),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
                           },
                         ),
+
                       ],
                     ),
                   ),

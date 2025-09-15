@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/models/superAdminModels/admin_get_model.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/utils/dgapi.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
@@ -184,6 +186,49 @@ Future<void> getAdmins() async {
     return false;
   } finally {
     ref.read(loadingProvider.notifier).state = false;
+  }
+}
+
+
+Future<void> deleteAdmin(int id, {BuildContext? context}) async {
+  try {
+    final uri = Uri.parse("http://97.74.93.26:6100/superAdmin/deleteAdmin/$id");
+    final response = await http.delete(uri);
+
+    print("Delete Admin Status: ${response.statusCode}");
+    print("Delete Admin Response: ${response.body}");
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      await getAdmins(); // refresh list
+
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Admin deleted successfully",style: TextStyle(color: Colors.white),),
+            backgroundColor: DatingColors.darkGreen,
+          ),
+        );
+      }
+    } else {
+      if (context != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to delete admin: ${response.body}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  } catch (e) {
+    print("Exception while deleting admin: $e");
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
 

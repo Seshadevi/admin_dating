@@ -26,6 +26,7 @@ class RolesProvider extends StateNotifier<GetRolesModel> {
       print('Get roles Response Body: $responseBody');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        
         try {
           final res = jsonDecode(responseBody);
           final usersData = GetRolesModel.fromJson(res);
@@ -71,6 +72,7 @@ class RolesProvider extends StateNotifier<GetRolesModel> {
       print('Post Role Response Body: $responseBody');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        await getroles();
         try {
           final res = jsonDecode(responseBody);
           print('......$res');
@@ -96,59 +98,88 @@ class RolesProvider extends StateNotifier<GetRolesModel> {
     }
   }
 
-  
-  //  Future<bool> createRole({
-  //   required File image,
-  //   required String firstName,
-  //   required String email,
-  //   required String password,
-  // }) async {
-  //   try {
-  //      ref.read(loadingProvider.notifier).state = true;
-  //     var uri = Uri.parse(Dgapi.login1);
 
-  //     var request = http.MultipartRequest("POST", uri);
 
-  //     // Add text fields
-  //     request.fields['firstName'] = firstName;
-  //     request.fields['email'] = email;
-  //     request.fields['password'] = password;
-  //     request.fields['role'] = "admin"; // fixed value based on Postman
+Future<bool> updateRole({
+  required int id,
+  required String roleName,
+}) async {
+  try {
+    print('Updating role ID: $id with name: $roleName');
 
-  //     // Add image file
-  //     if (image.path.isNotEmpty) {
-  //       request.files.add(await http.MultipartFile.fromPath(
-  //         'profilePic',
-  //         image.path,
-  //       ));
-  //     }
+    final response = await http.patch(
+      Uri.parse("http://97.74.93.26:6100/superAdmin/adminRole/$id"),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "role_name": roleName,
+      }),
+    );
 
-  //     // Send request
-  //     var streamedResponse = await request.send();
-  //     var response = await http.Response.fromStream(streamedResponse);
+    final responseBody = response.body;
+    print('Update Role Status Code: ${response.statusCode}');
+    print('Update Role Response Body: $responseBody');
 
-  //     print("Create Admin Status: ${response.statusCode}");
-  //     print("Create Admin Response: ${response.body}");
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      await getroles(); // refresh roles list
+      try {
+        final res = jsonDecode(responseBody);
+        print('Role updated successfully: $res');
+        return true;
+      } catch (e) {
+        print("Invalid response format: $e");
+        return false;
+      }
+    } else {
+      print("Error updating role: ${response.body}");
+      return false;
+    }
+  } catch (e) {
+    print("Failed to update role: $e");
+    return false;
+  }
+}
 
-  //     if (response.statusCode == 200 || response.statusCode == 201) {
-  //       // You can decode if needed
-  //       final res = jsonDecode(response.body);
-  //       print("Admin created: $res");
-  //      // getAdmins();
-  //       return true;
-  //     } else {
-  //       print("Error creating admin: ${response.body}");
-  //       return false;
-  //     }
-  //   } catch (e) {
-  //     print("Exception while creating admin: $e");
-     
-  //     return false;
-  //   }
-  //   finally{
-  //     ref.read(loadingProvider.notifier).state = false;
-  //   }
-  // }
+
+
+
+
+Future<bool> deleteRole(int? id) async {
+  try {
+    print('Deleting role with ID: $id');
+
+    final response = await http.delete(
+      Uri.parse("http://97.74.93.26:6100/superAdmin/adminRole/$id"),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    );
+
+    final responseBody = response.body;
+    print('Delete Role Status Code: ${response.statusCode}');
+    print('Delete Role Response Body: $responseBody');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      await getroles();
+      try {
+        final res = jsonDecode(responseBody);
+        print('Role deleted successfully: $res');
+        return true;
+      } catch (e) {
+        print("Invalid response format: $e");
+        return false;
+      }
+    } else {
+      print("Error deleting role: ${response.body}");
+      return false;
+    }
+  } catch (e) {
+    print("Failed to delete role: $e");
+    return false;
+  }
+}
+
 }
 
 
