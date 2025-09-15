@@ -1,6 +1,6 @@
+import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/provider/superAdminProviders/roles_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class RolesScreen extends ConsumerStatefulWidget {
@@ -14,45 +14,68 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _roleController = TextEditingController();
 
+  int? _roleId; // for edit case
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    if (args != null) {
+      _roleId = args['id'];
+      _roleController.text = args['roleName'] ?? '';
+    }
+  }
+
   @override
   void dispose() {
     _roleController.dispose();
     super.dispose();
   }
 
-  Future<void> _addRole() async {
-
+  Future<void> _saveRole() async {
     if (_formKey.currentState!.validate()) {
       final roleName = _roleController.text.trim();
 
-       final success = await ref.read(rolesProvider.notifier).addRole(     
-      roleName: _roleController.text.trim(),     
-    );
+      bool success;
+      if (_roleId != null) {
+        // EDIT
+        success = await ref.read(rolesProvider.notifier).updateRole(
+          id: _roleId!,
+          roleName: roleName,
+        );
+      } else {
+        // ADD
+        success = await ref.read(rolesProvider.notifier).addRole(
+          roleName: roleName,
+        );
+      }
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(content: Text("Role '$roleName' added successfully")),
-      
-      );
-      Navigator.pop(context) ;
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to create role")),
-      );
-    }
-     
-      _roleController.clear();
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_roleId != null
+              ? "Role updated successfully"
+              : "Role added successfully")),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Operation failed")),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = _roleId != null;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: DatingColors.darkGreen,
-        title: const Text(
-          "Add Roles",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          isEditing ? "Edit Role" : "Add Role",
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
@@ -61,7 +84,6 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // Role Input Field
               TextFormField(
                 controller: _roleController,
                 decoration: const InputDecoration(
@@ -76,8 +98,6 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                 },
               ),
               const SizedBox(height: 20),
-
-              // Add Role Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: DatingColors.darkGreen,
@@ -87,10 +107,10 @@ class _RolesScreenState extends ConsumerState<RolesScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: _addRole,
-                child: const Text(
-                  "Add Role",
-                  style: TextStyle(
+                onPressed: _saveRole,
+                child: Text(
+                  isEditing ? "Update Role" : "Add Role",
+                  style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),

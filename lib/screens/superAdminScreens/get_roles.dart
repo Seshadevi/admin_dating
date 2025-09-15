@@ -79,18 +79,20 @@ class _GetRolesState extends ConsumerState<GetRoles> {
                         ),
 
                         // Edit icon
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/addroles');
-                            // TODO: Implement edit role
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      "Edit role: ${admin.roleName ?? ''}")),
-                            );
-                          },
-                        ),
+                       IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/addroles',
+                            arguments: {
+                              'id': admin.id,
+                              'roleName': admin.roleName,
+                            },
+                          );
+                        },
+                      ),
+
 
                         // Delete icon
                        IconButton(
