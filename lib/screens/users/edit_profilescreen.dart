@@ -58,10 +58,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final TextEditingController workController = TextEditingController();
   final TextEditingController titleController = TextEditingController();
   final TextEditingController companyController = TextEditingController();
+  final TextEditingController educationController = TextEditingController();
+  final TextEditingController instituteController = TextEditingController();
+  final TextEditingController gradyearController = TextEditingController();
 
   final TextEditingController _educationController = TextEditingController();
   bool _showForm = false;
   String? _workSummary;
+  String? _educationSummary;
 
   List<String> prompts = [];
   bool isEditingPrompt = false;
@@ -486,7 +490,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final starsign = ref.watch(starsignProvider);
     final startsignlist = starsign.data ?? [];
     final language = ref.watch(languagesProvider);
-    
+
     final languagelist = language.data ?? [];
     final interest = ref.watch(interestsProvider);
     final interestlist = interest.data ?? [];
@@ -874,7 +878,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     },
                   ),
 
-                 const SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   const Text('Select Interests',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 8),
@@ -902,7 +906,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                         0.85,
                                     child: InterestsScreen(
                                       allInterestsScreen: interestlist,
-                                      initiallySelectedIds: _selectedInterestIds,
+                                      initiallySelectedIds:
+                                          _selectedInterestIds,
                                       initiallySelectedNames:
                                           _selectedInterestNames,
                                     ),
@@ -931,7 +936,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                       _selectedInterestNames.isEmpty
+                        _selectedInterestNames.isEmpty
                             ? "Tap to select interests"
                             : _selectedInterestNames.join(', '),
                         style: const TextStyle(fontSize: 14),
@@ -950,9 +955,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       ),
                     ),
                   const SizedBox(height: 10),
-
-
-
 
                   const Text('Select causes',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
@@ -2156,89 +2158,140 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   // =======================================
                   const SizedBox(height: 10),
 
-                  //               // work
-                  // const Text(
-                  //   'Work',
-                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
-                  // ),
-                  // const SizedBox(height: 5),
+                  // work
+                  const Text(
+                    'Work',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
 
-                  // // main work textfield
-                  // TextField(
-                  //   controller: workController,
-                  //   readOnly: true, // prevent typing directly
-                  //   decoration: InputDecoration(
-                  //     hintText: _workSummary ?? "Enter your work",
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   onTap: () {
-                  //     setState(() {
-                  //       _showForm = !_showForm; // toggle show/hide
-                  //     });
-                  //   },
-                  // ),
+                  // main work textfield
+                  TextField(
+                    controller: workController,
+                    readOnly: true, // prevent typing directly
+                    decoration: InputDecoration(
+                      hintText: _workSummary ?? "Enter your work",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _showForm = !_showForm; // toggle show/hide
+                      });
+                    },
+                  ),
 
-                  // const SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                  // // extra form shown after tapping
-                  // if (_showForm) ...[
-                  //   TextField(
-                  //     controller: titleController,
-                  //     decoration: const InputDecoration(
-                  //       hintText: "Enter your title (e.g., Developer)",
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   TextField(
-                  //     controller: companyController,
-                  //     decoration: const InputDecoration(
-                  //       hintText: "Enter company name (e.g., Infosys)",
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 10),
-                  //   ElevatedButton(
-                  //     onPressed: () {
-                  //       setState(() {
-                  //         _workSummary =
-                  //             "${titleController.text} at ${companyController.text}";
-                  //         workController.text = _workSummary!;
-                  //         _showForm = false;
-                  //       });
+                  // extra form shown after tapping
+                  if (_showForm) ...[
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(
+                        hintText: "Enter your title (e.g., Developer)",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: companyController,
+                      decoration: const InputDecoration(
+                        hintText: "Enter company name (e.g., Infosys)",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _workSummary =
+                              "${titleController.text} at ${companyController.text}";
+                          workController.text = _workSummary!;
+                          _showForm = false;
+                        });
 
-                  //       // Prepare API object
-                  //       final workData = {
-                  //         "title": titleController.text,
-                  //         "company": companyController.text,
-                  //       };
-                  //       print("Send to API: $workData");
-                  //     },
-                  //     child: Text(_workSummary == null ? "Add" : "Update"),
-                  //   ),
-                  // ],
-                  // const SizedBox(height: 10),
+                        // Prepare API object
+                        final workData = {
+                          "title": titleController.text,
+                          "company": companyController.text,
+                        };
+                        print("Send to API: $workData");
+                      },
+                      child: Text(_workSummary == null ? "Add" : "Update"),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
 
-                  // // education
-                  // const Text('education',
-                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  // const SizedBox(height: 5),
-                  // TextField(
-                  //   controller: _educationController,
-                  //   decoration: InputDecoration(
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  // ),
+                  // education
+                  const Text(
+                    'Education',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+
+                  // main work textfield
+                  TextField(
+                    controller: educationController,
+                    readOnly: true, // prevent typing directly
+                    decoration: InputDecoration(
+                      hintText: _educationSummary ?? "Enter your education",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                    onTap: () {
+                      setState(() {
+                        _showForm = !_showForm; // toggle show/hide
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // extra form shown after tapping
+                  if (_showForm) ...[
+                    TextField(
+                      controller: instituteController,
+                      decoration: const InputDecoration(
+                        hintText: "Enter your institution (e.g.,institute)",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: gradyearController,
+                      decoration: const InputDecoration(
+                        hintText: "EntergradYear (e.g., 2022)",
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _educationSummary =
+                              "${instituteController.text} at ${gradyearController.text}";
+                          educationController.text = _educationSummary!;
+                          _showForm = false;
+                        });
+
+                        // Prepare API object
+                        final educationData = {
+                          "institute": instituteController.text,
+                          "gradYear": gradyearController.text,
+                        };
+                        print("Send to API: $educationData");
+                      },
+                      child: Text(_educationSummary == null ? "Add" : "Update"),
+                    ),
+                  ],
                   const SizedBox(height: 10),
 
                   const Text("Prompts", style: TextStyle(fontSize: 16)),
@@ -2432,164 +2485,66 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             }
                           }
                           print('seleted data$_selectedgenderIds');
-                          if (userId == null) {
-                            print('signup part exicuted,,,,,,,,,,,');
-                            try {
-                              await ref
-                                  .read(loginProvider.notifier)
-                                  .signupuserApi(
 
-                                      // :_lastNameController ,
-                                      email: _emailController.text,
-                                      mobile: _phoneController.text,
-                                      latitude: selectedLat,
-                                      longitude: selectedLng,
-                                      userName: _firstNameController.text,
-                                      dateOfBirth: _selectedBirth,
-                                      selectedGender: _selectedGender,
-                                      showGenderOnProfile: _showProfile,
-                                      modeid: _selectedmodeId,
-                                      drinkingId: _selecteddrinkingIds,
-                                      selectedkidsIds: _selectedkidsIds,
-                                      selectedreligionIds: _selectedreligionIds,
-                                      selectedGenderIds: _selectedgenderIds,
-                                      selectedInterestIds: _selectedInterestIds,
-                                      selectedcauses: _selectedcauseIds,
-                                      selectedLookingfor: _selectedLookingIds,
-                                      selectedqualities: _selectedqualitiesIds,
-                                      finalheadline: _bioController.text,
-                                      seletedprompts: prompts,
-                                      choosedimages: _selectedImages,
-                                      selectedHeight:
-                                          int.tryParse(_heightController.text),
-                                      defaultmessages: _selectedmesagesIds,
-                                      experience: _selectedexperienceIds,
-                                      industry: _selectedIndustryIds,
-                                      relationship: _selectedrelationshipIds,
-                                      starsign: _selectedstarsignIds,
-                                      languages: _selectedlanguageIds,
-                                      hometown: _selectedHOmetown,
-                                      newtotown: _selectedNewtoarea,
-                                      politics: _selectedPolitics,
-                                      pronoun: _selectedPronoun,
-                                      educationlevel: _selectedEducationlevel,
-                                      havekids: _selectedhavekids);
+                          try {
+                            print('updatedpart exicuted,,,,,,,,,,,');
+                            // if (pickedImage != null) {
+                            //   final File imageFile = File(pickedImage.path);
+                            //   final String key = 'photo1'; // Can also be 'profileImage', etc.
+                            print('home...........$_selectedHOmetown');
+                            print('lookingfor..........$_selectedLookingIds');
+                            print('lookingfor..........$_selectedLookingNames');
+                            print('lookingfor..........$_selectedLookingFor');
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'upload profile data successfully!')),
-                              );
-                              Navigator.pop(context);
-                              // ✅ CLEAR ALL DATA AFTER SUCCESS
-                              // setState(() {
-                              //   _emailController.clear();
-                              //   _phoneController.clear();
-                              //   _firstNameController.clear();
-                              //   _bioController.clear();
-                              //   _heightController.clear();
+                            await ref
+                                .read(loginProvider.notifier)
+                                .updateProfile(
+                                  specificToken: accestoken,
+                                  modeid: _selectedmodeId,
 
-                              //   // reset selections
-                              //   _selectedBirth = null;
-                              //   _selectedGender = null;
-                              //   _showProfile = false;
-                              //   _selectedmodeId = null;
-                              //   _selecteddrinkingIds = [];
-                              //   _selectedkidsIds = [];
-                              //   _selectedreligionIds = [];
-                              //   _selectedgenderIds = [];
-                              //   _selectedInterestIds = [];
-                              //   _selectedcauseIds = [];
-                              //   _selectedLookingIds = [];
-                              //   _selectedqualitiesIds = [];
-                              //   prompts = [];
-                              //   _selectedImages.clear();
-                              //   _selectedmesagesIds = [];
-                              //   _selectedexperienceIds = [];
-                              //   _selectedIndustryIds = [];
-                              //   _selectedrelationshipIds = [];
-                              //   _selectedstarsignIds = [];
-                              //   _selectedlanguageIds = [];
-                              //   _selectedHOmetown = null;
-                              //   _selectedNewtoarea = null;
-                              //   _selectedPolitics = null;
-                              //   _selectedPronoun = null;
-                              //   _selectedEducationlevel = null;
-                              //   _selectedhavekids = null;
-                              // }
-                              // );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content: Text(
-                                        'Failed to upload profile data: $e')),
-                              );
-                            }
-                          } else {
-                            try {
-                              print('updatedpart exicuted,,,,,,,,,,,');
-                              // if (pickedImage != null) {
-                              //   final File imageFile = File(pickedImage.path);
-                              //   final String key = 'photo1'; // Can also be 'profileImage', etc.
-                              print('home...........$_selectedHOmetown');
-                              print('lookingfor..........$_selectedLookingIds');
-                              print(
-                                  'lookingfor..........$_selectedLookingNames');
-                              print('lookingfor..........$_selectedLookingFor');
+                                  causeId: _selectedcauseIds,
+                                  bio: _bioController.text,
+                                  interestId: _selectedInterestIds,
+                                  qualityId: _selectedqualitiesIds,
+                                  prompt: prompts,
+                                  image: _selectedImages,
+                                  languagesId: _selectedlanguageIds,
+                                  starsignId: _selectedstarsignIds,
+                                  // jobId,
+                                  // educationId,
+                                  religionId: _selectedreligionIds,
+                                  lookingfor: _selectedLookingIds,
+                                  kidsId: _selectedkidsIds,
+                                  drinkingId: _selecteddrinkingIds,
+                                  // smoking,
+                                  gender: _selectedGender,
+                                  showOnProfile: _showProfile,
+                                  pronoun: _selectedPronoun,
+                                  // exercise,
+                                  industryId: _selectedIndustryIds,
+                                  experienceId: _selectedexperienceIds,
+                                  haveKids: _selectedhavekids,
+                                  educationLevel: _selectedEducationlevel,
+                                  newarea: _selectedNewtoarea,
+                                  height: int.tryParse(_heightController.text),
+                                  relationshipId: _selectedrelationshipIds,
+                                  name: _firstNameController.text,
+                                  dob: _selectedBirth,
 
-                              await ref
-                                  .read(loginProvider.notifier)
-                                  .updateProfile(
-                                    specificToken: accestoken,
-                                    modeid: _selectedmodeId,
+                                  hometown: _selectedHOmetown,
+                                  politics: _selectedPolitics,
+                                );
+                            print('home...........$_selectedHOmetown');
 
-                                    causeId: _selectedcauseIds,
-                                    bio: _bioController.text,
-                                    interestId: _selectedInterestIds,
-                                    qualityId: _selectedqualitiesIds,
-                                    prompt: prompts,
-                                    image: _selectedImages,
-                                    languagesId: _selectedlanguageIds,
-                                    starsignId: _selectedstarsignIds,
-                                    // jobId,
-                                    // educationId,
-                                    religionId: _selectedreligionIds,
-                                    lookingfor: _selectedLookingIds,
-                                    kidsId: _selectedkidsIds,
-                                    drinkingId: _selecteddrinkingIds,
-                                    // smoking,
-                                    gender: _selectedGender,
-                                    showOnProfile: _showProfile,
-                                    pronoun: _selectedPronoun,
-                                    // exercise,
-                                    industryId: _selectedIndustryIds,
-                                    experienceId: _selectedexperienceIds,
-                                    haveKids: _selectedhavekids,
-                                    educationLevel: _selectedEducationlevel,
-                                    newarea: _selectedNewtoarea,
-                                    height:
-                                        int.tryParse(_heightController.text),
-                                    relationshipId: _selectedrelationshipIds,
-                                    name: _firstNameController.text,
-                                    dob: _selectedBirth,
-
-                                    hometown: _selectedHOmetown,
-                                    politics: _selectedPolitics,
-                                  );
-                              print('home...........$_selectedHOmetown');
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content:
-                                        Text('Image updated successfully!')),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content:
-                                        Text('Failed to upload image: $e')),
-                              );
-                            }
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('Image updated successfully!')),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('Failed to upload image: $e')),
+                            );
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -2601,7 +2556,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           ),
                         ),
                         child: Text(
-                          userId == null ? 'add Save' : 'edit save',
+                          'edit save',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

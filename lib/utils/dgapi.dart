@@ -4,7 +4,8 @@ class Dgapi {
   static const String baseUrl = "http://97.74.93.26:6100";
   static const String login = "$baseUrl/superAdmin/loginadmin";
   static const String updateprofile="$baseUrl/profile/updateprofile";
-  static const String login1 = "$baseUrl/user/login";
+  // static const String login1 = "$baseUrl/user/login";
+  static const String login1 = "$baseUrl/admin/FakeUsersPost";
   static const String refreshToken = "$baseUrl/refresh-token";
   static const String lookingFor = "$baseUrl/user/lookingFor";
   static const String modes = "$baseUrl/user/mode";
@@ -68,7 +69,8 @@ class Dgapi {
   static const String  modeupdate="$baseUrl/user/user";
   static const String  getverification ="$baseUrl/verifications";
   static const String  updateverification ="$baseUrl/admin/users/userId/verification";
-  static const String  admincreatedusers= "$baseUrl/admin/admincreatedusers";
+  // static const String  admincreatedusers= "$baseUrl/admin/admincreatedusers";
+  static const String  admincreatedusers= "$baseUrl/admin//users/by-creator";
   static const String  likedislike= "$baseUrl/admin/adminlikesordislikes";
   static const String  realUsers= "$baseUrl/admin/realusersforadmin";
   static const String  likedislikepost= "$baseUrl/user/like-dislike";

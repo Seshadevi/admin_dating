@@ -2431,7 +2431,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                             }
                           }
                           print('seleted data$_selectedgenderIds');
-                          if (userId == null) {
+                          // if (userId == null) {
                             print('signup part exicuted,,,,,,,,,,,');
                             try {
                               await ref
@@ -2524,72 +2524,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                         'Failed to upload profile data: $e')),
                               );
                             }
-                          } else {
-                            try {
-                              print('updatedpart exicuted,,,,,,,,,,,');
-                              // if (pickedImage != null) {
-                              //   final File imageFile = File(pickedImage.path);
-                              //   final String key = 'photo1'; // Can also be 'profileImage', etc.
-                              print('home...........$_selectedHOmetown');
-                              print('lookingfor..........$_selectedLookingIds');
-                              print(
-                                  'lookingfor..........$_selectedLookingNames');
-                              print('lookingfor..........$_selectedLookingFor');
-
-                              await ref
-                                  .read(loginProvider.notifier)
-                                  .updateProfile(
-                                    specificToken: accestoken,
-                                    modeid: _selectedmodeId,
-
-                                    causeId: _selectedcauseIds,
-                                    bio: _bioController.text,
-                                    interestId: _selectedInterestIds,
-                                    qualityId: _selectedqualitiesIds,
-                                    prompt: prompts,
-                                    image: _selectedImages,
-                                    languagesId: _selectedlanguageIds,
-                                    starsignId: _selectedstarsignIds,
-                                    // jobId,
-                                    // educationId,
-                                    religionId: _selectedreligionIds,
-                                    lookingfor: _selectedLookingIds,
-                                    kidsId: _selectedkidsIds,
-                                    drinkingId: _selecteddrinkingIds,
-                                    // smoking,
-                                    gender: _selectedGender,
-                                    showOnProfile: _showProfile,
-                                    pronoun: _selectedPronoun,
-                                    // exercise,
-                                    industryId: _selectedIndustryIds,
-                                    experienceId: _selectedexperienceIds,
-                                    haveKids: _selectedhavekids,
-                                    educationLevel: _selectedEducationlevel,
-                                    newarea: _selectedNewtoarea,
-                                    height:
-                                        int.tryParse(_heightController.text),
-                                    relationshipId: _selectedrelationshipIds,
-                                    name: _firstNameController.text,
-                                    dob: _selectedBirth,
-
-                                    hometown: _selectedHOmetown,
-                                    politics: _selectedPolitics,
-                                  );
-                              print('home...........$_selectedHOmetown');
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content:
-                                        Text('Image updated successfully!')),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                    content:
-                                        Text('Failed to upload image: $e')),
-                              );
-                            }
-                          }
+                         
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
@@ -2600,7 +2535,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           ),
                         ),
                         child: Text(
-                          userId == null ? 'add Save' : 'edit save',
+                          'add Save',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:admin_dating/models/loginmodel.dart';
 import 'package:admin_dating/models/users/admincreatedusersmodes.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
@@ -60,9 +61,13 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
       );
 
       print('get admincreadtedusers');
+      final user=ref.read(loginProvider);
+      final userinfo=user.data?.isNotEmpty == true ? user.data![0].user : null;
+      final String apiUrl = Dgapi.admincreatedusers;
+
 
       final response = await client.get(
-        Uri.parse(Dgapi.admincreatedusers),
+        Uri.parse("$apiUrl/${userinfo?.id}"),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
