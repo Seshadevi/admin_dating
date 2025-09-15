@@ -1,6 +1,6 @@
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
 import 'package:flutter/material.dart';
-// import '../widgets/custom_bottom_navbar.dart';
+import 'package:admin_dating/constants/dating_colors.dart'; // import your colors
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -13,32 +13,46 @@ class _ReportScreenState extends State<ReportScreen> {
   int _selectedIndex = 2;
 
   Widget _buildReportItem() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Column(
       children: List.generate(6, (index) {
         return Card(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+          color: colorScheme.surface,
           child: ListTile(
             leading: const CircleAvatar(
-              backgroundImage: AssetImage(''), // Dummy image
+              backgroundImage: AssetImage(''), // Dummy image placeholder
             ),
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("User Id: BK-W210D6", style: TextStyle(fontWeight: FontWeight.bold)),
-                const Text("Username (Editor)", style: TextStyle(color: Colors.green)),
+                Text(
+                  "User Id: BK-W210D6",
+                  style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                ),
+                Text(
+                  "Username (Editor)",
+                  style: theme.textTheme.bodyMedium?.copyWith(color: DatingColors.primaryGreen),
+                ),
                 const SizedBox(height: 6),
                 Wrap(
                   spacing: 6,
-                  children: const [
-                    Chip(label: Text("Type: Book"), backgroundColor: Colors.orangeAccent),
-                    Icon(Icons.picture_as_pdf, color: Colors.blue),
-                    Icon(Icons.share, color: Colors.red),
+                  children: [
+                    Chip(label: const Text("Type: Book"), backgroundColor: Colors.orangeAccent.shade100),
+                    Icon(Icons.picture_as_pdf, color: Colors.blue.shade700),
+                    Icon(Icons.share, color: Colors.red.shade700),
                   ],
-                )
+                ),
               ],
             ),
-            trailing: const Text("16 Feb\n11 AM", textAlign: TextAlign.center),
+            trailing: Text(
+              "16 Feb\n11 AM",
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurface),
+            ),
             onTap: () {
               showMenu(
                 context: context,
@@ -58,19 +72,24 @@ class _ReportScreenState extends State<ReportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
         title: const Text("Report"),
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
+        titleTextStyle: theme.textTheme.headlineSmall?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.bold),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: Colors.green[100],
+              color: DatingColors.lightGreen.withOpacity(0.4),
               child: Row(
                 children: [
                   Expanded(
@@ -78,14 +97,17 @@ class _ReportScreenState extends State<ReportScreen> {
                       height: 40,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colorScheme.surface,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(Icons.search, color: Colors.grey),
-                          SizedBox(width: 8),
-                          Expanded(child: Text("Search", style: TextStyle(color: Colors.grey))),
+                          Icon(Icons.search, color: DatingColors.secondaryText),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text("Search",
+                                style: theme.textTheme.bodyMedium?.copyWith(color: DatingColors.secondaryText)),
+                          ),
                         ],
                       ),
                     ),
@@ -94,11 +116,11 @@ class _ReportScreenState extends State<ReportScreen> {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.green,
+                      color: DatingColors.primaryGreen,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.filter_list, color: Colors.white),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -114,9 +136,11 @@ class _ReportScreenState extends State<ReportScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: CircleAvatar(
                       radius: 14,
-                      backgroundColor: index == 0 ? Colors.green : Colors.grey[300],
-                      child: Text("${index + 1}",
-                          style: const TextStyle(fontSize: 12, color: Colors.white)),
+                      backgroundColor: index == 0 ? DatingColors.primaryGreen : Colors.grey[300],
+                      child: Text(
+                        "${index + 1}",
+                        style: const TextStyle(fontSize: 12, color: Colors.white),
+                      ),
                     ),
                   );
                 }),

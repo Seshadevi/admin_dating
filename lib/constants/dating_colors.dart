@@ -157,6 +157,7 @@ class AppThemes {
       foregroundColor: DatingColors.darkText,
       elevation: 0,
     ),
+
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: DatingColors.primaryGreen,
