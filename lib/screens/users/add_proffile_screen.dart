@@ -30,7 +30,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
 import '../../models/users/admincreatedusersmodes.dart';
 import '../../provider/signupprocessProviders copy/genderProvider.dart';
 

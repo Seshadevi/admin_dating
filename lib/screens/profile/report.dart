@@ -1,6 +1,9 @@
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
 import 'package:flutter/material.dart';
-import 'package:admin_dating/constants/dating_colors.dart'; // import your colors
+import 'package:admin_dating/constants/dating_colors.dart';
+
+import 'cat_report.dart';
+import 'cat_report_display.dart'; // import your colors
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({super.key});
@@ -83,7 +86,21 @@ class _ReportScreenState extends State<ReportScreen> {
         elevation: 0,
         titleTextStyle: theme.textTheme.headlineSmall?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.bold),
         iconTheme: IconThemeData(color: colorScheme.onSurface),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            color: DatingColors.primaryGreen,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ReportCategoriesScreen()),
+              );
+            },
+            tooltip: 'Add Report Category',
+          ),
+        ],
       ),
+
       body: SingleChildScrollView(
         child: Column(
           children: [
