@@ -1,9 +1,9 @@
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
-import 'package:admin_dating/screens/profile/post_sub.dart';
+import 'package:admin_dating/screens/profile/subscription_plans_list_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_dating/constants/dating_colors.dart';
 
-import 'get_subscription.dart';
+import 'subscription_plans_list_screen.dart';
 
 class SubscriptionsScreen extends StatelessWidget {
   const SubscriptionsScreen({super.key});
