@@ -1,245 +1,217 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:admin_dating/constants/dating_colors.dart';
-import 'package:admin_dating/models/superAdminModels/admin_get_model.dart';
-import 'package:admin_dating/provider/loader.dart';
-import 'package:admin_dating/utils/dgapi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constants/dating_colors.dart';
+import '../../models/superAdminModels/admin_get_model.dart';
+import '../loader.dart';
 
-
-class AdminGetsProvider extends StateNotifier<List<AdminGetModel>>
- {
+class AdminGetsProvider extends StateNotifier<List<Admin>> {
   final Ref ref;
-AdminGetsProvider(this.ref) : super([]);
+  AdminGetsProvider(this.ref) : super([]);
 
-
-
-  // Future<void> getAdmins() async {
-  //   try {
-  //     print('Fetching Admins...');
-
-  //     final response = await http.get(
-  //       Uri.parse(Dgapi.fetchadmins),
-  //     );
-
-  //     final responseBody = response.body;
-  //     print('Get Admins Status Code: ${response.statusCode}');
-  //     print('Get Admins Response Body: $responseBody');
-
-  //     if (response.statusCode == 200 || response.statusCode == 201) {
-  //       try {
-  //         final res = jsonDecode(responseBody);
-  //         final usersData = AdminGetModel.fromJson(res);
-  //         state = usersData;
-          
-  //         print('Admins fetched successfully');
-  //       } catch (e) {
-  //         print("Invalid response format: $e");
-  //         throw Exception("Error parsing Admins.");
-  //       }
-  //     } else {
-  //       print("Error fetching Admins: ${response.body}");
-  //       throw Exception("Error fetching Admins: ${response.body}");
-  //     }
-  //   } catch (e) {
-  //     print("Failed to fetch Admins: $e");
-  //   }
-  // }
-
-
-Future<void> getAdmins() async {
-  try {
-    final response = await http.get(Uri.parse(Dgapi.fetchadmins));
-    final responseBody = response.body;
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final res = jsonDecode(responseBody);
-      final usersData = (res as List).map((json) => AdminGetModel.fromJson(json)).toList();
-      state = usersData; // <- state must now be List<AdminGetModel>
-    } else {
-      throw Exception("Error fetching Admins: ${response.body}");
+  // Helper to get bearer token
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userDataString = prefs.getString('userData');
+    if (userDataString != null) {
+      final userData = json.decode(userDataString);
+      return userData['accessToken'] ??
+          (userData['data'] != null && (userData['data'] as List).isNotEmpty
+              ? userData['data'][0]['access_token']
+              : null);
     }
-  } catch (e) {
-    print("Failed to fetch Admins: $e");
+    return null;
   }
-}
 
+  // Fetch admins
+  Future<void> getAdmins() async {
+    try {
+      final token = await _getToken();
+      final uri = Uri.parse('http://97.74.93.26:6100/admin/page-access');
 
-  
-   Future<bool> createAdmin({
+      final response = await http.get(uri, headers: {
+        'Content-Type': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final res = jsonDecode(response.body);
+        // Adjust based on your backend response structure
+        final adminsData = AdminGetModel.fromJson(res);
+        state = adminsData.data;
+      } else {
+        print("Failed to fetch admins: ${response.body}");
+      }
+    } catch (e) {
+      print("Exception while fetching admins: $e");
+    }
+  }
+
+  // Create admin with multipart
+  Future<bool> createAdmin({
     required File image,
-    required String firstName,
+    required String username,
     required String email,
     required String password,
     required String roleId,
-    required List<int> pages,
+    Set<int>? pageIds,
   }) async {
-    print("Sending username: ${firstName}");
-    print("Sending email: ${email}");
-    print("Sending password: ${password}");
-    print("Sending roleId: ${roleId}");
-    print("Sending profilePic: ${image.path}");
-
     try {
-       ref.read(loadingProvider.notifier).state = true;
-      var uri = Uri.parse(Dgapi.createadmin);
+      ref.read(loadingProvider.notifier).state = true;
+      final token = await _getToken();
+      final uri = Uri.parse('http://97.74.93.26:6100/superAdmin/createAdmin');
 
-      var request = http.MultipartRequest("POST", uri);
+      final request = http.MultipartRequest('POST', uri);
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
 
-      // Add text fields
-     request.fields['username'] = firstName;
-    request.fields['email'] = email;
-    request.fields['password'] = password;
-    request.fields['roleId'] = roleId;
-    request.fields['pagesIds'] = jsonEncode(pages);
- // fixed value based on Postman
+      // Add fields
+      request.fields['username'] = username;
+      request.fields['email'] = email;
+      request.fields['password'] = password;
+      request.fields['roleId'] = roleId;
+      if (pageIds != null && pageIds.isNotEmpty) {
+        request.fields['pages'] = pageIds.join(',');
+      }
 
-      // Add image file
+      // Attach image
       if (image.path.isNotEmpty) {
+        final mimeType = lookupMimeType(image.path) ?? 'image/jpeg';
         request.files.add(await http.MultipartFile.fromPath(
           'profilePic',
           image.path,
+          contentType: MediaType.parse(mimeType),
         ));
       }
 
-      // Send request
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
-
-      print("Create Admin Status: ${response.statusCode}");
-      print("Create Admin Response: ${response.body}");
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      print("Create response: ${response.statusCode} ${response.body}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // You can decode if needed
-        final res = jsonDecode(response.body);
-        print("Admin created: $res");
-        getAdmins();
+        await getAdmins();
         return true;
       } else {
-        print("Error creating admin: ${response.body}");
         return false;
       }
     } catch (e) {
-      print("Exception while creating admin: $e");
-     
+      print("Error creating admin: $e");
       return false;
-    }
-    finally{
+    } finally {
       ref.read(loadingProvider.notifier).state = false;
     }
   }
 
-
+  // Update admin with multipart
   Future<bool> updateAdmin({
-  required int id,
-  File? image, // optional, only send if changed
-  required String firstName,
-  required String email,
-  required String password,
-  required String roleId,
-}) async {
-  print("Updating admin ID: $id");
-  print("Sending username: $firstName");
-  print("Sending email: $email");
-  print("Sending password: $password");
-  print("Sending roleId: $roleId");
-  print("Sending profilePic: ${image?.path}");
+    required int id,
+    File? image,
+    required String username,
+    required String email,
+    required String password,
+    required String roleId,
+    Set<int>? pageIds,
+  }) async {
+    try {
+      ref.read(loadingProvider.notifier).state = true;
+      final token = await _getToken();
+      final uri = Uri.parse("http://97.74.93.26:6100/superAdmin/updateAdmin/$id");
 
-  try {
-    ref.read(loadingProvider.notifier).state = true;
-    var uri = Uri.parse("http://97.74.93.26:6100/superAdmin/updateAdmin/$id");
-
-    var request = http.MultipartRequest("PUT", uri);
-
-    // Add text fields
-    request.fields['username'] = firstName;
-    request.fields['email'] = email;
-    request.fields['password'] = password;
-    request.fields['roleId'] = roleId;
-
-    // Add image only if user picked a new one
-    if (image != null && image.path.isNotEmpty) {
-      request.files.add(await http.MultipartFile.fromPath(
-        'profilePic',
-        image.path,
-      ));
-    }
-
-    // Send request
-    var streamedResponse = await request.send();
-    var response = await http.Response.fromStream(streamedResponse);
-
-    print("Update Admin Status: ${response.statusCode}");
-    print("Update Admin Response: ${response.body}");
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final res = jsonDecode(response.body);
-      print("Admin updated: $res");
-      await getAdmins(); // refresh list
-      return true;
-    } else {
-      print("Error updating admin: ${response.body}");
-      return false;
-    }
-  } catch (e) {
-    print("Exception while updating admin: $e");
-    return false;
-  } finally {
-    ref.read(loadingProvider.notifier).state = false;
-  }
-}
-
-
-Future<void> deleteAdmin(int id, {BuildContext? context}) async {
-  try {
-    final uri = Uri.parse("http://97.74.93.26:6100/superAdmin/deleteAdmin/$id");
-    final response = await http.delete(uri);
-
-    print("Delete Admin Status: ${response.statusCode}");
-    print("Delete Admin Response: ${response.body}");
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      await getAdmins(); // refresh list
-
-      if (context != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Admin deleted successfully",style: TextStyle(color: Colors.white),),
-            backgroundColor: DatingColors.darkGreen,
-          ),
-        );
+      final request = http.MultipartRequest('PUT', uri);
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
       }
-    } else {
+
+      // Add fields
+      request.fields['username'] = username;
+      request.fields['email'] = email;
+      request.fields['password'] = password;
+      request.fields['roleId'] = roleId;
+      if (pageIds != null && pageIds.isNotEmpty) {
+        request.fields['pagesIds'] = pageIds.join(',');
+      }
+
+      // Attach new image if provided
+      if (image != null && image.path.isNotEmpty) {
+        final mimeType = lookupMimeType(image.path) ?? 'image/jpeg';
+        request.files.add(await http.MultipartFile.fromPath(
+          'profilePic',
+          image.path,
+          contentType: MediaType.parse(mimeType),
+        ));
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      print("Update response: ${response.statusCode} ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await getAdmins();
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      print("Error updating admin: $e");
+      return false;
+    } finally {
+      ref.read(loadingProvider.notifier).state = false;
+    }
+  }
+
+  // Delete admin
+  Future<void> deleteAdmin(int id, {BuildContext? context}) async {
+    try {
+      final token = await _getToken();
+      final uri = Uri.parse("http://97.74.93.26:6100/superAdmin/deleteAdmin/$id");
+      final response = await http.delete(uri, headers: {
+        if (token != null) 'Authorization': 'Bearer $token',
+      });
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await getAdmins();
+        if (context != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Admin deleted successfully"),
+              backgroundColor: DatingColors.darkGreen,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } else {
+        if (context != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Failed to delete admin: ${response.body}"),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print("Exception deleting admin: $e");
       if (context != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Failed to delete admin: ${response.body}"),
+            content: Text("Error: $e"),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
     }
-  } catch (e) {
-    print("Exception while deleting admin: $e");
-    if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Error: $e"),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 }
 
-}
-
-
-
-// Riverpod provider
-final adminGetsProvider =
-    StateNotifierProvider<AdminGetsProvider, List<AdminGetModel>>((ref) {
-  return AdminGetsProvider(ref);
-});
+// Provider registration
+final adminGetsProvider = StateNotifierProvider<AdminGetsProvider, List<Admin>>(
+      (ref) => AdminGetsProvider(ref),
+);

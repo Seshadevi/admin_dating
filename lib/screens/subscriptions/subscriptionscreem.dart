@@ -37,9 +37,8 @@ class SubscriptionsScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SubscriptionPlansListScreen()),
+                    MaterialPageRoute(builder: (context) => const FullPlansGetPage()),
                       // SubscriptionPlansListScreen
-                      // FullPlansGetPage
                   );
                 },
               ),

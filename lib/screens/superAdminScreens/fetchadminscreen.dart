@@ -1,221 +1,17 @@
-// import 'package:admin_dating/constants/dating_colors.dart';
-// import 'package:admin_dating/provider/superAdminProviders/admin_get_provider.dart';
-// import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
-// import 'package:admin_dating/screens/superAdminScreens/add_roles.dart';
-// import 'package:admin_dating/screens/superAdminScreens/createadminscreen.dart';
-// import 'package:admin_dating/screens/superAdminScreens/get_roles.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-//
-// class AdminsScreen extends ConsumerStatefulWidget {
-//   const AdminsScreen({super.key});
-//
-//   @override
-//   ConsumerState<AdminsScreen> createState() => _AdminsScreenState();
-// }
-//
-// class _AdminsScreenState extends ConsumerState<AdminsScreen> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     Future.microtask(() {
-//       ref.read(adminGetsProvider.notifier).getAdmins();
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     // CHANGE: Expect a List<AdminGetModel>
-//     final adminList = ref.watch(adminGetsProvider);
-//
-//     return Scaffold(
-//       backgroundColor: Colors.grey.shade100,
-//       appBar: AppBar(
-//         backgroundColor: DatingColors.darkGreen,
-//         elevation: 0,
-//         title: const Text(
-//           "Admins",
-//           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-//         ),
-//         actions: [
-//           TextButton(
-//             onPressed: () {
-//               Navigator.pushNamed(
-//                 context,
-//                 '/createadmin',
-//               );
-//               ref.read(adminGetsProvider.notifier).getAdmins();
-//             },
-//             child: const Text(
-//               "Create Admin",
-//               style:
-//                   TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-//             ),
-//           ),
-//           IconButton(
-//             icon: const Icon(Icons.add_circle_outline, size: 32),
-//             onPressed: () {
-//               Navigator.push(
-//                 context,
-//                 MaterialPageRoute(
-//                   builder: (context) => const GetRoles(),
-//                 ),
-//               );
-//             },
-//           ),
-//         ],
-//       ),
-//       body: adminList == null || adminList.isEmpty
-//           ? const Center(child: Text("No admin found"))
-//           : Padding(
-//               padding: const EdgeInsets.all(12),
-//               child: ListView.separated(
-//                 itemCount: adminList.length,
-//                 separatorBuilder: (_, __) => const SizedBox(height: 12),
-//                 itemBuilder: (context, index) {
-//                   final admin = adminList[index];
-//                   return Card(
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(12),
-//                       side: BorderSide(color: DatingColors.darkGreen, width: 1),
-//                     ),
-//                     elevation: 3,
-//                     child: Padding(
-//                       padding: const EdgeInsets.all(12),
-//                       child: Row(
-//                         children: [
-//                           CircleAvatar(
-//                             radius: 30,
-//                             backgroundImage: (admin.profilePic != null &&
-//                                     admin.profilePic!.isNotEmpty)
-//                                 ? NetworkImage(
-//                                     admin.profilePic!.startsWith("http")
-//                                         ? admin.profilePic!
-//                                         : "http://97.74.93.26:6100/${admin.profilePic!}",
-//                                   )
-//                                 : null,
-//                             backgroundColor: DatingColors.darkGreen,
-//                             child: (admin.profilePic == null ||
-//                                     admin.profilePic!.isEmpty)
-//                                 ? Text(
-//                                     (admin.username?.isNotEmpty ?? false)
-//                                         ? admin.username![0].toUpperCase()
-//                                         : "?",
-//                                     style: const TextStyle(
-//                                       fontSize: 22,
-//                                       fontWeight: FontWeight.bold,
-//                                       color: Colors.white,
-//                                     ),
-//                                   )
-//                                 : null,
-//                           ),
-//                           const SizedBox(width: 14),
-//
-//                           // ====== Info Section ======
-//                           Expanded(
-//                             child: Column(
-//                               crossAxisAlignment: CrossAxisAlignment.start,
-//                               children: [
-//                                 Text(admin.username ?? "No Name",
-//                                     style: const TextStyle(
-//                                         fontSize: 18,
-//                                         fontWeight: FontWeight.bold)),
-//                                 const SizedBox(height: 4),
-//                                 Text(admin.email ?? "No Email",
-//                                     style: const TextStyle(
-//                                         fontSize: 14, color: Colors.grey)),
-//                                 // Text(admin.password ?? "No Password",
-//                                 //     style: const TextStyle(fontSize: 14, color: Colors.grey)),
-//                                 Text(admin.role?.roleName ?? "No Role",
-//                                     style: const TextStyle(
-//                                         fontSize: 14, color: Colors.black54)),
-//                               ],
-//                             ),
-//                           ),
-//
-//                           // ====== ACTION ICONS ======
-//                           IconButton(
-//                             icon: const Icon(Icons.edit, color: Colors.blue),
-//                             onPressed: () {
-//                               Navigator.pushNamed(
-//                                 context,
-//                                 '/createadmin',
-//                                 arguments: {
-//                                   'id': admin.id,
-//                                   'username': admin.username,
-//                                   'email': admin.email,
-//                                   'password': admin.password,
-//                                   'roleId': admin.roleId,
-//                                   'profilePic': admin.profilePic,
-//                                 },
-//                               );
-//                             },
-//                           ),
-//
-//                           IconButton(
-//                             icon: const Icon(Icons.delete, color: Colors.red),
-//                             onPressed: () async {
-//                               final confirm = await showDialog<bool>(
-//                                 context: context,
-//                                 builder: (context) => AlertDialog(
-//                                   title: const Text("Delete Admin"),
-//                                   content: const Text(
-//                                       "Are you sure you want to delete this admin?"),
-//                                   actions: [
-//                                     TextButton(
-//                                       onPressed: () =>
-//                                           Navigator.pop(context, false),
-//                                       child: const Text("Cancel"),
-//                                     ),
-//                                     TextButton(
-//                                       onPressed: () =>
-//                                           Navigator.pop(context, true),
-//                                       child: const Text(
-//                                         "Delete",
-//                                         style: TextStyle(color: Colors.red),
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                               );
-//
-//                               if (confirm == true) {
-//                                 ref
-//                                     .read(adminGetsProvider.notifier)
-//                                     .deleteAdmin(admin.id!, context: context);
-//                               }
-//                             },
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               ),
-//             ),
-//       floatingActionButton: FloatingActionButton(
-//         backgroundColor: DatingColors.darkGreen,
-//         child: const Icon(Icons.refresh, color: Colors.white),
-//         onPressed: () {
-//           ref.read(adminGetsProvider.notifier).getAdmins();
-//         },
-//       ),
-//       bottomNavigationBar: CustomBottomNavBar(currentIndex: 1),
-//     );
-//   }
-// }
+// admins_screen.dart
 
-
-
-import 'package:admin_dating/constants/dating_colors.dart';
-import 'package:admin_dating/provider/superAdminProviders/admin_get_provider.dart';
-import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
-import 'package:admin_dating/screens/superAdminScreens/get_roles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../constants/dating_colors.dart';
+import '../../models/superAdminModels/roles_get_model.dart';
+import '../../provider/superAdminProviders/admin_get_provider.dart';
+import '../../provider/superAdminProviders/roles_provider.dart';
+import '../../screens/bottomnavbar/bottomnavbar.dart';
+import '../../screens/superAdminScreens/get_roles.dart';
+
 class AdminsScreen extends ConsumerStatefulWidget {
-  const AdminsScreen({super.key});
+  const AdminsScreen({Key? key}) : super(key: key);
 
   @override
   ConsumerState<AdminsScreen> createState() => _AdminsScreenState();
@@ -225,16 +21,29 @@ class _AdminsScreenState extends ConsumerState<AdminsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      ref.read(adminGetsProvider.notifier).getAdmins();
-    });
+    Future.wait([
+      ref.read(adminGetsProvider.notifier).getAdmins(),
+      ref.read(rolesProvider.notifier).getroles(),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
+    final admins = ref.watch(adminGetsProvider);
+    final rolesState = ref.watch(rolesProvider);
+    final roles = rolesState.data ?? [];
+
+    String roleName(int? roleId) {
+      if (roleId == null) return "No Role";
+      final role = roles.firstWhere(
+            (r) => r.id == roleId,
+        orElse: () => Data(roleName: "Unknown Role"),
+      );
+      return role.roleName ?? "Unknown Role";
+    }
+
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final adminList = ref.watch(adminGetsProvider);
 
     return Scaffold(
       backgroundColor: colorScheme.background,
@@ -243,28 +52,40 @@ class _AdminsScreenState extends ConsumerState<AdminsScreen> {
         elevation: 0,
         title: Text(
           "Admins",
-          style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onPrimary),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onPrimary,
+          ),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pushNamed(context, '/createadmin');
-              ref.read(adminGetsProvider.notifier).getAdmins();
-            },
-            child: Text(
-              "Create Admin",
-              style: TextStyle(color: colorScheme.onPrimary, fontWeight: FontWeight.bold),
+          Tooltip(
+            message: "Add New Manager",
+            child: IconButton(
+              icon: Icon(Icons.person_add_alt_1, size: 28, color: theme.colorScheme.onPrimary),
+              onPressed: () {
+                Navigator.pushNamed(context, '/createadmin').then((_) {
+                  ref.read(adminGetsProvider.notifier).getAdmins();
+                });
+              },
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.add_circle_outline, size: 32, color: colorScheme.onPrimary),
-            onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const GetRoles()));
-            },
+          Tooltip(
+            message: "Manage Roles",
+            child: IconButton(
+              icon: Icon(Icons.badge_outlined, size: 28, color: theme.colorScheme.onPrimary),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const GetRoles()),
+                );
+              },
+            ),
           ),
+          const SizedBox(width: 12), // Spacing at the end for visual comfort
         ],
       ),
-      body: (adminList == null || adminList.isEmpty)
+
+      body: admins.isEmpty
           ? Center(
         child: Text(
           "No admin found",
@@ -274,121 +95,168 @@ class _AdminsScreenState extends ConsumerState<AdminsScreen> {
           : Padding(
         padding: const EdgeInsets.all(12),
         child: ListView.separated(
-          itemCount: adminList.length,
+          itemCount: admins.length,
           separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final admin = adminList[index];
-            return Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: DatingColors.darkGreen, width: 1),
-              ),
-              elevation: 3,
-              color: colorScheme.surface,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundImage: (admin.profilePic != null && admin.profilePic!.isNotEmpty)
-                          ? NetworkImage(
-                        admin.profilePic!.startsWith("http")
-                            ? admin.profilePic!
-                            : "http://97.74.93.26:6100/${admin.profilePic!}",
-                      )
-                          : null,
-                      backgroundColor: DatingColors.darkGreen,
-                      child: (admin.profilePic == null || admin.profilePic!.isEmpty)
-                          ? Text(
-                        (admin.username?.isNotEmpty ?? false)
-                            ? admin.username![0].toUpperCase()
-                            : "?",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      )
-                          : null,
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            admin.username ?? "No Name",
-                            style: theme.textTheme.bodyLarge
-                                ?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            admin.email ?? "No Email",
-                            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface.withOpacity(0.7)),
-                          ),
-                          Text(
-                            admin.role?.roleName ?? "No Role",
-                            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface.withOpacity(0.6)),
-                          ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.edit, color: colorScheme.primary),
-                      onPressed: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/createadmin',
-                          arguments: {
-                            'id': admin.id,
-                            'username': admin.username,
-                            'email': admin.email,
-                            'password': admin.password,
-                            'roleId': admin.roleId,
-                            'profilePic': admin.profilePic,
-                          },
-                        );
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete, color: colorScheme.error),
-                      onPressed: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text("Delete Admin", style: theme.textTheme.titleMedium),
-                            content: Text("Are you sure you want to delete this admin?", style: theme.textTheme.bodyMedium),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text("Cancel"),
+            itemBuilder: (context, index) {
+              final admin = admins[index];
+              return GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(admin.username ?? "Admin Details"),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (admin.profilePic != null && admin.profilePic!.isNotEmpty)
+                              Center(
+                                child: CircleAvatar(
+                                  radius: 50,
+                                  backgroundImage: NetworkImage(
+                                    admin.profilePic!.startsWith("http")
+                                        ? admin.profilePic!
+                                        : "http://97.74.93.26:6100/${admin.profilePic!}",
+                                  ),
+                                ),
+                              )
+                            else
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundColor: DatingColors.darkGreen,
+                                child: Text(
+                                  admin.username != null && admin.username!.isNotEmpty
+                                      ? admin.username![0].toUpperCase()
+                                      : "?",
+                                  style: const TextStyle(fontSize: 40, color: Colors.white),
+                                ),
                               ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                child: Text("Delete", style: TextStyle(color: colorScheme.error)),
+                            const SizedBox(height: 16),
+                            Text("Username: ${admin.username ?? 'N/A'}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 8),
+                            Text("Email: ${admin.email ?? 'N/A'}"),
+                            const SizedBox(height: 8),
+                            Text("Role: ${roleName(admin.roleId)}"),
+                            const SizedBox(height: 8),
+                            Text("Assigned Pages:", style: const TextStyle(fontWeight: FontWeight.bold)),
+                            if (admin.pages != null && admin.pages.isNotEmpty)
+                              ...admin.pages.map((page) => Text("• ${page.pages}")).toList()
+                            else
+                              const Text("None"),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text("Close"),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: DatingColors.darkGreen, width: 1),
+                  ),
+                  elevation: 3,
+                  color: colorScheme.surface,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundImage: (admin.profilePic != null && admin.profilePic!.isNotEmpty)
+                              ? NetworkImage(
+                            admin.profilePic!.startsWith("http")
+                                ? admin.profilePic!
+                                : "http://97.74.93.26:6100/${admin.profilePic!}",
+                          )
+                              : null,
+                          backgroundColor: DatingColors.darkGreen,
+                          child: (admin.username?.isNotEmpty ?? false)
+                              ? Text(
+                            admin.username![0].toUpperCase(),
+                            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                          )
+                              : const Icon(Icons.person, color: Colors.white, size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                admin.username ?? "No Name",
+                                style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                admin.email ?? "No Email",
+                                style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface.withOpacity(0.7)),
+                              ),
+                              Text(
+                                roleName(admin.roleId),
+                                style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface.withOpacity(0.6)),
                               ),
                             ],
                           ),
-                        );
-                        if (confirm == true) {
-                          ref.read(adminGetsProvider.notifier).deleteAdmin(admin.id!, context: context);
-                        }
-                      },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.edit, color: colorScheme.primary),
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/createadmin',
+                              arguments: {
+                                'id': admin.id,
+                                'username': admin.username,
+                                'email': admin.email,
+                                'password': admin.password,
+                                'roleId': admin.roleId,
+                                'profilePic': admin.profilePic,
+                                'pages': admin.pages.map((e) => e.id).toSet(),
+                                'edit': "edit",
+                              },
+                            ).then((_) {
+                              ref.read(adminGetsProvider.notifier).getAdmins();
+                            });
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: colorScheme.error),
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text("Delete Admin", style: theme.textTheme.titleMedium),
+                                content: Text("Are you sure you want to delete this admin?", style: theme.textTheme.bodyMedium),
+                                actions: [
+                                  TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
+                                  TextButton(onPressed: () => Navigator.pop(context, true), child: Text("Delete", style: TextStyle(color: colorScheme.error))),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              await ref.read(adminGetsProvider.notifier).deleteAdmin(admin.id!, context: context);
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            }
+
         ),
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: DatingColors.darkGreen,
         child: Icon(Icons.refresh, color: colorScheme.onPrimary),
-        onPressed: () {
-          ref.read(adminGetsProvider.notifier).getAdmins();
-        },
+        onPressed: () => ref.read(adminGetsProvider.notifier).getAdmins(),
       ),
       bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
     );

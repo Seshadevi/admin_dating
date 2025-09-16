@@ -83,4 +83,7 @@ class Dgapi {
   static const String educationGet="$baseUrl/education";
   static const String eudctionAdd="$baseUrl/education";
     static const String educationUpdate="$baseUrl/education";
+  static const String admingetpages="$baseUrl/admin/pages";
+  static const String adminaddfeatures="$baseUrl/admin/feature/post";
+  static const String adminfeatures="$baseUrl/feature/get";
 }

@@ -20,7 +20,6 @@ class CreateAccountScreen extends ConsumerStatefulWidget {
 class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Use only this for the picked image
   File? _imageFile;
 
   final ImagePicker _picker = ImagePicker();
@@ -33,65 +32,81 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
   Map<String, dynamic>? args;
   String? _profilePicUrl;
-  int? _editingId; // for update
+  int? _editingId;
   Set<int> _selectedPageIds = {};
+
+  bool _pagesLoaded = false;
+
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    Future.microtask(() => ref.read(rolesProvider.notifier).getroles());
+    Future.microtask(() => ref.read(adminPagesProviders.notifier).getadminpages());
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
     final receivedArgs =
-        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+    ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
 
     if (receivedArgs != null && args == null) {
       args = receivedArgs;
 
-      // Save for update use
+      print("Received navigation arguments: $receivedArgs");
+      print("Received pages IDs: ${args!['pages']}");
+
       _editingId = args!['id'];
 
-      // Prefill text fields
       _nameController.text = args!['username'] ?? '';
       _emailController.text = args!['email'] ?? '';
       _passwordController.text = args!['password'] ?? '';
       _profilePicUrl = args!['profilePic'];
 
-      // Preselect role if given
       if (args!['roleId'] != null) {
         Future.microtask(() {
           final roles = ref.read(rolesProvider).data;
           if (roles != null && roles.isNotEmpty) {
             final role = roles.firstWhere(
-              (r) => r.id == args!['roleId'],
+                  (r) => r.id == args!['roleId'],
               orElse: () => roles.first,
             );
             setState(() => _selectedRole = role);
           }
         });
       }
+
+      final pagesRaw = args!['pages'];
+      Set<int> assignedPageIds = {};
+      if (pagesRaw is Set) {
+        assignedPageIds = pagesRaw.cast<int>();
+      } else if (pagesRaw is List) {
+        assignedPageIds = pagesRaw.cast<int>().toSet();
+      }
+      setState(() {
+        _selectedPageIds = assignedPageIds;
+        _pagesLoaded = true;
+      });
     }
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() => ref.read(rolesProvider.notifier).getroles());
-    Future.microtask(
-        () => ref.read(adminPagesProviders.notifier).getadminpages());
-  }
-
-  // Pick image from gallery/camera
   Future<void> _pickImage() async {
     showModalBottomSheet(
       context: context,
-      builder: (BuildContext context) {
+      builder: (_) {
         return SafeArea(
           child: Wrap(
             children: [
@@ -100,7 +115,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 title: const Text("Gallery"),
                 onTap: () async {
                   final pickedFile =
-                      await _picker.pickImage(source: ImageSource.gallery);
+                  await _picker.pickImage(source: ImageSource.gallery);
                   if (pickedFile != null) {
                     setState(() => _imageFile = File(pickedFile.path));
                   }
@@ -112,7 +127,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 title: const Text("Camera"),
                 onTap: () async {
                   final pickedFile =
-                      await _picker.pickImage(source: ImageSource.camera);
+                  await _picker.pickImage(source: ImageSource.camera);
                   if (pickedFile != null) {
                     setState(() => _imageFile = File(pickedFile.path));
                   }
@@ -128,25 +143,41 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
 
   void _submit() async {
     if (_formKey.currentState!.validate()) {
+      if (_imageFile == null && _profilePicUrl == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Please select a profile image")),
+        );
+        return;
+      }
+
       final notifier = ref.read(adminGetsProvider.notifier);
 
+      // Debug print all values before submit:
+      print('Submitting with:');
+      print('Username: ${_nameController.text}');
+      print('Email: ${_emailController.text}');
+      print('Password: ${_passwordController.text.isEmpty ? "(unchanged)" : "(updated)"}');
+      print('Role ID: ${_selectedRole?.id}');
+      print('Selected Pages: $_selectedPageIds');
+      print('editingid:$_editingId');
       final success = _editingId == null
           ? await notifier.createAdmin(
-              image: _imageFile!,
-              firstName: _nameController.text.trim(),
-              email: _emailController.text.trim(),
-              password: _passwordController.text.trim(),
-              roleId: _selectedRole?.id.toString() ?? '',
-              pages: _selectedPageIds.toList(),
-            )
+        image: _imageFile!,
+        username: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        roleId: _selectedRole?.id.toString() ?? '',
+        pageIds: _selectedPageIds,
+      )
           : await notifier.updateAdmin(
-              id: _editingId!,
-              image: _imageFile,
-              firstName: _nameController.text.trim(),
-              email: _emailController.text.trim(),
-              password: _passwordController.text.trim(),
-              roleId: _selectedRole?.id.toString() ?? '',
-            );
+        id: _editingId!,
+        image: _imageFile,
+        username: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        roleId: _selectedRole?.id.toString() ?? '',
+        pageIds: _selectedPageIds,
+      );
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -167,6 +198,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
   @override
   Widget build(BuildContext context) {
     final adminPagesState = ref.watch(adminPagesProviders);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: DatingColors.darkGreen,
@@ -181,7 +213,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
           key: _formKey,
           child: Column(
             children: [
-              // Profile Image Picker
               GestureDetector(
                 onTap: _pickImage,
                 child: CircleAvatar(
@@ -190,21 +221,19 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                   backgroundImage: _imageFile != null
                       ? FileImage(_imageFile!)
                       : (_profilePicUrl != null
-                          ? NetworkImage(
-                              _profilePicUrl!.startsWith("http")
-                                  ? _profilePicUrl!
-                                  : "http://97.74.93.26:6100/$_profilePicUrl",
-                            )
-                          : null) as ImageProvider?,
+                      ? NetworkImage(
+                    _profilePicUrl!.startsWith("http")
+                        ? _profilePicUrl!
+                        : "http://97.74.93.26:6100/$_profilePicUrl",
+                  )
+                      : null),
                   child: (_imageFile == null && _profilePicUrl == null)
                       ? const Icon(Icons.add_a_photo,
-                          size: 32, color: Colors.white)
+                      size: 32, color: Colors.white)
                       : null,
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Full Name Field
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
@@ -219,8 +248,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Email Field
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(
@@ -240,8 +267,6 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 },
               ),
               const SizedBox(height: 16),
-
-              // Password Field
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(
@@ -250,64 +275,53 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 ),
                 obscureText: true,
                 validator: (value) {
-                  if (value == null || value.length < 6) {
+                  if (_editingId == null && (value == null || value.length < 6)) {
                     return "Password must be at least 6 characters";
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 24),
-
               Consumer(
                 builder: (context, ref, _) {
                   final rolesState = ref.watch(rolesProvider);
                   final List<Data> roles = rolesState?.data ?? [];
 
-                  // If roles is empty, no dropdown, no value
                   if (roles.isEmpty) {
                     if (_selectedRole != null) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        setState(() {
-                          _selectedRole = null;
-                        });
+                        setState(() => _selectedRole = null);
                       });
                     }
                     return const Text("No roles found");
                   }
 
-                  // If current selectedRole does not reference an actual role object from the list, try to select the matching one by ID
                   if (_selectedRole != null && !roles.contains(_selectedRole)) {
                     final selected = roles.firstWhere(
-                        (role) => role.id == _selectedRole!.id,
-                        orElse: () => roles.first);
-
+                          (role) => role.id == _selectedRole!.id,
+                      orElse: () => roles.first,
+                    );
                     WidgetsBinding.instance.addPostFrameCallback((_) {
-                      setState(() {
-                        // Use the in-list object as value, not a new instance
-                        _selectedRole = selected;
-                      });
+                      setState(() => _selectedRole = selected);
                     });
                   }
 
                   return DropdownButtonFormField<Data>(
-                    value:
-                        _selectedRole != null && roles.contains(_selectedRole)
-                            ? _selectedRole
-                            : null,
+                    value: _selectedRole != null && roles.contains(_selectedRole)
+                        ? _selectedRole
+                        : null,
                     decoration: const InputDecoration(
                       labelText: "Select Role",
                       border: OutlineInputBorder(),
                     ),
                     items: roles
                         .map((role) => DropdownMenuItem<Data>(
-                              value: role,
-                              child: Text(role.roleName.toString()),
-                            ))
+                      value: role,
+                      child: Text(role.roleName.toString()),
+                    ))
                         .toList(),
                     onChanged: (value) {
-                      setState(() {
-                        _selectedRole = value;
-                      });
+                      setState(() => _selectedRole = value);
                     },
                     validator: (value) {
                       if (roles.isNotEmpty && value == null) {
@@ -318,8 +332,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                   );
                 },
               ),
-
-             const SizedBox(height: 24),
+              const SizedBox(height: 24),
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -328,68 +341,59 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-
-             
-              // ✅ Admin Pages with Checkboxes (Scrollable)
-if (adminPagesState.data != null && adminPagesState.data!.isNotEmpty)
-  SizedBox(
-    height: 200, // set fixed height for scrollable area
-    child: Scrollbar(
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        child: Column(
-          children: adminPagesState.data!.map((page) {
-            return CheckboxListTile(
-              title: Text(page.pages ?? "Unnamed Page"),
-              value: _selectedPageIds.contains(page.id),
-              onChanged: (bool? value) {
-                setState(() {
-                  if (value == true) {
-                    _selectedPageIds.add(page.id!);
-                  } else {
-                    _selectedPageIds.remove(page.id);
-                  }
-                });
-              },
-            );
-          }).toList(),
-        ),
-      ),
-    ),
-  )
-else
-  const Text("No admin pages found"),
-
-
+              if (adminPagesState.data != null && adminPagesState.data!.isNotEmpty)
+                SizedBox(
+                  height: 200,
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    controller: _scrollController,
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: adminPagesState.data!.map((page) {
+                          return CheckboxListTile(
+                            title: Text(page.pages ?? "Unnamed Page"),
+                            value: _selectedPageIds.contains(page.id),
+                            onChanged: (bool? value) {
+                              setState(() {
+                                if (value == true) {
+                                  _selectedPageIds.add(page.id!);
+                                } else {
+                                  _selectedPageIds.remove(page.id);
+                                }
+                              });
+                              print('Selected Pages: $_selectedPageIds');
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                )
+              else
+                const Text("No admin pages found"),
               const SizedBox(height: 24),
-
               Consumer(
                 builder: (context, ref, _) {
                   final isLoading = ref.watch(loadingProvider);
                   return isLoading
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: DatingColors.darkGreen,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          onPressed: () {
-                            // 🔹 Access selected pages here
-                            print("Selected Page IDs: $_selectedPageIds");
-                            _submit();
-                          },
-                          child: Text(
-                            _editingId == null
-                                ? "Create Account"
-                                : "Update Account",
-                            style: const TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        );
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: DatingColors.darkGreen,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: _submit,
+                    child: Text(
+                      _editingId == null ? "Create Account" : "Update Account",
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  );
                 },
               ),
             ],

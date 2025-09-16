@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:admin_dating/screens/profile/bottomnavbar.dart';
-// import 'package:admin_dating/screens/profile/notifications_screen.dart'; // make sure this exists
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -71,7 +69,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                   buildTile("Edit profile"),
                   buildTile("Change password"),
-                  buildTile("Add a subcribtion method", icon: Icons.add),
 
                   SwitchListTile(
                     value: pushNotifications,
@@ -96,23 +93,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Text("More", style: TextStyle(color: Colors.grey)),
                   const SizedBox(height: 10),
 
-                  buildTile("user management"),
+                  buildTile("User management"),
                   buildTile("Privacy policy"),
-                  buildTile("notification", onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      'notificationscreen',
-                    );
+                  buildTile("Notification", onTap: () {
+                    Navigator.pushNamed(context, 'notificationscreen');
                   }),
                   buildTile("Analytics"),
-                  buildTile("Trems And Conditions"),
+                  buildTile("Terms and Conditions"),
                 ],
               ),
             ),
           )
         ],
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
+
     );
   }
 
@@ -121,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: Text(title),
       trailing: Icon(icon, size: 16, color: Colors.black),
       contentPadding: EdgeInsets.zero,
-      onTap: onTap ?? () {},
+      onTap: onTap,
     );
   }
 }
