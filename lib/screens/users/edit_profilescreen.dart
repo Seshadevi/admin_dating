@@ -1,4 +1,5 @@
 import 'package:admin_dating/models/signupprocessmodels/choosefoodies_model.dart';
+import 'package:admin_dating/provider/fakeusersprovider.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/provider/moreabout/experienceprovider.dart';
 import 'package:admin_dating/provider/moreabout/industryprovider.dart';
@@ -14,6 +15,8 @@ import 'package:admin_dating/provider/signupprocessProviders%20copy/lookingProvi
 import 'package:admin_dating/provider/signupprocessProviders%20copy/modeProvider.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/qualities.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/religionProvider.dart';
+import 'package:admin_dating/provider/users/admincreatedusersprovider.dart';
+import 'package:admin_dating/provider/users/educationprovider.dart';
 import 'package:admin_dating/screens/profile/dropdown/defaultmessages.dart';
 import 'package:admin_dating/screens/profile/dropdown/experiencescreen.dart';
 import 'package:admin_dating/screens/profile/dropdown/industryscreen.dart';
@@ -64,6 +67,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   final TextEditingController _educationController = TextEditingController();
   bool _showForm = false;
+  bool _showFormeducation = false;
   String? _workSummary;
   String? _educationSummary;
 
@@ -126,7 +130,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? accestoken;
   final List<String> _newtoarea = [
     "New to town",
-    "Im a Local",
+    "I'm a local",
   ];
   final List<String> _hometown = [
     "hyderabad",
@@ -150,7 +154,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     "Graduate degree",
   ];
   final List<String> _pronoun = [
-    "she/her",
+    // "she/her",
     "he/him",
     "they/them",
     "per/per",
@@ -200,10 +204,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _selectedBirth = arguments['dateOfBirth'] ?? '';
       _emailController.text = arguments['email'] ?? '';
       _phoneController.text = arguments['phoneNo'] ?? '';
-      // _selectedGender = arguments['gender'] ?? ''; // ✅ FIXED
+      _selectedGender = arguments['gender'] ?? ''; // ✅ FIXED
       _heightController.text = arguments['height']?.toString() ?? '';
-      // _selectedTheirGender = arguments['genderwant'] ?? '';
-      // _selectedMode = arguments['modeId'] ?? [];
+      _selectedTheirGender = arguments['genderwant'] ?? '';
+      _selectedMode = arguments['modeId'] ?? [];
       _selectedcauseNames = List<String>.from(arguments['causes'] ?? []);
       _selectedcauseIds = List<int>.from(arguments['causesId'] ?? []);
 
@@ -222,7 +226,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           List<String>.from(arguments['relationship'] ?? []);
       _selectedrelationshipIds =
           List<int>.from(arguments['relationshipId'] ?? []);
-      // _selectedstarsignNames = arguments['starSign'] ?? '';   // ✅ FIXED
+      _selectedstarsignNames = arguments['starSign'] ?? ''; // ✅ FIXED
       _selectedEducationlevel = arguments['educationLevel'] ?? '';
       _selectedNewtoarea = arguments['newToArea'] ?? '';
       _selectedHOmetown = arguments['hometown'] ?? '';
@@ -244,18 +248,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       const String baseUrl =
           "http://97.74.93.26:6100"; // 👈 change to your API base
 
-      List<dynamic>? pics = arguments['profilePics'];
-      if (pics != null) {
-        for (int i = 0; i < pics.length && i < 6; i++) {
-          final profilePic = pics[i] as ProfilePics;
-          _selectedImages[i] = "$baseUrl${profilePic.url}";
+      // Handle both Map and List cases
+      final picsData = arguments['profilePics'];
+      if (picsData != null) {
+        if (picsData is List) {
+          // Handle as List
+          for (int i = 0; i < picsData.length && i < 6; i++) {
+            final profilePic = picsData[i] as ProfilePics;
+            _selectedImages[i] = "$baseUrl${profilePic.url}";
+          }
+        } else if (picsData is Map) {
+          // Handle as Map - convert to list or extract URLs differently
+          // You'll need to adjust this based on your actual data structure
+          final picsList = picsData.values.toList();
+          for (int i = 0; i < picsList.length && i < 6; i++) {
+            final profilePic = picsList[i] as ProfilePics;
+            _selectedImages[i] = "$baseUrl${profilePic.url}";
+          }
         }
       }
     }
     print('userid::::::::::$userId');
     print('name:::::::::$_firstNameController');
     print('mode.........$_selectedMode');
-
+    print('gender,,........$_selectedGender');
     // print("Profile Pics: ${arguments!['profilePics']}");
     print('email::::::::::$_emailController');
     print('number::::::::::${_phoneController.text}');
@@ -267,7 +283,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     print('causes::::::::::$_selectedcauseNames');
     print('language::::::::::$_selectedlanguageNames');
     print('starsign::::::::::$_selectedstarsignNames');
-    // print('userid::::::::::$_selectedHOmetown');
+    print('genderidentites::::::::::$_selectedTheirGender');
     // print('userid::::::::::$_selectedHOmetown');
   }
 
@@ -515,7 +531,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          userId == null ? 'Add Profile' : 'Edit Profile',
+          'Edit Profile',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -561,53 +577,50 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 children: [
                   // Title
 
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: List.generate(6, (index) {
-                              return GestureDetector(
-                                onTap: () => _pickImage(index),
-                                child: Container(
-                                  width: 90,
-                                  height: 90,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(16),
-                                    image: _selectedImages[index] != null
-                                        ? DecorationImage(
-                                            image: getImageProvider(
-                                                _selectedImages[index])!,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : null,
-                                  ),
-                                  child: _selectedImages[index] == null
-                                      ? const Icon(Icons.add_a_photo,
-                                          color: Colors.grey)
+                  Center(
+                    child: Column(
+                      children: [
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: List.generate(6, (index) {
+                            return GestureDetector(
+                              onTap: () => _pickImage(index),
+                              child: Container(
+                                width: 90,
+                                height: 90,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(16),
+                                  image: _selectedImages[index] != null
+                                      ? DecorationImage(
+                                          image: getImageProvider(
+                                              _selectedImages[index])!,
+                                          fit: BoxFit.cover,
+                                        )
                                       : null,
                                 ),
-                              );
-                            }),
-                          ),
-                          // const SizedBox(height: 10),
-                          const Text(
-                            " select at least 4 images",
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 26, 29, 26),
-                                fontSize: 10),
-                          ),
-                        ],
-                      ),
+                                child: _selectedImages[index] == null
+                                    ? const Icon(Icons.add_a_photo,
+                                        color: Colors.grey)
+                                    : null,
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "select at least 4 images",
+                          style:
+                              TextStyle(color: Color(0xFF1A1D1A), fontSize: 10),
+                        ),
+                      ],
                     ),
                   ),
+                  //     ),
+                  //   ]
+                  // ),
 
                   // const SizedBox(height: 10),
 
@@ -728,17 +741,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
                     inputFormatters: [
-                      FilteringTextInputFormatter
-                          .digitsOnly, // allow digits only
-                      LengthLimitingTextInputFormatter(
-                          10), // limit to 10 digits
+                      FilteringTextInputFormatter.allow(RegExp(
+                          r'^\+91\d{0,10}$')), // ✅ allow only +91 + digits
                     ],
                     decoration: InputDecoration(
-                      prefixText: '+91 ',
-                      prefixStyle: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(color: Colors.grey),
@@ -747,7 +753,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           horizontal: 12, vertical: 8),
                       hintText: 'Enter number',
                     ),
+                    onChanged: (value) {
+                      // ✅ If user tries to delete +91, reset it back
+                      if (!value.startsWith('+91')) {
+                        _phoneController.text = '+91';
+                        _phoneController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: _phoneController.text.length),
+                        );
+                      }
+                    },
                   ),
+
                   const SizedBox(height: 10),
 
                   // Gender Dropdown
@@ -757,7 +773,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedGender,
+                    value: (_selectedGender != null &&
+                            ['He/Him', 'she/her'].contains(_selectedGender))
+                        ? _selectedGender
+                        : null,
+                    // value: (genderData.data?.any((item) => item.value == _selectedTheirGender) ?? false)
+                    //     ? _selectedTheirGender
+                    //     : null,
+
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -767,10 +790,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           horizontal: 12, vertical: 8),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'Man', child: Text('Man')),
-                      DropdownMenuItem(value: 'Woman', child: Text('Woman')),
+                      DropdownMenuItem(value: 'He/Him', child: Text('He/Him')),
                       DropdownMenuItem(
-                          value: 'Nonbinary', child: Text('Nonbinary')),
+                          value: 'she/her', child: Text('she/her')),
+                      // DropdownMenuItem(
+                      //     value: 'Nonbinary', child: Text('Nonbinary')),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -826,11 +850,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const SizedBox(height: 10),
 
                   // BH Dropdown
-                  const Text('Interest Gender',
-                      style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  // Interest Gender Dropdown
+                  const Text(
+                    'Interest Gender',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedTheirGender,
+                    // ✅ Only use value if it exists in the list, otherwise keep it null
+                    value: (genderData.data?.any(
+                                (item) => item.value == _selectedTheirGender) ??
+                            false)
+                        ? _selectedTheirGender
+                        : null,
+
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -839,18 +872,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
                     ),
+
                     items: genderData.data?.map((dataItem) {
                       return DropdownMenuItem<String>(
                         value: dataItem.value,
                         child: Text(dataItem.value ?? ''),
                       );
                     }).toList(),
+
                     onChanged: (value) {
                       setState(() {
                         _selectedTheirGender = value;
                       });
                     },
                   ),
+
                   const SizedBox(height: 10),
 
                   // Profession Dropdown
@@ -858,7 +894,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedMode,
+                    // value: _selectedMode,
+                    value: (modeData.data
+                                ?.any((item) => item.value == _selectedMode) ??
+                            false)
+                        ? _selectedMode
+                        : null,
+
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1348,7 +1390,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedstarsignNames,
+                    // value: _selectedstarsignNames,
+                    value: (starsign.data?.any((item) =>
+                                item.name == _selectedstarsignNames) ??
+                            false)
+                        ? _selectedstarsignNames
+                        : null,
+
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1626,7 +1674,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedKids,
+                    // value: _selectedKids,
+                    value: (kidsData.data
+                                ?.any((item) => item.kids == _selectedKids) ??
+                            false)
+                        ? _selectedKids
+                        : null,
+
                     isExpanded: true,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -1675,7 +1729,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedDrinking,
+                    // value: _selectedDrinking,
+                    value: (drinkingData.data?.any((item) =>
+                                item.preference == _selectedDrinking) ??
+                            false)
+                        ? _selectedDrinking
+                        : null,
+
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1720,7 +1780,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedReligion,
+                    // value: _selectedReligion,
+                    value: (religionData.data?.any(
+                                (item) => item.religion == _selectedReligion) ??
+                            false)
+                        ? _selectedReligion
+                        : null,
+
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1809,7 +1875,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedNewtoarea,
+                    // value: _selectedNewtoarea,
+                    value: _selectedNewtoarea != null &&
+                            _newtoarea.contains(_selectedNewtoarea)
+                        ? _selectedNewtoarea
+                        : null,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1847,7 +1917,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    value: _selectedHOmetown,
+                    // value: _selectedHOmetown,
+                    value: _selectedHOmetown != null &&
+                            _hometown.contains(_selectedHOmetown)
+                        ? _selectedHOmetown
+                        : null,
+
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1895,6 +1970,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
+                    // value: _selectedPronoun ,
                     value: _selectedPronoun != null &&
                             _pronoun.contains(_selectedPronoun)
                         ? _selectedPronoun
@@ -2159,18 +2235,83 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const SizedBox(height: 10),
 
                   // work
+                  // const Text(
+                  //   'Work',
+                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
+                  // ),
+                  // const SizedBox(height: 5),
+
+                  // // main work textfield
+                  // TextField(
+                  //   controller: workController,
+                  //   readOnly: true, // prevent typing directly
+                  //   decoration: InputDecoration(
+                  //     hintText: _workSummary ?? "Enter your work",
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   onTap: () {
+                  //     setState(() {
+                  //       _showForm = !_showForm; // toggle show/hide
+                  //     });
+                  //   },
+                  // ),
+
+                  // const SizedBox(height: 10),
+
+                  // // extra form shown after tapping
+                  // if (_showForm) ...[
+                  //   TextField(
+                  //     controller: titleController,
+                  //     decoration: const InputDecoration(
+                  //       hintText: "Enter your title (e.g., Developer)",
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 8),
+                  //   TextField(
+                  //     controller: companyController,
+                  //     decoration: const InputDecoration(
+                  //       hintText: "Enter company name (e.g., Infosys)",
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 10),
+                  //   ElevatedButton(
+                  //     onPressed: () {
+                  //       setState(() {
+                  //         _workSummary =
+                  //             "${titleController.text} at ${companyController.text}";
+                  //         workController.text = _workSummary!;
+                  //         _showForm = false;
+                  //       });
+
+                  //       // Prepare API object
+                  //       final workData = {
+                  //         "title": titleController.text,
+                  //         "company": companyController.text,
+                  //       };
+                  //       print("Send to API: $workData");
+                  //     },
+                  //     child: Text(_workSummary == null ? "Add" : "Update"),
+                  //   ),
+                  // ],
+                  // const SizedBox(height: 10),
                   const Text(
                     'Work',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 5),
 
-                  // main work textfield
                   TextField(
                     controller: workController,
-                    readOnly: true, // prevent typing directly
+                    readOnly: true, // prevent direct typing
                     decoration: InputDecoration(
-                      hintText: _workSummary ?? "Enter your work",
+                      hintText: _workSummary ?? "Enter your Work",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(color: Colors.grey),
@@ -2178,65 +2319,160 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
                     ),
-                    onTap: () {
-                      setState(() {
-                        _showForm = !_showForm; // toggle show/hide
-                      });
+                    onTap: () async {
+                      final newwork = await showDialog<Map<String, dynamic>>(
+                        context: context,
+                        builder: (context) {
+                          final institutionController = TextEditingController();
+                          int? selectedYear;
+
+                          return AlertDialog(
+                            title: const Text("Add Work"),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  controller: titleController,
+                                  decoration: const InputDecoration(
+                                    hintText: "role Name",
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                TextField(
+                                  controller: companyController,
+                                  decoration: const InputDecoration(
+                                    hintText: "company name",
+                                  ),
+                                ),
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Cancel"),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, {
+                                    "title": titleController.text,
+                                    "company": companyController
+                                  });
+                                },
+                                child: const Text("Save"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      if (newwork != null &&
+                          (newwork['title'] as String).trim().isNotEmpty &&
+                          newwork['company'] != null) {
+                        /// ✅ Call Riverpod provider to save data
+                        final success = await ref
+                            .read(educationProvider.notifier)
+                            .addEducation(
+                              institution: newwork['title'],
+                              gradYear: newwork['company'],
+                            );
+
+                        if (success) {
+                          /// ✅ Provider already refreshed data inside addEducation()
+                          /// Now just update local UI state
+                          setState(() {
+                            _workSummary = newwork['company'];
+                            workController.text = newwork['company'];
+                          });
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("work added successfully!")),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Failed to add work.")),
+                          );
+                        }
+                      }
                     },
                   ),
 
-                  const SizedBox(height: 10),
-
-                  // extra form shown after tapping
-                  if (_showForm) ...[
-                    TextField(
-                      controller: titleController,
-                      decoration: const InputDecoration(
-                        hintText: "Enter your title (e.g., Developer)",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: companyController,
-                      decoration: const InputDecoration(
-                        hintText: "Enter company name (e.g., Infosys)",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _workSummary =
-                              "${titleController.text} at ${companyController.text}";
-                          workController.text = _workSummary!;
-                          _showForm = false;
-                        });
-
-                        // Prepare API object
-                        final workData = {
-                          "title": titleController.text,
-                          "company": companyController.text,
-                        };
-                        print("Send to API: $workData");
-                      },
-                      child: Text(_workSummary == null ? "Add" : "Update"),
-                    ),
-                  ],
-                  const SizedBox(height: 10),
-
                   // education
+                  // const Text(
+                  //   'Education',
+                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
+                  // ),
+                  // const SizedBox(height: 5),
+
+                  // // main work textfield
+                  // TextField(
+                  //   controller: educationController,
+                  //   readOnly: true, // prevent typing directly
+                  //   decoration: InputDecoration(
+                  //     hintText: _educationSummary ?? "Enter your education",
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   onTap: () {
+                  //     setState(() {
+                  //       _showFormeducation = !_showFormeducation; // toggle show/hide
+                  //     });
+                  //   },
+                  // ),
+
+                  // const SizedBox(height: 10),
+
+                  // // extra form shown after tapping
+                  // if (_showFormeducation) ...[
+                  //   TextField(
+                  //     controller: instituteController,
+                  //     decoration: const InputDecoration(
+                  //       hintText: "Enter your institution (e.g.,institute)",
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 8),
+                  //   TextField(
+                  //     controller: gradyearController,
+                  //     decoration: const InputDecoration(
+                  //       hintText: "EntergradYear (e.g., 2022)",
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 10),
+                  //   ElevatedButton(
+                  //     onPressed: () {
+                  //       setState(() {
+                  //         _educationSummary =
+                  //             "${instituteController.text} at ${gradyearController.text}";
+                  //         educationController.text = _educationSummary!;
+                  //         _showFormeducation = false;
+                  //       });
+
+                  //       // Prepare API object
+                  //       final educationData = {
+                  //         "institute": instituteController.text,
+                  //         "gradYear": gradyearController.text,
+                  //       };
+                  //       print("Send to API: $educationData");
+                  //     },
+                  //     child: Text(_educationSummary == null ? "Add" : "Update"),
+                  //   ),
+                  // ],
                   const Text(
                     'Education',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 5),
 
-                  // main work textfield
                   TextField(
                     controller: educationController,
-                    readOnly: true, // prevent typing directly
+                    readOnly: true, // prevent direct typing
                     decoration: InputDecoration(
                       hintText: _educationSummary ?? "Enter your education",
                       border: OutlineInputBorder(
@@ -2246,52 +2482,102 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
                     ),
-                    onTap: () {
-                      setState(() {
-                        _showForm = !_showForm; // toggle show/hide
-                      });
+                    onTap: () async {
+                      final newEducation =
+                          await showDialog<Map<String, dynamic>>(
+                        context: context,
+                        builder: (context) {
+                          final institutionController = TextEditingController();
+                          int? selectedYear;
+
+                          return AlertDialog(
+                            title: const Text("Add Education"),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextField(
+                                  controller: institutionController,
+                                  decoration: const InputDecoration(
+                                    hintText: "Institution Name",
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                DropdownButtonFormField<int>(
+                                  decoration: const InputDecoration(
+                                    labelText: "Graduation Year",
+                                  ),
+                                  value: selectedYear,
+                                  items: List.generate(
+                                    40,
+                                    (index) {
+                                      final year = DateTime.now().year - index;
+                                      return DropdownMenuItem<int>(
+                                        value: year,
+                                        child: Text(year.toString()),
+                                      );
+                                    },
+                                  ),
+                                  onChanged: (value) {
+                                    selectedYear = value;
+                                  },
+                                ),
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Cancel"),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context, {
+                                    "institution": institutionController.text,
+                                    "year": selectedYear
+                                  });
+                                },
+                                child: const Text("Save"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      if (newEducation != null &&
+                          (newEducation['institution'] as String)
+                              .trim()
+                              .isNotEmpty &&
+                          newEducation['year'] != null) {
+                        /// ✅ Call Riverpod provider to save data
+                        final success = await ref
+                            .read(educationProvider.notifier)
+                            .addEducation(
+                              institution: newEducation['institution'],
+                              gradYear: newEducation['year'],
+                            );
+
+                        if (success) {
+                          /// ✅ Provider already refreshed data inside addEducation()
+                          /// Now just update local UI state
+                          setState(() {
+                            _educationSummary = newEducation['institution'];
+                            educationController.text =
+                                newEducation['institution'];
+                          });
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Education added successfully!")),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Failed to add education.")),
+                          );
+                        }
+                      }
                     },
                   ),
 
-                  const SizedBox(height: 10),
-
-                  // extra form shown after tapping
-                  if (_showForm) ...[
-                    TextField(
-                      controller: instituteController,
-                      decoration: const InputDecoration(
-                        hintText: "Enter your institution (e.g.,institute)",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: gradyearController,
-                      decoration: const InputDecoration(
-                        hintText: "EntergradYear (e.g., 2022)",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _educationSummary =
-                              "${instituteController.text} at ${gradyearController.text}";
-                          educationController.text = _educationSummary!;
-                          _showForm = false;
-                        });
-
-                        // Prepare API object
-                        final educationData = {
-                          "institute": instituteController.text,
-                          "gradYear": gradyearController.text,
-                        };
-                        print("Send to API: $educationData");
-                      },
-                      child: Text(_educationSummary == null ? "Add" : "Update"),
-                    ),
-                  ],
                   const SizedBox(height: 10),
 
                   const Text("Prompts", style: TextStyle(fontSize: 16)),
@@ -2497,8 +2783,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             print('lookingfor..........$_selectedLookingFor');
 
                             await ref
-                                .read(loginProvider.notifier)
+                                .read(admincreatedusersprovider.notifier)
                                 .updateProfile(
+                                  fakeuserId: userId,
                                   specificToken: accestoken,
                                   modeid: _selectedmodeId,
 
@@ -2533,13 +2820,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                                   hometown: _selectedHOmetown,
                                   politics: _selectedPolitics,
+                                  latitude: selectedLat,
+                                  longitude: selectedLng,
                                 );
                             print('home...........$_selectedHOmetown');
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text('Image updated successfully!')),
+                                  content:
+                                      Text('profile updated successfully!')),
                             );
+                            Navigator.pop(context);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

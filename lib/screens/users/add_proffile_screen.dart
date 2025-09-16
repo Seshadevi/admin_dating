@@ -1,4 +1,5 @@
 import 'package:admin_dating/models/signupprocessmodels/choosefoodies_model.dart';
+import 'package:admin_dating/provider/fakeusersprovider.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/provider/moreabout/experienceprovider.dart';
 import 'package:admin_dating/provider/moreabout/industryprovider.dart';
@@ -14,6 +15,7 @@ import 'package:admin_dating/provider/signupprocessProviders%20copy/lookingProvi
 import 'package:admin_dating/provider/signupprocessProviders%20copy/modeProvider.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/qualities.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/religionProvider.dart';
+import 'package:admin_dating/provider/users/admincreatedusersprovider.dart';
 import 'package:admin_dating/screens/profile/dropdown/defaultmessages.dart';
 import 'package:admin_dating/screens/profile/dropdown/experiencescreen.dart';
 import 'package:admin_dating/screens/profile/dropdown/industryscreen.dart';
@@ -121,7 +123,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   String? accestoken;
   final List<String> _newtoarea = [
     "New to town",
-    "Im a Local",
+    "I'm a local",
   ];
   final List<String> _hometown = [
     "hyderabad",
@@ -145,7 +147,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     "Graduate degree",
   ];
   final List<String> _pronoun = [
-    "she/her",
+    // "she/her",
     "he/him",
     "they/them",
     "per/per",
@@ -2427,7 +2429,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                             print('signup part exicuted,,,,,,,,,,,');
                             try {
                               await ref
-                                  .read(loginProvider.notifier)
+                                  .read(admincreatedusersprovider.notifier)
                                   .signupuserApi(
 
                                       // :_lastNameController ,

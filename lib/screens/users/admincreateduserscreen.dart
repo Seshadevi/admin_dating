@@ -368,7 +368,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           // => _showUserDetails(user),
           tooltip: 'View Details',
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         _buildActionButton(
           icon: Icons.message,
           color: DatingColors.darkGreen,
@@ -386,10 +386,10 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           // => _editUser(user),
           tooltip: 'message User',
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         _buildActionButton(
           icon: Icons.favorite_border,
-          color: Colors.orange,
+          color: Colors.pinkAccent,
           onPressed: () {
             Navigator.pushNamed(
               context,
@@ -403,10 +403,10 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           },
           tooltip: 'Contact',
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         _buildActionButton(
           icon: Icons.edit_outlined,
-          color: Colors.red,
+          color: Colors.grey,
           onPressed: () {
           Navigator.pushNamed(
               context,
@@ -414,7 +414,10 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
               arguments: {
                 'accestoken':user.accessToken,
                 'userId': user.id,
-                'modeId': user.modes?.first.mode,
+               'modeId': (user.modes != null && user.modes!.isNotEmpty)
+    ? user.modes!.first.mode
+    : null,
+
                 'userRole': user.role,
                 'firstName': user.firstName,
                 'lastName': user.lastName,
@@ -506,11 +509,11 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                     ?? [],
 
                 'haveKids': user.haveKids??'',
-              'religion': user.religions
-                ?.map((e) => e.religion)
-                .whereType<String>()
-                .join(', ')  // join list into one string
-                ?? '',
+              // 'religion': user.religions
+              //   ?.map((e) => e.religion)
+              //   .whereType<String>()
+              //   .join(', ')  // join list into one string
+              //   ?? '',
                 'kids': user.kids
                 ?.map((e) => e.kids)
                 .whereType<String>()
@@ -522,7 +525,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                 .join(', ')  // join list into one string
                 ?? '',
 
-                'pronoun': user.pronouns,
+                // 'pronoun': user.pronouns,
                 'prompts': user.prompts,
                 'profilePics': user.profilePics,
                 'politics':user.politics,
@@ -537,7 +540,12 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
 
               },
             );
-            _buildActionButton(
+           
+          },
+          tooltip: 'Add to Favorites',
+        ),
+        const SizedBox(width: 8),
+         _buildActionButton(
               icon: Icons.delete,
               color: Colors.red,
               onPressed: () {
@@ -571,10 +579,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                 
               },
               tooltip: 'delete',
-            );
-          },
-          tooltip: 'Add to Favorites',
-        ),
+            ),
       ],
     );
   }
@@ -599,7 +604,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
           ),
           child: Icon(
             icon,
-            size:16,
+            size:19,
             color: color,
           ),
         ),

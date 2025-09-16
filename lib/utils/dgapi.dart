@@ -3,7 +3,8 @@ import 'dart:convert';
 class Dgapi {
   static const String baseUrl = "http://97.74.93.26:6100";
   static const String login = "$baseUrl/superAdmin/loginadmin";
-  static const String updateprofile="$baseUrl/profile/updateprofile";
+  static const String updateprofile="$baseUrl/admin/updateBotusers";
+  // http://97.74.93.26:6100/admin/updateBotusers/418
   // static const String login1 = "$baseUrl/user/login";
   static const String login1 = "$baseUrl/admin/FakeUsersPost";
   static const String refreshToken = "$baseUrl/refresh-token";
@@ -70,7 +71,7 @@ class Dgapi {
   static const String  getverification ="$baseUrl/verifications";
   static const String  updateverification ="$baseUrl/admin/users/userId/verification";
   // static const String  admincreatedusers= "$baseUrl/admin/admincreatedusers";
-  static const String  admincreatedusers= "$baseUrl/admin//users/by-creator";
+  static const String  admincreatedusers= "$baseUrl/superAdmin/getfakeusersforadmin";
   static const String  likedislike= "$baseUrl/admin/adminlikesordislikes";
   static const String  realUsers= "$baseUrl/admin/realusersforadmin";
   static const String  likedislikepost= "$baseUrl/user/like-dislike";
@@ -79,7 +80,7 @@ class Dgapi {
   static const String  createadmin = "$baseUrl/superAdmin/createAdmin";
   static const String  fetchroles = "$baseUrl/superAdmin/adminRole";
   static const String  addroles = "$baseUrl/superAdmin/adminRole";
-  static const String  admingetpages = "$baseUrl/admin/pages";
-   static const String  adminfeatures = "$baseUrl/admin/feature/get";
-   static const String  adminaddfeatures = "$baseUrl/admin/feature/post";
+  static const String educationGet="$baseUrl/education";
+  static const String eudctionAdd="$baseUrl/education";
+    static const String educationUpdate="$baseUrl/education";
 }
