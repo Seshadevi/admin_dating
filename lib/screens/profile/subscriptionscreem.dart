@@ -1,6 +1,9 @@
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
+import 'package:admin_dating/screens/profile/post_sub.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_dating/constants/dating_colors.dart';
+
+import 'get_subscription.dart';
 
 class SubscriptionsScreen extends StatelessWidget {
   const SubscriptionsScreen({super.key});
@@ -12,24 +15,38 @@ class SubscriptionsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorScheme.background,
-      appBar: AppBar(
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Subscriptions',
-          style: theme.textTheme.headlineSmall?.copyWith(
-            color: colorScheme.onSurface,
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: colorScheme.surface,
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          title: Text(
+            'Subscriptions',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: IconButton(
+                icon: const Icon(Icons.add),
+                color: DatingColors.primaryGreen,
+                tooltip: 'Add Subscription Plan',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SubscriptionPlansListScreen()),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Icon(Icons.more_vert, color: colorScheme.onSurface),
+            ),
+          ],
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.more_vert, color: colorScheme.onSurface),
-          )
-        ],
-      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
