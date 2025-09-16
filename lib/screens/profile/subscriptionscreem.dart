@@ -41,10 +41,24 @@ class SubscriptionsScreen extends StatelessWidget {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Icon(Icons.more_vert, color: colorScheme.onSurface),
+           Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
+              onSelected: (value) {
+                if (value == 'Features') {
+                  Navigator.pushNamed(context, '/adminfeatures'); // 👈 navigate to Features page
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'Features',
+                  child: Text('Features'),
+                ),
+              ],
             ),
+          )
+
           ],
         ),
       body: SingleChildScrollView(

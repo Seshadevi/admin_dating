@@ -1,4 +1,5 @@
 import 'package:admin_dating/constants/dating_colors.dart';
+import 'package:admin_dating/provider/superAdminProviders/admin_feature_provider.dart';
 import 'package:admin_dating/provider/superAdminProviders/admin_get_provider.dart';
 import 'package:admin_dating/provider/superAdminProviders/roles_provider.dart';
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
@@ -6,25 +7,25 @@ import 'package:admin_dating/screens/superAdminScreens/add_roles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class GetRoles extends ConsumerStatefulWidget {
-  const GetRoles({super.key});
+class GetAdminFeatures extends ConsumerStatefulWidget {
+  const GetAdminFeatures({super.key});
 
   @override
-  ConsumerState<GetRoles> createState() => _GetRolesState();
+  ConsumerState<GetAdminFeatures> createState() => _GetAdminFeaturesState();
 }
 
-class _GetRolesState extends ConsumerState<GetRoles> {
+class _GetAdminFeaturesState extends ConsumerState<GetAdminFeatures> {
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(rolesProvider.notifier).getroles();
+      ref.read(adminFeatureProvider.notifier).getAdminFeatures();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final adminsState = ref.watch(rolesProvider);
+    final adminsState = ref.watch(adminFeatureProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
@@ -32,7 +33,7 @@ class _GetRolesState extends ConsumerState<GetRoles> {
         backgroundColor: DatingColors.darkGreen,
         elevation: 0,
         title: const Text(
-          "Roles",
+          "Admin Features",
           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         actions: [
@@ -40,7 +41,7 @@ class _GetRolesState extends ConsumerState<GetRoles> {
             icon: const Icon(Icons.add_circle_outline, size: 32),
             onPressed: () {
               Navigator.pushNamed(
-                context,'/addroles',
+               context,'/addadminfeatues',
               
               );
             },
@@ -70,7 +71,7 @@ class _GetRolesState extends ConsumerState<GetRoles> {
                         // Role name
                         Expanded(
                           child: Text(
-                            admin.roleName ?? "No Role Name",
+                            admin.featureName ?? "No Role Name",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -87,7 +88,7 @@ class _GetRolesState extends ConsumerState<GetRoles> {
                             '/addroles',
                             arguments: {
                               'id': admin.id,
-                              'roleName': admin.roleName,
+                              'roleName': admin.featureName,
                             },
                           );
                         },
@@ -103,7 +104,7 @@ class _GetRolesState extends ConsumerState<GetRoles> {
                               builder: (context) => AlertDialog(
                                 title: const Text("Delete Role"),
                                 content: Text(
-                                  "Are you sure you want to delete the role: ${admin.roleName ?? ''}?",
+                                  "Are you sure you want to delete the role: ${admin.featureName ?? ''}?",
                                 ),
                                 actions: [
                                   TextButton(
@@ -128,7 +129,7 @@ class _GetRolesState extends ConsumerState<GetRoles> {
                               if (success) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Deleted role: ${admin.roleName ?? ''}",style: TextStyle(color: Colors.white),),
+                                    content: Text("Deleted role: ${admin.featureName ?? ''}",style: TextStyle(color: Colors.white),),
                                     backgroundColor: DatingColors.darkGreen,
                                   ),
                                 );
@@ -154,7 +155,7 @@ class _GetRolesState extends ConsumerState<GetRoles> {
         backgroundColor: DatingColors.darkGreen,
         child: const Icon(Icons.refresh, color: Colors.white),
         onPressed: () {
-          ref.read(rolesProvider.notifier).getroles();
+          ref.read(adminFeatureProvider.notifier).getAdminFeatures();
         },
       ),
       bottomNavigationBar: CustomBottomNavBar(

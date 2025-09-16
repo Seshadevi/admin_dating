@@ -1,10 +1,13 @@
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
+import 'package:admin_dating/provider/superAdminProviders/admin_feature_provider.dart';
 // import 'package:admin_dating/theme_provider.dart'; // Import your theme provider
 import 'package:admin_dating/screens/login.dart';
+import 'package:admin_dating/screens/superAdminScreens/add_admin_features.dart';
 import 'package:admin_dating/screens/superAdminScreens/add_roles.dart';
 import 'package:admin_dating/screens/superAdminScreens/createadminscreen.dart';
 import 'package:admin_dating/screens/superAdminScreens/fetchadminscreen.dart';
+import 'package:admin_dating/screens/superAdminScreens/get_admin_features.dart';
 import 'package:admin_dating/screens/users/add_proffile_screen.dart';
 import 'package:admin_dating/screens/profile/dashboard.dart';
 import 'package:admin_dating/screens/profile/notification.dart';
@@ -181,7 +184,9 @@ class _MyAppState extends ConsumerState<MyApp> {
         '/matchesscreen': (context) => MatchesScreen(),
         '/editprofilesscreen': (context) => EditProfileScreen(),
         '/createadmin': (context) => CreateAccountScreen(),
-        '/addroles': (context) => RolesScreen()
+        '/addroles': (context) => RolesScreen(),
+        '/adminfeatures': (context) => GetAdminFeatures(),
+        '/addadminfeatues': (context) => AddAdminFeatures(),
       },
     );
   }

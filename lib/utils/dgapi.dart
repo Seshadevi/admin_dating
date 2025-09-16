@@ -79,4 +79,7 @@ class Dgapi {
   static const String  createadmin = "$baseUrl/superAdmin/createAdmin";
   static const String  fetchroles = "$baseUrl/superAdmin/adminRole";
   static const String  addroles = "$baseUrl/superAdmin/adminRole";
+  static const String  admingetpages = "$baseUrl/admin/pages";
+   static const String  adminfeatures = "$baseUrl/admin/feature/get";
+   static const String  adminaddfeatures = "$baseUrl/admin/feature/post";
 }
