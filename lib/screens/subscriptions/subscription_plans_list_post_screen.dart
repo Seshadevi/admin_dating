@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../provider/superAdminProviders/subscription_provider.dart';
+import '../../provider/subscriptions/subscription_provider.dart';
 import 'package:admin_dating/constants/dating_colors.dart';
 
 class PostSubscriptionScreen extends ConsumerStatefulWidget {

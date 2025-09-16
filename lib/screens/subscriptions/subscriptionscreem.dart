@@ -1,8 +1,9 @@
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
-import 'package:admin_dating/screens/profile/subscription_plans_list_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_dating/constants/dating_colors.dart';
 
+import 'full_plan_post_screen.dart';
+import 'full_plans_get_page.dart';
 import 'subscription_plans_list_screen.dart';
 
 class SubscriptionsScreen extends StatelessWidget {
@@ -37,6 +38,8 @@ class SubscriptionsScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const SubscriptionPlansListScreen()),
+                      // SubscriptionPlansListScreen
+                      // FullPlansGetPage
                   );
                 },
               ),

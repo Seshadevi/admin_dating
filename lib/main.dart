@@ -46,7 +46,7 @@ import 'package:admin_dating/screens/settings/getsandpostsofadmin/termsandcondit
 import 'package:admin_dating/screens/settings/getsandpostsofadmin/termsandconditionsget.dart';
 import 'package:admin_dating/screens/settings/postadmin.dart';
 import 'package:admin_dating/screens/settings/settings.dart';
-import 'package:admin_dating/screens/profile/subscriptionscreem.dart';
+import 'package:admin_dating/screens/subscriptions/subscriptionscreem.dart';
 import 'package:admin_dating/screens/profile/swipes.dart';
 import 'package:admin_dating/screens/profile/users.dart';
 import 'package:admin_dating/screens/users/admincreateduserscreen.dart';

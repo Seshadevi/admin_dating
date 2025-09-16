@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/superAdminProviders/admin_get_provider.dart';
@@ -8,7 +7,6 @@ import 'package:admin_dating/provider/superAdminProviders/roles_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../../models/superAdminModels/roles_get_model.dart';
 
 class CreateAccountScreen extends ConsumerStatefulWidget {

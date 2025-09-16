@@ -1,11 +1,11 @@
-import 'package:admin_dating/screens/profile/subscription_plans_list_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../provider/superAdminProviders/subscription_get_provider.dart';
-import 'package:admin_dating/constants/dating_colors.dart';
+import '../../provider/subscriptions/subscription_get_provider.dart';
+import 'AddFeatureToPlanScreen.dart';
+
 
 class SubscriptionPlansListScreen extends ConsumerStatefulWidget {
-  const SubscriptionPlansListScreen({super.key});
+  const SubscriptionPlansListScreen({Key? key}) : super(key: key);
 
   @override
   ConsumerState<SubscriptionPlansListScreen> createState() =>
@@ -17,7 +17,6 @@ class _SubscriptionPlansListScreenState
   @override
   void initState() {
     super.initState();
-    // Fetch plans when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(subscriptionListProvider.notifier).fetchPlans();
     });
@@ -41,18 +40,15 @@ class _SubscriptionPlansListScreenState
         ],
       ),
     );
-
     if (confirmed == true) {
       final result =
       await ref.read(subscriptionListProvider.notifier).deletePlan(id);
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result == "success" ? "Plan deleted." : result)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(result == "success" ? "Plan deleted." : result)));
     }
   }
 
-  void _editPlan(dynamic plan) {
-    // TODO: Navigate to PostSubscriptionScreen with 'plan' data for editing if needed
-  }
+  void _editPlan(dynamic plan) {}
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +57,13 @@ class _SubscriptionPlansListScreenState
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: DatingColors.primaryGreen,
+        backgroundColor: Colors.teal,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
           'Subscription Plans',
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: DatingColors.white,
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -76,20 +72,12 @@ class _SubscriptionPlansListScreenState
             padding: const EdgeInsets.only(right: 12),
             child: IconButton(
               icon: const Icon(Icons.add),
-              color: DatingColors.white,
+              color: Colors.white,
               tooltip: 'Add Subscription Plan',
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PostSubscriptionScreen()),
-                );
+                // Navigate to add plan page if needed
               },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Icon(Icons.more_vert, color: theme.colorScheme.onSurface),
           ),
         ],
       ),
@@ -99,7 +87,9 @@ class _SubscriptionPlansListScreenState
           ? Center(child: Text(state.error!))
           : RefreshIndicator(
         onRefresh: () async {
-          await ref.read(subscriptionListProvider.notifier).fetchPlans();
+          await ref
+              .read(subscriptionListProvider.notifier)
+              .fetchPlans();
         },
         child: ListView.separated(
           padding: const EdgeInsets.all(12),
@@ -113,7 +103,7 @@ class _SubscriptionPlansListScreenState
                   borderRadius: BorderRadius.circular(12)),
               child: ListTile(
                 title: Text(
-                  plan['planName'] ?? 'No Name',
+                  plan['planName'] ?? plan['title'] ?? 'No Name',
                   style: theme.textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.onSurface),
@@ -121,14 +111,29 @@ class _SubscriptionPlansListScreenState
                 subtitle: Text(
                   plan['description'] ?? '',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                      color:
-                      theme.colorScheme.onSurface.withOpacity(0.7)),
+                      color: theme.colorScheme.onSurface
+                          .withOpacity(0.7)),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.orange),
+                      icon: const Icon(Icons.add_box, color: Colors.indigo),
+                      tooltip: "Add Features",
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AddFeatureToPlanScreen(
+                              planTypeId: plan['typeId'] as int,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon:
+                      const Icon(Icons.edit, color: Colors.orange),
                       onPressed: () => _editPlan(plan),
                     ),
                     IconButton(
