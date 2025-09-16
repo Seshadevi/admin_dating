@@ -137,6 +137,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               email: _emailController.text.trim(),
               password: _passwordController.text.trim(),
               roleId: _selectedRole?.id.toString() ?? '',
+              pages: _selectedPageIds.toList(),
             )
           : await notifier.updateAdmin(
               id: _editingId!,
@@ -328,7 +329,7 @@ class _CreateAccountScreenState extends ConsumerState<CreateAccountScreen> {
               ),
               const SizedBox(height: 10),
 
-              // ✅ Admin Pages with Checkboxes
+             
               // ✅ Admin Pages with Checkboxes (Scrollable)
 if (adminPagesState.data != null && adminPagesState.data!.isNotEmpty)
   SizedBox(

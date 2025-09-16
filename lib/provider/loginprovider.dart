@@ -69,6 +69,11 @@ class LoginNotifier extends StateNotifier<UserModel> {
         final loginModel = UserModel.fromJson(decoded);
 
         await prefs.setString('userData', json.encode(loginModel.toJson()));
+        
+            // Save just the access token separately
+          final accessToken = loginModel.data?[0].accessToken ?? '';
+          await prefs.setString('access_token', accessToken);
+
         state = loginModel;
 
         return loginModel;

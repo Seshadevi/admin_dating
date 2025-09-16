@@ -74,6 +74,7 @@ Future<void> getAdmins() async {
     required String email,
     required String password,
     required String roleId,
+    required List<int> pages,
   }) async {
     print("Sending username: ${firstName}");
     print("Sending email: ${email}");
@@ -92,6 +93,7 @@ Future<void> getAdmins() async {
     request.fields['email'] = email;
     request.fields['password'] = password;
     request.fields['roleId'] = roleId;
+    request.fields['pagesIds'] = jsonEncode(pages);
  // fixed value based on Postman
 
       // Add image file

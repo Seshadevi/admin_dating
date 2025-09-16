@@ -125,7 +125,8 @@ class _SubscriptionPlansListScreenState
                           context,
                           MaterialPageRoute(
                             builder: (context) => AddFeatureToPlanScreen(
-                              planTypeId: plan['typeId'] as int,
+                              planTypeId: int.tryParse(plan['typeId'].toString()) ?? 0,
+
                             ),
                           ),
                         );

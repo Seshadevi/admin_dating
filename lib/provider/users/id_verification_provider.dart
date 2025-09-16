@@ -1,4 +1,294 @@
-// import 'dart:convert';
+
+
+import 'dart:convert';
+import 'package:admin_dating/models/users/id_verification_model.dart';
+import 'package:admin_dating/provider/loader.dart';
+import 'package:admin_dating/provider/loginprovider.dart';
+import 'package:admin_dating/utils/dgapi.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/retry.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+
+class Verificationprovider extends StateNotifier<List<VerificationId>> {
+  final Ref ref;
+  Verificationprovider(this.ref) : super(const []);
+
+  /// Fetch verification users list
+  Future<void> verificationid() async {
+    final loadingState = ref.read(loadingProvider.notifier);
+    final prefs = await SharedPreferences.getInstance();
+
+    try {
+      loadingState.state = true;
+
+      String? token = await _getAuthToken(prefs);
+      if (token == null) {
+        throw Exception("User token is missing. Please log in again.");
+      }
+
+      print('Retrieved Token: $token');
+
+      final client = RetryClient(
+        http.Client(),
+        retries: 3,
+        when: (response) => response.statusCode == 401 || response.statusCode == 400,
+        onRetry: (req, res, retryCount) async {
+          if (retryCount == 0 && (res?.statusCode == 401 || res?.statusCode == 400)) {
+            print("Token expired, refreshing...");
+            String? newAccessToken = await ref.read(loginProvider.notifier).restoreAccessToken();
+
+            if (newAccessToken != null && newAccessToken.isNotEmpty) {
+              await prefs.setString('accessToken', newAccessToken);
+              req.headers['Authorization'] = 'Bearer $newAccessToken';
+              print("New Token: $newAccessToken");
+            }
+          }
+        },
+      );
+
+      print('Fetching verification ids from: ${Dgapi.getverification}');
+
+      final response = await client.get(
+        Uri.parse(Dgapi.getverification),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        try {
+          final decoded = jsonDecode(response.body);
+          
+          // Handle different response formats
+          List<VerificationId> verificationList = [];
+          
+          if (decoded is List) {
+            // Direct array of verification objects
+            verificationList = decoded
+                .map((item) => VerificationId.fromJson(item as Map<String, dynamic>))
+                .toList();
+          } else if (decoded is Map) {
+            if (decoded['data'] is List) {
+              // Response with data wrapper
+              verificationList = (decoded['data'] as List)
+                  .map((item) => VerificationId.fromJson(item as Map<String, dynamic>))
+                  .toList();
+            } else {
+              // Single object response
+              verificationList = [VerificationId.fromJson(Map<String, dynamic>.from(decoded as Map))];
+
+            }
+          }
+
+          state = verificationList;
+          print('Successfully loaded ${verificationList.length} verification records');
+          
+          // Debug: Print structure
+          for (var i = 0; i < verificationList.length && i < 2; i++) {
+            final item = verificationList[i];
+            print('Item $i: ${item.data?.length ?? 0} data entries');
+            if (item.data?.isNotEmpty ?? false) {
+              final firstData = item.data!.first;
+              print('  First data has ${firstData.verifications?.length ?? 0} verifications');
+            }
+          }
+          
+        } catch (parseError) {
+          print("JSON parsing error: $parseError");
+          print("Response body: ${response.body}");
+          throw Exception("Failed to parse verification data: $parseError");
+        }
+      } else {
+        final errorMessage = "HTTP ${response.statusCode}: ${response.body}";
+        print("API Error: $errorMessage");
+        throw Exception("Failed to fetch verifications: $errorMessage");
+      }
+    } catch (e) {
+      print("Verification fetch error: $e");
+      // Don't clear state on error, keep previous data
+      rethrow;
+    } finally {
+      loadingState.state = false;
+    }
+  }
+
+  /// Update verification status (approve/reject)
+  Future<bool> updateVerification({
+    required int userId,
+    required bool verified,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    try {
+      String? token = await _getAuthToken(prefs);
+      if (token == null) {
+        token = await ref.read(loginProvider.notifier).restoreAccessToken();
+        if (token == null || token.isEmpty) {
+          throw Exception("Authentication required. Please log in again.");
+        }
+        await prefs.setString('accessToken', token);
+      }
+
+      final client = RetryClient(
+        http.Client(),
+        retries: 3,
+        when: (response) => response.statusCode == 401 || response.statusCode == 400,
+        onRetry: (req, res, retryCount) async {
+          if (retryCount == 0 && (res?.statusCode == 401 || res?.statusCode == 400)) {
+            print("Token expired during update, refreshing...");
+            String? newAccessToken = await ref.read(loginProvider.notifier).restoreAccessToken();
+            if (newAccessToken != null && newAccessToken.isNotEmpty) {
+              await prefs.setString('accessToken', newAccessToken);
+              req.headers['Authorization'] = 'Bearer $newAccessToken';
+              print("Updated token for retry");
+            }
+          }
+        },
+      );
+
+      // Replace userId placeholder in URL
+      final url = Dgapi.updateverification.replaceFirst('userId', '$userId');
+      print('Updating verification: userId=$userId, verified=$verified');
+      print('Request URL: $url');
+
+      final requestBody = jsonEncode({
+        'verified': verified,
+        'status': verified ? 'verified' : 'rejected', // Include status for better API compatibility
+      });
+
+      final response = await client.patch(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: requestBody,
+      );
+
+      print('Update Response - Status: ${response.statusCode}, Body: ${response.body}');
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        // Update local state optimistically
+        _updateLocalVerificationState(userId, verified);
+        return true;
+      } else {
+        final errorMsg = 'Update failed: ${response.statusCode} - ${response.body}';
+        print(errorMsg);
+        throw Exception(errorMsg);
+      }
+    } catch (e) {
+      print('Verification update error: $e');
+      return false;
+    }
+  }
+
+  /// Helper method to get authentication token
+  Future<String?> _getAuthToken(SharedPreferences prefs) async {
+    try {
+      // Try to get from userData first
+      final userDataString = prefs.getString('userData');
+      if (userDataString != null && userDataString.isNotEmpty) {
+        final userData = jsonDecode(userDataString) as Map<String, dynamic>;
+        
+        // Check multiple possible token locations
+        String? token = userData['accessToken'] as String?;
+        token ??= userData['access_token'] as String?;
+        
+        if (userData['data'] is List && (userData['data'] as List).isNotEmpty) {
+          final firstData = (userData['data'] as List)[0] as Map<String, dynamic>;
+          token ??= firstData['access_token'] as String?;
+          token ??= firstData['accessToken'] as String?;
+        }
+        
+        if (token != null && token.isNotEmpty) {
+          return token;
+        }
+      }
+      
+      // Fallback to direct accessToken storage
+      return prefs.getString('accessToken');
+    } catch (e) {
+      print('Token extraction error: $e');
+      return prefs.getString('accessToken');
+    }
+  }
+
+  /// Update local state after successful API call
+  void _updateLocalVerificationState(int userId, bool verified) {
+    state = state.map((verificationId) {
+      if (verificationId.data != null) {
+        final updatedData = verificationId.data!.map((data) {
+          if (data.verifications != null) {
+            final updatedVerifications = data.verifications!.map((verification) {
+              if (verification.userId == userId) {
+                return verification.copyWith(
+                  verified: verified,
+                  status: verified ? 'verified' : 'rejected',
+                );
+              }
+              return verification;
+            }).toList();
+            return data.copyWith(verifications: updatedVerifications);
+          }
+          return data;
+        }).toList();
+        return verificationId.copyWith(data: updatedData);
+      }
+      return verificationId;
+    }).toList();
+  }
+
+  /// Refresh verification list
+  Future<void> refresh() async {
+    await verificationid();
+  }
+
+  /// Clear all verification data
+  void clear() {
+    state = [];
+  }
+
+  /// Get verification by user ID
+  Verifications? getVerificationByUserId(int userId) {
+    for (final verificationId in state) {
+      if (verificationId.data != null) {
+        for (final data in verificationId.data!) {
+          if (data.verifications != null) {
+            for (final verification in data.verifications!) {
+              if (verification.userId == userId) {
+                return verification;
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+}
+
+final verificationIdProvider = StateNotifierProvider<Verificationprovider, List<VerificationId>>((ref) {
+  return Verificationprovider(ref);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+//import 'dart:convert';
 // import 'package:admin_dating/models/users/id_verification_model.dart';
 // import 'package:admin_dating/provider/loader.dart';
 // import 'package:admin_dating/provider/loginprovider.dart';
@@ -422,280 +712,3 @@
 
 
 
-
-
-import 'dart:convert';
-import 'package:admin_dating/models/users/id_verification_model.dart';
-import 'package:admin_dating/provider/loader.dart';
-import 'package:admin_dating/provider/loginprovider.dart';
-import 'package:admin_dating/utils/dgapi.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/retry.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-
-class Verificationprovider extends StateNotifier<List<VerificationId>> {
-  final Ref ref;
-  Verificationprovider(this.ref) : super(const []);
-
-  /// Fetch verification users list
-  Future<void> verificationid() async {
-    final loadingState = ref.read(loadingProvider.notifier);
-    final prefs = await SharedPreferences.getInstance();
-
-    try {
-      loadingState.state = true;
-
-      String? token = await _getAuthToken(prefs);
-      if (token == null) {
-        throw Exception("User token is missing. Please log in again.");
-      }
-
-      print('Retrieved Token: $token');
-
-      final client = RetryClient(
-        http.Client(),
-        retries: 3,
-        when: (response) => response.statusCode == 401 || response.statusCode == 400,
-        onRetry: (req, res, retryCount) async {
-          if (retryCount == 0 && (res?.statusCode == 401 || res?.statusCode == 400)) {
-            print("Token expired, refreshing...");
-            String? newAccessToken = await ref.read(loginProvider.notifier).restoreAccessToken();
-
-            if (newAccessToken != null && newAccessToken.isNotEmpty) {
-              await prefs.setString('accessToken', newAccessToken);
-              req.headers['Authorization'] = 'Bearer $newAccessToken';
-              print("New Token: $newAccessToken");
-            }
-          }
-        },
-      );
-
-      print('Fetching verification ids from: ${Dgapi.getverification}');
-
-      final response = await client.get(
-        Uri.parse(Dgapi.getverification),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      print('Status Code: ${response.statusCode}');
-      print('Response Body: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        try {
-          final decoded = jsonDecode(response.body);
-          
-          // Handle different response formats
-          List<VerificationId> verificationList = [];
-          
-          if (decoded is List) {
-            // Direct array of verification objects
-            verificationList = decoded
-                .map((item) => VerificationId.fromJson(item as Map<String, dynamic>))
-                .toList();
-          } else if (decoded is Map) {
-            if (decoded['data'] is List) {
-              // Response with data wrapper
-              verificationList = (decoded['data'] as List)
-                  .map((item) => VerificationId.fromJson(item as Map<String, dynamic>))
-                  .toList();
-            } else {
-              // Single object response
-              verificationList = [VerificationId.fromJson(Map<String, dynamic>.from(decoded as Map))];
-
-            }
-          }
-
-          state = verificationList;
-          print('Successfully loaded ${verificationList.length} verification records');
-          
-          // Debug: Print structure
-          for (var i = 0; i < verificationList.length && i < 2; i++) {
-            final item = verificationList[i];
-            print('Item $i: ${item.data?.length ?? 0} data entries');
-            if (item.data?.isNotEmpty ?? false) {
-              final firstData = item.data!.first;
-              print('  First data has ${firstData.verifications?.length ?? 0} verifications');
-            }
-          }
-          
-        } catch (parseError) {
-          print("JSON parsing error: $parseError");
-          print("Response body: ${response.body}");
-          throw Exception("Failed to parse verification data: $parseError");
-        }
-      } else {
-        final errorMessage = "HTTP ${response.statusCode}: ${response.body}";
-        print("API Error: $errorMessage");
-        throw Exception("Failed to fetch verifications: $errorMessage");
-      }
-    } catch (e) {
-      print("Verification fetch error: $e");
-      // Don't clear state on error, keep previous data
-      rethrow;
-    } finally {
-      loadingState.state = false;
-    }
-  }
-
-  /// Update verification status (approve/reject)
-  Future<bool> updateVerification({
-    required int userId,
-    required bool verified,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-
-    try {
-      String? token = await _getAuthToken(prefs);
-      if (token == null) {
-        token = await ref.read(loginProvider.notifier).restoreAccessToken();
-        if (token == null || token.isEmpty) {
-          throw Exception("Authentication required. Please log in again.");
-        }
-        await prefs.setString('accessToken', token);
-      }
-
-      final client = RetryClient(
-        http.Client(),
-        retries: 3,
-        when: (response) => response.statusCode == 401 || response.statusCode == 400,
-        onRetry: (req, res, retryCount) async {
-          if (retryCount == 0 && (res?.statusCode == 401 || res?.statusCode == 400)) {
-            print("Token expired during update, refreshing...");
-            String? newAccessToken = await ref.read(loginProvider.notifier).restoreAccessToken();
-            if (newAccessToken != null && newAccessToken.isNotEmpty) {
-              await prefs.setString('accessToken', newAccessToken);
-              req.headers['Authorization'] = 'Bearer $newAccessToken';
-              print("Updated token for retry");
-            }
-          }
-        },
-      );
-
-      // Replace userId placeholder in URL
-      final url = Dgapi.updateverification.replaceFirst('userId', '$userId');
-      print('Updating verification: userId=$userId, verified=$verified');
-      print('Request URL: $url');
-
-      final requestBody = jsonEncode({
-        'verified': verified,
-        'status': verified ? 'verified' : 'rejected', // Include status for better API compatibility
-      });
-
-      final response = await client.patch(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: requestBody,
-      );
-
-      print('Update Response - Status: ${response.statusCode}, Body: ${response.body}');
-
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        // Update local state optimistically
-        _updateLocalVerificationState(userId, verified);
-        return true;
-      } else {
-        final errorMsg = 'Update failed: ${response.statusCode} - ${response.body}';
-        print(errorMsg);
-        throw Exception(errorMsg);
-      }
-    } catch (e) {
-      print('Verification update error: $e');
-      return false;
-    }
-  }
-
-  /// Helper method to get authentication token
-  Future<String?> _getAuthToken(SharedPreferences prefs) async {
-    try {
-      // Try to get from userData first
-      final userDataString = prefs.getString('userData');
-      if (userDataString != null && userDataString.isNotEmpty) {
-        final userData = jsonDecode(userDataString) as Map<String, dynamic>;
-        
-        // Check multiple possible token locations
-        String? token = userData['accessToken'] as String?;
-        token ??= userData['access_token'] as String?;
-        
-        if (userData['data'] is List && (userData['data'] as List).isNotEmpty) {
-          final firstData = (userData['data'] as List)[0] as Map<String, dynamic>;
-          token ??= firstData['access_token'] as String?;
-          token ??= firstData['accessToken'] as String?;
-        }
-        
-        if (token != null && token.isNotEmpty) {
-          return token;
-        }
-      }
-      
-      // Fallback to direct accessToken storage
-      return prefs.getString('accessToken');
-    } catch (e) {
-      print('Token extraction error: $e');
-      return prefs.getString('accessToken');
-    }
-  }
-
-  /// Update local state after successful API call
-  void _updateLocalVerificationState(int userId, bool verified) {
-    state = state.map((verificationId) {
-      if (verificationId.data != null) {
-        final updatedData = verificationId.data!.map((data) {
-          if (data.verifications != null) {
-            final updatedVerifications = data.verifications!.map((verification) {
-              if (verification.userId == userId) {
-                return verification.copyWith(
-                  verified: verified,
-                  status: verified ? 'verified' : 'rejected',
-                );
-              }
-              return verification;
-            }).toList();
-            return data.copyWith(verifications: updatedVerifications);
-          }
-          return data;
-        }).toList();
-        return verificationId.copyWith(data: updatedData);
-      }
-      return verificationId;
-    }).toList();
-  }
-
-  /// Refresh verification list
-  Future<void> refresh() async {
-    await verificationid();
-  }
-
-  /// Clear all verification data
-  void clear() {
-    state = [];
-  }
-
-  /// Get verification by user ID
-  Verifications? getVerificationByUserId(int userId) {
-    for (final verificationId in state) {
-      if (verificationId.data != null) {
-        for (final data in verificationId.data!) {
-          if (data.verifications != null) {
-            for (final verification in data.verifications!) {
-              if (verification.userId == userId) {
-                return verification;
-              }
-            }
-          }
-        }
-      }
-    }
-    return null;
-  }
-}
-
-final verificationIdProvider = StateNotifierProvider<Verificationprovider, List<VerificationId>>((ref) {
-  return Verificationprovider(ref);
-});
