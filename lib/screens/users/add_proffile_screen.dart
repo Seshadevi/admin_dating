@@ -555,54 +555,46 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Title
+                  // replace the whole Positioned(...) block with:
+                        Center(
+                          child: Column(
+                            children: [
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: List.generate(6, (index) {
+                                  return GestureDetector(
+                                    onTap: () => _pickImage(index),
+                                    child: Container(
+                                      width: 90,
+                                      height: 90,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        border: Border.all(color: Colors.grey),
+                                        borderRadius: BorderRadius.circular(16),
+                                        image: _selectedImages[index] != null
+                                            ? DecorationImage(
+                                                image: getImageProvider(_selectedImages[index])!,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : null,
+                                      ),
+                                      child: _selectedImages[index] == null
+                                          ? const Icon(Icons.add_a_photo, color: Colors.grey)
+                                          : null,
+                                    ),
+                                  );
+                                }),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                "select at least 4 images",
+                                style: TextStyle(color: Color(0xFF1A1D1A), fontSize: 10),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: List.generate(6, (index) {
-                              return GestureDetector(
-                                onTap: () => _pickImage(index),
-                                child: Container(
-                                  width: 90,
-                                  height: 90,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    border: Border.all(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(16),
-                                    image: _selectedImages[index] != null
-                                        ? DecorationImage(
-                                            image: getImageProvider(
-                                                _selectedImages[index])!,
-                                            fit: BoxFit.cover,
-                                          )
-                                        : null,
-                                  ),
-                                  child: _selectedImages[index] == null
-                                      ? const Icon(Icons.add_a_photo,
-                                          color: Colors.grey)
-                                      : null,
-                                ),
-                              );
-                            }),
-                          ),
-                          // const SizedBox(height: 10),
-                          const Text(
-                            " select at least 4 images",
-                            style: TextStyle(
-                                color: Color.fromARGB(255, 26, 29, 26),
-                                fontSize: 10),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
 
                   // const SizedBox(height: 10),
 
@@ -762,10 +754,10 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           horizontal: 12, vertical: 8),
                     ),
                     items: const [
-                      DropdownMenuItem(value: 'Man', child: Text('Man')),
-                      DropdownMenuItem(value: 'Woman', child: Text('Woman')),
-                      DropdownMenuItem(
-                          value: 'Nonbinary', child: Text('Nonbinary')),
+                      DropdownMenuItem(value: 'He/Him', child: Text('He/Him')),
+                      DropdownMenuItem(value: 'She/Her', child: Text('She/Her')),
+                      // DropdownMenuItem(
+                      //     value: 'Nonbinary', child: Text('Nonbinary')),
                     ],
                     onChanged: (value) {
                       setState(() {

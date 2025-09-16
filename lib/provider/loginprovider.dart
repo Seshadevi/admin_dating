@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:admin_dating/provider/users/admincreatedusersprovider.dart';
 
 import 'package:http_parser/http_parser.dart';
 
@@ -140,6 +141,9 @@ class LoginNotifier extends StateNotifier<UserModel> {
       // Basic fields
       if (email != null) {
         request.fields['email'] = email;
+      }
+      if(selectedGender != null){
+        request.fields['gender']= selectedGender;
       }
 
       if (userName != null) {
@@ -347,7 +351,9 @@ class LoginNotifier extends StateNotifier<UserModel> {
         await prefs.setBool("isSignedUp", true);
 
         print('User added succesfully.');
+        await ref.read(admincreatedusersprovider.notifier).getAdmincreatedusers();
         return response.statusCode;
+
       } else {
         print("❌ Signup failed with status: ${response.statusCode}");
         return response.statusCode;

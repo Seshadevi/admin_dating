@@ -542,32 +542,32 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
               color: Colors.red,
               onPressed: () {
                 showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Delete"),
-          content: const Text("Are you sure you want to delete this Botuser"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // close dialog
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () {
-                // your delete logic here
-                Navigator.of(context).pop(); // close dialog after action
-              },
-              child: const Text(
-                "Delete",
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Delete"),
+                    content: const Text("Are you sure you want to delete this Botuser"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // close dialog
+                        },
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          // your delete logic here
+                          Navigator.of(context).pop(); // close dialog after action
+                        },
+                        child: const Text(
+                          "Delete",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
                 
               },
               tooltip: 'delete',
