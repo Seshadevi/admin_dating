@@ -156,6 +156,7 @@
 //         'updatedAt': updatedAt,
 //       };
 // }
+
 class UserModel {
   int? statusCode;
   bool? success;
@@ -164,10 +165,22 @@ class UserModel {
 
   UserModel({this.statusCode, this.success, this.messages, this.data});
 
+  /// Initial/empty instance
+  UserModel.initial()
+      : statusCode = null,
+        success = false,
+        messages = const [],
+        data = const [];
+
   UserModel.fromJson(Map<String, dynamic> json) {
     statusCode = json['statusCode'];
     success = json['success'];
-    messages = json['messages'].cast<String>();
+    final msgs = json['messages'];
+    if (msgs is List) {
+      messages = msgs.map((e) => e.toString()).toList();
+    } else if (msgs is String) {
+      messages = [msgs];
+    }
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
@@ -177,7 +190,7 @@ class UserModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> map = {};
+    final Map<String, dynamic> map = <String, dynamic>{};
     map['statusCode'] = statusCode;
     map['success'] = success;
     map['messages'] = messages;
@@ -187,15 +200,7 @@ class UserModel {
     return map;
   }
 
-  /// ✅ Initial (default empty object)
-  factory UserModel.initial() => UserModel(
-        statusCode: 0,
-        success: false,
-        messages: [],
-        data: [],
-      );
-
-  /// ✅ CopyWith method
+  /// copyWith
   UserModel copyWith({
     int? statusCode,
     bool? success,
@@ -218,6 +223,12 @@ class Data {
 
   Data({this.accessToken, this.refreshToken, this.user});
 
+  /// Initial/empty instance
+  Data.initial()
+      : accessToken = null,
+        refreshToken = null,
+        user = User.initial();
+
   Data.fromJson(Map<String, dynamic> json) {
     accessToken = json['access_token'];
     refreshToken = json['refresh_token'];
@@ -225,7 +236,7 @@ class Data {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> map = {};
+    final Map<String, dynamic> map = <String, dynamic>{};
     map['access_token'] = accessToken;
     map['refresh_token'] = refreshToken;
     if (user != null) {
@@ -234,14 +245,7 @@ class Data {
     return map;
   }
 
-  /// ✅ Initial (default empty object)
-  factory Data.initial() => Data(
-        accessToken: '',
-        refreshToken: '',
-        user: User.initial(),
-      );
-
-  /// ✅ CopyWith method
+  /// copyWith
   Data copyWith({
     String? accessToken,
     String? refreshToken,
@@ -262,7 +266,7 @@ class User {
   String? role;
   int? roleId;
   String? profilePic;
-  List<dynamic>? pages;
+  List<Pages>? pages;
   String? createdAt;
   String? updatedAt;
 
@@ -278,6 +282,18 @@ class User {
     this.updatedAt,
   });
 
+  /// Initial/empty instance
+  User.initial()
+      : id = null,
+        username = null,
+        email = null,
+        role = null,
+        roleId = null,
+        profilePic = null,
+        pages = const [],
+        createdAt = null,
+        updatedAt = null;
+
   User.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     username = json['username'];
@@ -285,39 +301,33 @@ class User {
     role = json['role'];
     roleId = json['roleId'];
     profilePic = json['profilePic'];
-    pages = json['pages'] ?? [];
+    if (json['pages'] != null) {
+      pages = <Pages>[];
+      json['pages'].forEach((v) {
+        pages!.add(Pages.fromJson(v));
+      });
+    }
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> map = {};
+    final Map<String, dynamic> map = <String, dynamic>{};
     map['id'] = id;
     map['username'] = username;
     map['email'] = email;
     map['role'] = role;
     map['roleId'] = roleId;
     map['profilePic'] = profilePic;
-    map['pages'] = pages;
+    if (pages != null) {
+      map['pages'] = pages!.map((v) => v.toJson()).toList();
+    }
     map['createdAt'] = createdAt;
     map['updatedAt'] = updatedAt;
     return map;
   }
 
-  /// ✅ Initial (default empty object)
-  factory User.initial() => User(
-        id: 0,
-        username: '',
-        email: '',
-        role: '',
-        roleId: 0,
-        profilePic: '',
-        pages: [],
-        createdAt: '',
-        updatedAt: '',
-      );
-
-  /// ✅ CopyWith method
+  /// copyWith
   User copyWith({
     int? id,
     String? username,
@@ -325,7 +335,7 @@ class User {
     String? role,
     int? roleId,
     String? profilePic,
-    List<dynamic>? pages,
+    List<Pages>? pages,
     String? createdAt,
     String? updatedAt,
   }) {
@@ -343,3 +353,37 @@ class User {
   }
 }
 
+class Pages {
+  int? id;
+  String? pages;
+
+  Pages({this.id, this.pages});
+
+  /// Initial/empty instance
+  Pages.initial()
+      : id = null,
+        pages = null;
+
+  Pages.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    pages = json['pages'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = <String, dynamic>{};
+    map['id'] = id;
+    map['pages'] = pages;
+    return map;
+  }
+
+  /// copyWith
+  Pages copyWith({
+    int? id,
+    String? pages,
+  }) {
+    return Pages(
+      id: id ?? this.id,
+      pages: pages ?? this.pages,
+    );
+  }
+}

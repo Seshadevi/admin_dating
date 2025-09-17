@@ -142,31 +142,33 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
   
   // Fix: Properly extract admin ID from login provider data
   final userData = ref.watch(loginProvider);
-  
-  int? adminId;
-  try {
-    // Based on your API response, the structure is: data[0].id (not data[0].user.id)
-    if (userData.data != null && userData.data!.isNotEmpty) {
-      final firstDataItem = userData.data![0];
+  final firstDataItem = userData.data![0].user!.id;
+  print("admin id from creted fakeuser:$firstDataItem");
+  //  int? adminId;
+
+  // try {
+  //   // Based on your API response, the structure is: data[0].id (not data[0].user.id)
+  //   if (userData.data != null && userData.data!.isNotEmpty) {
+  //     
       
-      // if (firstDataItem is Map<String, dynamic>) {
-      //   // Direct access to id from the user object
-      //   adminId = firstDataItem['id'] as int?;
-      // }
-    }
-    print('Extracted adminId: $adminId');
-  } catch (e) {
-    print("Warning: Could not get admin ID from userData: $e");
-    print("UserData structure: ${userData.data}");
-    adminId = null;
-  }
+  //     // if (firstDataItem is Map<String, dynamic>) {
+  //     //   // Direct access to id from the user object
+  //     //   adminId = firstDataItem['id'] as int?;
+  //     // }
+  //   }
+  //   print('Extracted adminId: $adminId');
+  // } catch (e) {
+  //   print("Warning: Could not get admin ID from userData: $e");
+  //   print("UserData structure: ${userData.data}");
+  //   adminId = null;
+  // }
 
   RetryClient? client;
   final loadingState = ref.read(loadingProvider.notifier);
 
   print("✅ Proceeding with API request...");
   print('Sign in data - email: $email, mobile: $mobile, userName: $userName');
-  print('Admin ID: $adminId');
+  print('Admin ID: $firstDataItem');
 
   try {
     loadingState.state = true;
@@ -231,14 +233,15 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
     request.fields['role'] = "user";
 
     // Only add createdByAdminId if we have a valid adminId
-    if (adminId != null) {
-      request.fields['createdByAdminId'] = adminId.toString();
-      print('Using createdByAdminId: $adminId');
-    } else {
-      print('Warning: No admin ID available for createdByAdminId field');
-    }
+    // if (adminId != null) {
+   
+    //   print('Using createdByAdminId: $adminId');
+    // } else {
+    //   print('Warning: No admin ID available for createdByAdminId field');
+    // }
 
     // Basic user information
+     request.fields['createdByAdminId'] = firstDataItem.toString();
     if (email != null) request.fields['email'] = email;
     if (mobile != null) request.fields['mobile'] = mobile;
     if (userName != null) request.fields['firstName'] = userName;

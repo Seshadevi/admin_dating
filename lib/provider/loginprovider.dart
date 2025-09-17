@@ -34,6 +34,7 @@ class LoginNotifier extends StateNotifier<UserModel> {
         print('Invalid user data structure.');
         return false;
       }
+      
 
       // Update your provider state here (if applicable)
       state = loginModel;
