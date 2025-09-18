@@ -59,10 +59,10 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> with Ti
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: color, fontWeight: FontWeight.bold, fontSize: 12, // <-- smaller font
+              color: color, fontWeight: FontWeight.bold, fontSize: 10, // <-- smaller font
             ),
           ),
-          const SizedBox(height: 1), // <-- reduced from 2
+          // const SizedBox(height: 1), // <-- reduced from 2
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1), // <-- less vertical padding
             decoration: BoxDecoration(
@@ -74,7 +74,7 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> with Ti
               '$count',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                fontSize: 10, // <-- smaller font
+                fontSize: 6, // <-- smaller font
                 color: color,
               ),
             ),
@@ -135,14 +135,14 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> with Ti
                 child: TabBar(
                   controller: _tabController,
                   indicator: BoxDecoration(
-                    color: DatingColors.darkGreen,
+                    color: const Color.fromARGB(255, 231, 233, 224),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicatorPadding: const EdgeInsets.all(6),
                   tabs: [
                     _buildTab('Processing', Icons.hourglass_top_rounded, processing.length, Colors.orange),
-                    _buildTab('Verified', Icons.verified_rounded, verified.length, Colors.green),
+                    _buildTab('Verified', Icons.verified_rounded, verified.length, Colors.black),
                     _buildTab('Rejected', Icons.close_rounded, rejected.length, Colors.red),
                   ],
                   labelColor: Colors.white,

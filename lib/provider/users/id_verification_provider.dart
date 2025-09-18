@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 import 'package:admin_dating/models/users/id_verification_model.dart';
 import 'package:admin_dating/provider/loader.dart';
@@ -64,39 +62,37 @@ class Verificationprovider extends StateNotifier<List<VerificationId>> {
         try {
           final decoded = jsonDecode(response.body);
           
-          // Handle different response formats
-          List<VerificationId> verificationList = [];
+          // Create a single VerificationId object from the API response
+          VerificationId verificationData;
           
-          if (decoded is List) {
-            // Direct array of verification objects
-            verificationList = decoded
-                .map((item) => VerificationId.fromJson(item as Map<String, dynamic>))
-                .toList();
-          } else if (decoded is Map) {
-            if (decoded['data'] is List) {
-              // Response with data wrapper
-              verificationList = (decoded['data'] as List)
-                  .map((item) => VerificationId.fromJson(item as Map<String, dynamic>))
-                  .toList();
-            } else {
-              // Single object response
-              verificationList = [VerificationId.fromJson(Map<String, dynamic>.from(decoded as Map))];
-
-            }
+          if (decoded is Map<String, dynamic>) {
+            // The API response matches our VerificationId structure
+            verificationData = VerificationId.fromJson(decoded);
+          } else {
+            // Fallback: wrap the response in our expected structure
+            verificationData = VerificationId(
+              statusCode: 200,
+              success: true,
+              messages: ['Data loaded'],
+              data: decoded is List 
+                ? decoded.map((item) => Data.fromJson(item as Map<String, dynamic>)).toList()
+                : [Data(verifications: [])],
+            );
           }
 
-          state = verificationList;
-          print('Successfully loaded ${verificationList.length} verification records');
+          state = [verificationData];
           
-          // Debug: Print structure
-          for (var i = 0; i < verificationList.length && i < 2; i++) {
-            final item = verificationList[i];
-            print('Item $i: ${item.data?.length ?? 0} data entries');
-            if (item.data?.isNotEmpty ?? false) {
-              final firstData = item.data!.first;
-              print('  First data has ${firstData.verifications?.length ?? 0} verifications');
+          print('Successfully loaded verification data');
+          print('Number of data entries: ${verificationData.data?.length ?? 0}');
+          
+          // Debug verification count
+          int totalVerifications = 0;
+          if (verificationData.data != null) {
+            for (var data in verificationData.data!) {
+              totalVerifications += data.verifications?.length ?? 0;
             }
           }
+          print('Total verifications: $totalVerifications');
           
         } catch (parseError) {
           print("JSON parsing error: $parseError");
@@ -158,7 +154,7 @@ class Verificationprovider extends StateNotifier<List<VerificationId>> {
 
       final requestBody = jsonEncode({
         'verified': verified,
-        'status': verified ? 'verified' : 'rejected', // Include status for better API compatibility
+        'status': verified ? 'verified' : 'rejected',
       });
 
       final response = await client.patch(
@@ -275,7 +271,6 @@ class Verificationprovider extends StateNotifier<List<VerificationId>> {
 final verificationIdProvider = StateNotifierProvider<Verificationprovider, List<VerificationId>>((ref) {
   return Verificationprovider(ref);
 });
-
 
 
 
