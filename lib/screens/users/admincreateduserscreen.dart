@@ -425,6 +425,7 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                 'email': user.email,
                 'phoneNo': user.mobile,
                 'gender': user.gender,
+                'showOnProfile':user.showOnProfile,
                 'height': user.height,
                 'genderWant': user.genderIdentities
                         ?.where((e) => e.identity != null)
@@ -569,6 +570,8 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                             int>() // removes nulls and makes it List<String>
                         .toList() ??
                     [],
+                'pronoun':user.pronouns    
+                   
               },
             );
           },

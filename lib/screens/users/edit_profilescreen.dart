@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:admin_dating/models/signupprocessmodels/choosefoodies_model.dart';
 import 'package:admin_dating/provider/fakeusersprovider.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
@@ -33,7 +35,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
+import 'package:intl/intl.dart';
 import '../../models/users/admincreatedusersmodes.dart';
 import '../../provider/signupprocessProviders copy/genderProvider.dart';
 
@@ -154,10 +156,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     "Graduate degree",
   ];
   final List<String> _pronoun = [
-    // "she/her",
+    "she/her",
     "he/him",
     "they/them",
-    "per/per",
+    // "per/per",
   ];
   final List<String> _havekids = [
     "Have kids",
@@ -177,40 +179,55 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     Future.microtask(() => ref.read(religionProvider.notifier).getReligions());
     Future.microtask(() => ref.read(kidsProvider.notifier).getKids());
     Future.microtask(() => ref.read(interestsProvider.notifier).getInterests());
-    Future.microtask(
-        () => ref.read(defaultmessagesProvider.notifier).getdefaultmessages());
+    Future.microtask(() => ref.read(defaultmessagesProvider.notifier).getdefaultmessages());
     Future.microtask(() => ref.read(languagesProvider.notifier).getLanguages());
     Future.microtask(() => ref.read(starsignProvider.notifier).getStarsign());
-    Future.microtask(
-        () => ref.read(experiencProvider.notifier).getExperience());
+    Future.microtask(() => ref.read(experiencProvider.notifier).getExperience());
     Future.microtask(() => ref.read(industryProvider.notifier).getIndustry());
-    Future.microtask(
-        () => ref.read(relationshipProvider.notifier).getRelationship());
+    Future.microtask(() => ref.read(relationshipProvider.notifier).getRelationship());
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+   final arguments =ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    final arguments =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+     if (arguments != null) {
 
-    if (arguments != null) {
+      String isoToDdMmYyyy(String iso) {
+        try {
+          final dt = DateTime.parse(iso);
+          return "${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}";
+        } catch (_) {
+          return iso; // fallback if parsing fails
+        }
+      }
+
+      final rawDob = arguments['dateOfBirth'];
+      if ((_selectedBirth == null || _selectedBirth!.isEmpty) && rawDob != null) {
+        // if navigation gave an ISO string like "2000-01-05", convert it
+        if (rawDob is String && RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(rawDob)) {
+          _selectedBirth = isoToDdMmYyyy(rawDob);
+        } else {
+          // otherwise use the value as-is (or default)
+          _selectedBirth = rawDob.toString();
+        }
+      }
       accestoken = arguments['accestoken'];
       userId = arguments['userId'];
       userrole = arguments['userRole'] ?? '';
       _firstNameController.text = arguments['firstName'] ?? '';
       _lastNameController.text = arguments['lastname'] ?? '';
-      _selectedBirth = arguments['dateOfBirth'] ?? '';
+      // _selectedBirth = arguments['dateOfBirth'] ?? "05/02/2000";
       _emailController.text = arguments['email'] ?? '';
       _phoneController.text = arguments['phoneNo'] ?? '';
-      _selectedGender = arguments['gender'] ?? ''; // ✅ FIXED
+      _selectedGender = arguments['gender'] ?? ''; // âœ… FIXED
+      _showProfile = arguments['showOnProfile'] == true || arguments['showOnProfile'] == 'true';
       _heightController.text = arguments['height']?.toString() ?? '';
-      _selectedTheirGender = arguments['genderwant'] ?? '';
+      // _selectedTheirGender = arguments['genderwant'] ?? '';
       _selectedMode = arguments['modeId'] ?? [];
       _selectedcauseNames = List<String>.from(arguments['causes'] ?? []);
       _selectedcauseIds = List<int>.from(arguments['causesId'] ?? []);
-
       _selectedInterestNames = List<String>.from(arguments['interests'] ?? []);
       _selectedInterestIds = List<int>.from(arguments['interestsId'] ?? []);
       _selectedqualitiesNames = List<String>.from(arguments['qualities'] ?? []);
@@ -226,7 +243,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           List<String>.from(arguments['relationship'] ?? []);
       _selectedrelationshipIds =
           List<int>.from(arguments['relationshipId'] ?? []);
-      _selectedstarsignNames = arguments['starSign'] ?? ''; // ✅ FIXED
+      // _selectedstarsignNames = arguments['starSign'] ?? ''; // âœ… FIXED
       _selectedEducationlevel = arguments['educationLevel'] ?? '';
       _selectedNewtoarea = arguments['newToArea'] ?? '';
       _selectedHOmetown = arguments['hometown'] ?? '';
@@ -243,10 +260,35 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
       _selectedPronoun = arguments['pronoun'] ?? '';
       _selectedPolitics = arguments['politics'] ?? '';
-
+      final argsPrompts = arguments['prompts'];
+      if (argsPrompts != null) {
+        if (argsPrompts is List) {
+          prompts = argsPrompts.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList();
+        } else if (argsPrompts is String) {
+          // sometimes server returns JSON string
+          try {
+            final parsed = jsonDecode(argsPrompts);
+            if (parsed is List) prompts = parsed.map((e) => e?.toString() ?? '').toList();
+          } catch (_) {
+            // fallback
+            prompts = argsPrompts.split(',').map((s) => s.trim()).toList();
+          }
+        }
+      }
+      _bioController.text = (arguments['headLine'] ?? arguments['bio'] ?? '').toString();
+      _selectedPronoun = arguments['pronoun']?.toString();
+      // if your incoming gender identity or genderwant is object:
+      final genderWant = arguments['genderwant'];
+      _selectedTheirGender = genderWant is Map ? genderWant['value']?.toString() : genderWant?.toString();
+      final starArg = arguments['starSign'];
+      if (starArg is Map && starArg['name'] != null) {
+        _selectedstarsignNames = starArg['name'].toString();
+      } else if (starArg is String) {
+        _selectedstarsignNames = starArg;
+      }
       // promptController.text = (arguments['prompts'] as List).join(', ');
       const String baseUrl =
-          "http://97.74.93.26:6100"; // 👈 change to your API base
+          "http://97.74.93.26:6100"; // ðŸ‘ˆ change to your API base
 
       // Handle both Map and List cases
       final picsData = arguments['profilePics'];
@@ -268,11 +310,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         }
       }
     }
-    print('userid::::::::::$userId');
+    print('userid:::##:::::$userId');
     print('name:::::::::$_firstNameController');
     print('mode.........$_selectedMode');
     print('gender,,........$_selectedGender');
-    // print("Profile Pics: ${arguments!['profilePics']}");
     print('email::::::::::$_emailController');
     print('number::::::::::${_phoneController.text}');
     print('dob::::::::::$_selectedBirth');
@@ -283,7 +324,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     print('causes::::::::::$_selectedcauseNames');
     print('language::::::::::$_selectedlanguageNames');
     print('starsign::::::::::$_selectedstarsignNames');
-    print('genderidentites::::::::::$_selectedTheirGender');
+    print('genderidentites:::##:::::$_selectedTheirGender');
     // print('userid::::::::::$_selectedHOmetown');
   }
 
@@ -298,7 +339,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
         if (selected.length >= 4) {
           _finalSelectedImages = selected;
-          print("✅ Stored ${_finalSelectedImages.length} images");
+          print("âœ… Stored ${_finalSelectedImages.length} images");
         }
       });
     }
@@ -404,73 +445,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     );
   }
 
-  // void _showInterestDialog(BuildContext context, List<Data> items) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       final tempSelectedIds = [..._selectedInterestIds];
-  //       final tempSelectedNames = [..._selectedInterestNames];
 
-  //       return StatefulBuilder(
-  //         builder: (context, setDialogState) {
-  //           return AlertDialog(
-  //             title: const Text("Select Interests"),
-  //             content: SizedBox(
-  //               width: double.infinity,
-  //               child: ListView.builder(
-  //                 shrinkWrap: true,
-  //                 itemCount: items.length,
-  //                 itemBuilder: (context, index) {
-  //                   final interest = items[index];
-  //                   final isSelected = tempSelectedIds.contains(interest.id);
-  //                   return CheckboxListTile(
-  //                     value: isSelected,
-  //                     title: Text(interest.interests ?? ''),
-  //                     activeColor: Colors.blue, // ✅ box color when checked
-  //                     checkColor: Colors.white,
-  //                     onChanged: (checked) {
-  //                       setDialogState(() {
-  //                         if (checked == true) {
-  //                           if (tempSelectedIds.length < 4) {
-  //                             tempSelectedIds.add(interest.id!);
-  //                             tempSelectedNames.add(interest.interests ?? '');
-  //                           }
-  //                         } else {
-  //                           tempSelectedIds.remove(interest.id);
-  //                           tempSelectedNames.remove(interest.interests);
-  //                         }
-  //                       });
-  //                     },
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () => Navigator.pop(context),
-  //                 child: const Text("Cancel"),
-  //               ),
-  //               ElevatedButton(
-  //                 onPressed: () {
-  //                   setState(() {
-  //                     _selectedInterestIds
-  //                       ..clear()
-  //                       ..addAll(tempSelectedIds);
-  //                     _selectedInterestNames
-  //                       ..clear()
-  //                       ..addAll(tempSelectedNames);
-  //                   });
-  //                   Navigator.pop(context);
-  //                 },
-  //                 child: const Text("Done"),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 
   void _onLocationSelected(String address, double lat, double lng) {
     setState(() {
@@ -510,15 +485,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final languagelist = language.data ?? [];
     final interest = ref.watch(interestsProvider);
     final interestlist = interest.data ?? [];
-    print('causessList........................$causessList');
-    print('interestlist................$interestsList');
-    print('lookingLIst..........$lookinglist');
-    print('defaultList..........$defaultList');
-    print('language..........$languagelist');
-    print('starsign..........$startsignlist');
-    print('industry..........$industrylist');
-    print('experience..........$experiencelist');
-    print('relationship..........$relationshiplist');
+    // print('causessList........................$causessList');
+    // print('interestlist................$interestsList');
+    // print('lookingLIst..........$lookinglist');
+    // print('defaultList..........$defaultList');
+    // print('language..........$languagelist');
+    // print('starsign..........$startsignlist');
+    // print('industry..........$industrylist');
+    // print('experience..........$experiencelist');
+    // print('relationship..........$relationshiplist');
     // print('starsign..........$starsig');
 
     return Scaffold(
@@ -641,23 +616,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Last Name
-                  const Text('Last Name',
-                      style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: _lastNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
                   // Date of Birth
                   const Text('Date of Birth',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
@@ -671,15 +629,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         lastDate: DateTime.now(),
                       );
                       if (pickedDate != null) {
+                        
                         setState(() {
+                        
+                          print("dob inside setstate:$pickedDate");
+                          // Always two digits for day & month
                           _selectedBirth =
-                              "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                              "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year}";
+                          // _selectedBirth = "${pickedDate.year.toString().padLeft(4,'0')}"
+                          //     "-${pickedDate.month.toString().padLeft(2,'0')}"
+                          //     "-${pickedDate.day.toString().padLeft(2,'0')}";
+                                print("Selected Date of Birth: $_selectedBirth");
                         });
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8),
@@ -689,14 +654,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         children: [
                           Text(
                             _selectedBirth ?? 'Select Date of Birth',
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.black87),
+                            style: const TextStyle(fontSize: 14, color: Colors.black87),
                           ),
                           const Icon(Icons.calendar_today, color: Colors.grey),
                         ],
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 10),
 
                   // Email
@@ -742,7 +707,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     keyboardType: TextInputType.phone,
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(
-                          r'^\+91\d{0,10}$')), // ✅ allow only +91 + digits
+                          r'^\+91\d{0,10}$')), // âœ… allow only +91 + digits
                     ],
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
@@ -754,7 +719,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       hintText: 'Enter number',
                     ),
                     onChanged: (value) {
-                      // ✅ If user tries to delete +91, reset it back
+                      // âœ… If user tries to delete +91, reset it back
                       if (!value.startsWith('+91')) {
                         _phoneController.text = '+91';
                         _phoneController.selection = TextSelection.fromPosition(
@@ -774,7 +739,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
                     value: (_selectedGender != null &&
-                            ['He/Him', 'she/her'].contains(_selectedGender))
+                            ['He/Him', 'She/Her'].contains(_selectedGender))
                         ? _selectedGender
                         : null,
                     // value: (genderData.data?.any((item) => item.value == _selectedTheirGender) ?? false)
@@ -792,12 +757,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     items: const [
                       DropdownMenuItem(value: 'He/Him', child: Text('He/Him')),
                       DropdownMenuItem(
-                          value: 'she/her', child: Text('she/her')),
-                      // DropdownMenuItem(
-                      //     value: 'Nonbinary', child: Text('Nonbinary')),
+                          value: 'She/Her', child: Text('She/Her')),
+                    
+                    
                     ],
                     onChanged: (value) {
-                      setState(() {
+                     setState(() {
                         _selectedGender = value;
                       });
                     },
@@ -857,7 +822,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    // ✅ Only use value if it exists in the list, otherwise keep it null
+                    // âœ… Only use value if it exists in the list, otherwise keep it null
                     value: (genderData.data?.any(
                                 (item) => item.value == _selectedTheirGender) ??
                             false)
@@ -2154,430 +2119,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     },
                   ),
 
-                  // Age Dropdown
-                  // const Text('Age',
-                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  // const SizedBox(height: 5),
-                  // DropdownButtonFormField<String>(
-                  //   value: _selectedAge,
-                  //   decoration: InputDecoration(
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   items: const [
-                  //     DropdownMenuItem(value: '18-25', child: Text('18-25')),
-                  //     DropdownMenuItem(value: '26-35', child: Text('26-35')),
-                  //     DropdownMenuItem(value: '36-45', child: Text('36-45')),
-                  //   ],
-                  //   onChanged: (value) => setState(() => _selectedAge = value),
-                  // ),
-                  // const SizedBox(height: 15),
-
-                  // // Interest Dropdown
-                  // const Text('Interest',
-                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  // const SizedBox(height: 5),
-                  // DropdownButtonFormField<String>(
-                  //   value: _selectedInterest,
-                  //   decoration: InputDecoration(
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   items: const [
-                  //     DropdownMenuItem(value: 'Sports', child: Text('Sports')),
-                  //     DropdownMenuItem(value: 'Music', child: Text('Music')),
-                  //     DropdownMenuItem(
-                  //         value: 'Reading', child: Text('Reading')),
-                  //   ],
-                  //   onChanged: (value) =>
-                  //       setState(() => _selectedInterest = value),
-                  // ),
-                  // const SizedBox(height: 15),
-
-                  // // Looking For Dropdown
-                  // const Text('Looking For',
-                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  // const SizedBox(height: 5),
-                  // DropdownButtonFormField<String>(
-                  //   value: _selectedLookingFor,
-                  //   decoration: InputDecoration(
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   items: const [
-                  //     DropdownMenuItem(
-                  //         value: 'Friendship', child: Text('Friendship')),
-                  //     DropdownMenuItem(
-                  //         value: 'Relationship', child: Text('Relationship')),
-                  //     DropdownMenuItem(
-                  //         value: 'Networking', child: Text('Networking')),
-                  //   ],
-                  //   onChanged: (value) =>
-                  //       setState(() => _selectedLookingFor = value),
-                  // ),
-                  // const SizedBox(height: 15),
-
-                  // Write Few Words About You (Bio)
-
-                  // =======================================
-                  const SizedBox(height: 10),
-
-                  // work
-                  // const Text(
-                  //   'Work',
-                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
-                  // ),
-                  // const SizedBox(height: 5),
-
-                  // // main work textfield
-                  // TextField(
-                  //   controller: workController,
-                  //   readOnly: true, // prevent typing directly
-                  //   decoration: InputDecoration(
-                  //     hintText: _workSummary ?? "Enter your work",
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   onTap: () {
-                  //     setState(() {
-                  //       _showForm = !_showForm; // toggle show/hide
-                  //     });
-                  //   },
-                  // ),
-
-                  // const SizedBox(height: 10),
-
-                  // // extra form shown after tapping
-                  // if (_showForm) ...[
-                  //   TextField(
-                  //     controller: titleController,
-                  //     decoration: const InputDecoration(
-                  //       hintText: "Enter your title (e.g., Developer)",
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   TextField(
-                  //     controller: companyController,
-                  //     decoration: const InputDecoration(
-                  //       hintText: "Enter company name (e.g., Infosys)",
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 10),
-                  //   ElevatedButton(
-                  //     onPressed: () {
-                  //       setState(() {
-                  //         _workSummary =
-                  //             "${titleController.text} at ${companyController.text}";
-                  //         workController.text = _workSummary!;
-                  //         _showForm = false;
-                  //       });
-
-                  //       // Prepare API object
-                  //       final workData = {
-                  //         "title": titleController.text,
-                  //         "company": companyController.text,
-                  //       };
-                  //       print("Send to API: $workData");
-                  //     },
-                  //     child: Text(_workSummary == null ? "Add" : "Update"),
-                  //   ),
-                  // ],
-                  // const SizedBox(height: 10),
-                  const Text(
-                    'Work',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 5),
-
-                  TextField(
-                    controller: workController,
-                    readOnly: true, // prevent direct typing
-                    decoration: InputDecoration(
-                      hintText: _workSummary ?? "Enter your Work",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                    ),
-                    onTap: () async {
-                      final newwork = await showDialog<Map<String, dynamic>>(
-                        context: context,
-                        builder: (context) {
-                          final institutionController = TextEditingController();
-                          int? selectedYear;
-
-                          return AlertDialog(
-                            title: const Text("Add Work"),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                TextField(
-                                  controller: titleController,
-                                  decoration: const InputDecoration(
-                                    hintText: "role Name",
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                TextField(
-                                  controller: companyController,
-                                  decoration: const InputDecoration(
-                                    hintText: "company name",
-                                  ),
-                                ),
-                              ],
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("Cancel"),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context, {
-                                    "title": titleController.text,
-                                    "company": companyController
-                                  });
-                                },
-                                child: const Text("Save"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                      if (newwork != null &&
-                          (newwork['title'] as String).trim().isNotEmpty &&
-                          newwork['company'] != null) {
-                        /// ✅ Call Riverpod provider to save data
-                        final success = await ref
-                            .read(educationProvider.notifier)
-                            .addEducation(
-                              institution: newwork['title'],
-                              gradYear: newwork['company'],
-                            );
-
-                        if (success) {
-                          /// ✅ Provider already refreshed data inside addEducation()
-                          /// Now just update local UI state
-                          setState(() {
-                            _workSummary = newwork['company'];
-                            workController.text = newwork['company'];
-                          });
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("work added successfully!")),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Failed to add work.")),
-                          );
-                        }
-                      }
-                    },
-                  ),
-
-                  // education
-                  // const Text(
-                  //   'Education',
-                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
-                  // ),
-                  // const SizedBox(height: 5),
-
-                  // // main work textfield
-                  // TextField(
-                  //   controller: educationController,
-                  //   readOnly: true, // prevent typing directly
-                  //   decoration: InputDecoration(
-                  //     hintText: _educationSummary ?? "Enter your education",
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   onTap: () {
-                  //     setState(() {
-                  //       _showFormeducation = !_showFormeducation; // toggle show/hide
-                  //     });
-                  //   },
-                  // ),
-
-                  // const SizedBox(height: 10),
-
-                  // // extra form shown after tapping
-                  // if (_showFormeducation) ...[
-                  //   TextField(
-                  //     controller: instituteController,
-                  //     decoration: const InputDecoration(
-                  //       hintText: "Enter your institution (e.g.,institute)",
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   TextField(
-                  //     controller: gradyearController,
-                  //     decoration: const InputDecoration(
-                  //       hintText: "EntergradYear (e.g., 2022)",
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 10),
-                  //   ElevatedButton(
-                  //     onPressed: () {
-                  //       setState(() {
-                  //         _educationSummary =
-                  //             "${instituteController.text} at ${gradyearController.text}";
-                  //         educationController.text = _educationSummary!;
-                  //         _showFormeducation = false;
-                  //       });
-
-                  //       // Prepare API object
-                  //       final educationData = {
-                  //         "institute": instituteController.text,
-                  //         "gradYear": gradyearController.text,
-                  //       };
-                  //       print("Send to API: $educationData");
-                  //     },
-                  //     child: Text(_educationSummary == null ? "Add" : "Update"),
-                  //   ),
-                  // ],
-                  const Text(
-                    'Education',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 5),
-
-                  TextField(
-                    controller: educationController,
-                    readOnly: true, // prevent direct typing
-                    decoration: InputDecoration(
-                      hintText: _educationSummary ?? "Enter your education",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                    ),
-                    onTap: () async {
-                      final newEducation =
-                          await showDialog<Map<String, dynamic>>(
-                        context: context,
-                        builder: (context) {
-                          final institutionController = TextEditingController();
-                          int? selectedYear;
-
-                          return AlertDialog(
-                            title: const Text("Add Education"),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                TextField(
-                                  controller: institutionController,
-                                  decoration: const InputDecoration(
-                                    hintText: "Institution Name",
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                DropdownButtonFormField<int>(
-                                  decoration: const InputDecoration(
-                                    labelText: "Graduation Year",
-                                  ),
-                                  value: selectedYear,
-                                  items: List.generate(
-                                    40,
-                                    (index) {
-                                      final year = DateTime.now().year - index;
-                                      return DropdownMenuItem<int>(
-                                        value: year,
-                                        child: Text(year.toString()),
-                                      );
-                                    },
-                                  ),
-                                  onChanged: (value) {
-                                    selectedYear = value;
-                                  },
-                                ),
-                              ],
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("Cancel"),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context, {
-                                    "institution": institutionController.text,
-                                    "year": selectedYear
-                                  });
-                                },
-                                child: const Text("Save"),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
-                      if (newEducation != null &&
-                          (newEducation['institution'] as String)
-                              .trim()
-                              .isNotEmpty &&
-                          newEducation['year'] != null) {
-                        /// ✅ Call Riverpod provider to save data
-                        final success = await ref
-                            .read(educationProvider.notifier)
-                            .addEducation(
-                              institution: newEducation['institution'],
-                              gradYear: newEducation['year'],
-                            );
-
-                        if (success) {
-                          /// ✅ Provider already refreshed data inside addEducation()
-                          /// Now just update local UI state
-                          setState(() {
-                            _educationSummary = newEducation['institution'];
-                            educationController.text =
-                                newEducation['institution'];
-                          });
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Education added successfully!")),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text("Failed to add education.")),
-                          );
-                        }
-                      }
-                    },
-                  ),
-
                   const SizedBox(height: 10),
 
                   const Text("Prompts", style: TextStyle(fontSize: 16)),
@@ -2773,14 +2314,43 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           print('seleted data$_selectedgenderIds');
 
                           try {
-                            print('updatedpart exicuted,,,,,,,,,,,');
-                            // if (pickedImage != null) {
-                            //   final File imageFile = File(pickedImage.path);
-                            //   final String key = 'photo1'; // Can also be 'profileImage', etc.
-                            print('home...........$_selectedHOmetown');
-                            print('lookingfor..........$_selectedLookingIds');
-                            print('lookingfor..........$_selectedLookingNames');
-                            print('lookingfor..........$_selectedLookingFor');
+                              print('inside the edit file===================');
+                              print('fakeuserId888: $userId');
+                              print('specificToken888: $accestoken');
+                              print('modeid888: $_selectedmodeId');
+                              print('causeId: $_selectedcauseIds');
+                              print('bio: ${_bioController.text}');
+                              print('interestId: $_selectedInterestIds');
+                              print('qualityId: $_selectedqualitiesIds');
+                              print('prompt: $prompts');
+                              print('image: $_selectedImages');
+                              print('languagesId: $_selectedlanguageIds');
+                              print('starsignId: $_selectedstarsignIds');
+                              print('religionId: $_selectedreligionIds');
+                              print('lookingfor: $_selectedLookingIds');
+                              print('lookingforNames: $_selectedLookingNames');
+                              print('lookingforString: $_selectedLookingFor');
+                              print('kidsId: $_selectedkidsIds');
+                              print('drinkingId: $_selecteddrinkingIds');
+                              // print('smoking: $smoking');
+                              print('gender: $_selectedGender');
+                              print('showOnProfile: $_showProfile');
+                              print('pronoun: $_selectedPronoun');
+                              // print('exercise: $exercise');
+                              print('industryId: $_selectedIndustryIds');
+                              print('experienceId: $_selectedexperienceIds');
+                              print('haveKids: $_selectedhavekids');
+                              print('educationLevel: $_selectedEducationlevel');
+                              print('newarea: $_selectedNewtoarea');
+                              print('height: ${int.tryParse(_heightController.text)}');
+                              print('relationshipId: $_selectedrelationshipIds');
+                              print('name: ${_firstNameController.text}');
+                              print('todaydate: $_selectedBirth');
+                              print('hometown: $_selectedHOmetown');
+                              print('politics: $_selectedPolitics');
+                              print('latitude: $selectedLat');
+                              print('longitude888: $selectedLng');
+                              print('inside the edit file=====================');
 
                             await ref
                                 .read(admincreatedusersprovider.notifier)
@@ -2788,7 +2358,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   fakeuserId: userId,
                                   specificToken: accestoken,
                                   modeid: _selectedmodeId,
-
+                                  email :_emailController.text,
+                                  mobile :_phoneController.text,
                                   causeId: _selectedcauseIds,
                                   bio: _bioController.text,
                                   interestId: _selectedInterestIds,
@@ -2813,15 +2384,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   haveKids: _selectedhavekids,
                                   educationLevel: _selectedEducationlevel,
                                   newarea: _selectedNewtoarea,
-                                  height: int.tryParse(_heightController.text),
+                                  height: int.tryParse(_heightController.text)??0,
                                   relationshipId: _selectedrelationshipIds,
                                   name: _firstNameController.text,
                                   dob: _selectedBirth,
 
                                   hometown: _selectedHOmetown,
                                   politics: _selectedPolitics,
-                                  latitude: selectedLat,
-                                  longitude: selectedLng,
+                                  // latitude: selectedLat,
+                                  // longitude: selectedLng,
+                                  latitude: selectedLat ?? 0.0,
+                                  longitude: selectedLng ?? 0.0,
                                 );
                             print('home...........$_selectedHOmetown');
 
@@ -2861,8 +2434,153 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-          // Profile Image - Positioned to overlap
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // void _showInterestDialog(BuildContext context, List<Data> items) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       final tempSelectedIds = [..._selectedInterestIds];
+  //       final tempSelectedNames = [..._selectedInterestNames];
+
+  //       return StatefulBuilder(
+  //         builder: (context, setDialogState) {
+  //           return AlertDialog(
+  //             title: const Text("Select Interests"),
+  //             content: SizedBox(
+  //               width: double.infinity,
+  //               child: ListView.builder(
+  //                 shrinkWrap: true,
+  //                 itemCount: items.length,
+  //                 itemBuilder: (context, index) {
+  //                   final interest = items[index];
+  //                   final isSelected = tempSelectedIds.contains(interest.id);
+  //                   return CheckboxListTile(
+  //                     value: isSelected,
+  //                     title: Text(interest.interests ?? ''),
+  //                     activeColor: Colors.blue, // ✅ box color when checked
+  //                     checkColor: Colors.white,
+  //                     onChanged: (checked) {
+  //                       setDialogState(() {
+  //                         if (checked == true) {
+  //                           if (tempSelectedIds.length < 4) {
+  //                             tempSelectedIds.add(interest.id!);
+  //                             tempSelectedNames.add(interest.interests ?? '');
+  //                           }
+  //                         } else {
+  //                           tempSelectedIds.remove(interest.id);
+  //                           tempSelectedNames.remove(interest.interests);
+  //                         }
+  //                       });
+  //                     },
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () => Navigator.pop(context),
+  //                 child: const Text("Cancel"),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   setState(() {
+  //                     _selectedInterestIds
+  //                       ..clear()
+  //                       ..addAll(tempSelectedIds);
+  //                     _selectedInterestNames
+  //                       ..clear()
+  //                       ..addAll(tempSelectedNames);
+  //                   });
+  //                   Navigator.pop(context);
+  //                 },
+  //                 child: const Text("Done"),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
+
+
+// Profile Image - Positioned to overlap
           //      Positioned(
           //   top: 0,
           //   left: 0,
@@ -2917,18 +2635,447 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           //     ),
           //   ),
           // ),
-        ],
-      ),
-    );
-  }
 
-  @override
-  void dispose() {
-    _firstNameController.dispose();
-    _lastNameController.dispose();
-    _usernameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
-    super.dispose();
-  }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  // Age Dropdown
+                  // const Text('Age',
+                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  // const SizedBox(height: 5),
+                  // DropdownButtonFormField<String>(
+                  //   value: _selectedAge,
+                  //   decoration: InputDecoration(
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   items: const [
+                  //     DropdownMenuItem(value: '18-25', child: Text('18-25')),
+                  //     DropdownMenuItem(value: '26-35', child: Text('26-35')),
+                  //     DropdownMenuItem(value: '36-45', child: Text('36-45')),
+                  //   ],
+                  //   onChanged: (value) => setState(() => _selectedAge = value),
+                  // ),
+                  // const SizedBox(height: 15),
+
+                  // // Interest Dropdown
+                  // const Text('Interest',
+                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  // const SizedBox(height: 5),
+                  // DropdownButtonFormField<String>(
+                  //   value: _selectedInterest,
+                  //   decoration: InputDecoration(
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   items: const [
+                  //     DropdownMenuItem(value: 'Sports', child: Text('Sports')),
+                  //     DropdownMenuItem(value: 'Music', child: Text('Music')),
+                  //     DropdownMenuItem(
+                  //         value: 'Reading', child: Text('Reading')),
+                  //   ],
+                  //   onChanged: (value) =>
+                  //       setState(() => _selectedInterest = value),
+                  // ),
+                  // const SizedBox(height: 15),
+
+                  // // Looking For Dropdown
+                  // const Text('Looking For',
+                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  // const SizedBox(height: 5),
+                  // DropdownButtonFormField<String>(
+                  //   value: _selectedLookingFor,
+                  //   decoration: InputDecoration(
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   items: const [
+                  //     DropdownMenuItem(
+                  //         value: 'Friendship', child: Text('Friendship')),
+                  //     DropdownMenuItem(
+                  //         value: 'Relationship', child: Text('Relationship')),
+                  //     DropdownMenuItem(
+                  //         value: 'Networking', child: Text('Networking')),
+                  //   ],
+                  //   onChanged: (value) =>
+                  //       setState(() => _selectedLookingFor = value),
+                  // ),
+                  // const SizedBox(height: 15),
+
+                  // Write Few Words About You (Bio)
+
+                  // =======================================
+                  // const SizedBox(height: 10),
+
+                  // work
+                  // const Text(
+                  //   'Work',
+                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
+                  // ),
+                  // const SizedBox(height: 5),
+
+                  // // main work textfield
+                  // TextField(
+                  //   controller: workController,
+                  //   readOnly: true, // prevent typing directly
+                  //   decoration: InputDecoration(
+                  //     hintText: _workSummary ?? "Enter your work",
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   onTap: () {
+                  //     setState(() {
+                  //       _showForm = !_showForm; // toggle show/hide
+                  //     });
+                  //   },
+                  // ),
+
+                  // const SizedBox(height: 10),
+
+                  // // extra form shown after tapping
+                  // if (_showForm) ...[
+                  //   TextField(
+                  //     controller: titleController,
+                  //     decoration: const InputDecoration(
+                  //       hintText: "Enter your title (e.g., Developer)",
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 8),
+                  //   TextField(
+                  //     controller: companyController,
+                  //     decoration: const InputDecoration(
+                  //       hintText: "Enter company name (e.g., Infosys)",
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 10),
+                  //   ElevatedButton(
+                  //     onPressed: () {
+                  //       setState(() {
+                  //         _workSummary =
+                  //             "${titleController.text} at ${companyController.text}";
+                  //         workController.text = _workSummary!;
+                  //         _showForm = false;
+                  //       });
+
+                  //       // Prepare API object
+                  //       final workData = {
+                  //         "title": titleController.text,
+                  //         "company": companyController.text,
+                  //       };
+                  //       print("Send to API: $workData");
+                  //     },
+                  //     child: Text(_workSummary == null ? "Add" : "Update"),
+                  //   ),
+                  // ],
+                  // const SizedBox(height: 10),
+                  // const Text(
+                  //   'Work',
+                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
+                  // ),
+                  // const SizedBox(height: 5),
+
+                  // TextField(
+                  //   controller: workController,
+                  //   readOnly: true, // prevent direct typing
+                  //   decoration: InputDecoration(
+                  //     hintText: _workSummary ?? "Enter your Work",
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   onTap: () async {
+                  //     final newwork = await showDialog<Map<String, dynamic>>(
+                  //       context: context,
+                  //       builder: (context) {
+                  //         final institutionController = TextEditingController();
+                  //         int? selectedYear;
+
+                  //         return AlertDialog(
+                  //           title: const Text("Add Work"),
+                  //           content: Column(
+                  //             mainAxisSize: MainAxisSize.min,
+                  //             children: [
+                  //               TextField(
+                  //                 controller: titleController,
+                  //                 decoration: const InputDecoration(
+                  //                   hintText: "role Name",
+                  //                 ),
+                  //               ),
+                  //               const SizedBox(height: 10),
+                  //               TextField(
+                  //                 controller: companyController,
+                  //                 decoration: const InputDecoration(
+                  //                   hintText: "company name",
+                  //                 ),
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           actions: [
+                  //             TextButton(
+                  //               onPressed: () => Navigator.pop(context),
+                  //               child: const Text("Cancel"),
+                  //             ),
+                  //             ElevatedButton(
+                  //               onPressed: () {
+                  //                 Navigator.pop(context, {
+                  //                   "title": titleController.text,
+                  //                   "company": companyController
+                  //                 });
+                  //               },
+                  //               child: const Text("Save"),
+                  //             ),
+                  //           ],
+                  //         );
+                  //       },
+                  //     );
+
+                  //     if (newwork != null &&
+                  //         (newwork['title'] as String).trim().isNotEmpty &&
+                  //         newwork['company'] != null) {
+                  //       /// ✅ Call Riverpod provider to save data
+                  //       final success = await ref
+                  //           .read(educationProvider.notifier)
+                  //           .addEducation(
+                  //             institution: newwork['title'],
+                  //             gradYear: newwork['company'],
+                  //           );
+
+                  //       if (success) {
+                  //         /// ✅ Provider already refreshed data inside addEducation()
+                  //         /// Now just update local UI state
+                  //         setState(() {
+                  //           _workSummary = newwork['company'];
+                  //           workController.text = newwork['company'];
+                  //         });
+
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           const SnackBar(
+                  //               content: Text("work added successfully!")),
+                  //         );
+                  //       } else {
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           const SnackBar(
+                  //               content: Text("Failed to add work.")),
+                  //         );
+                  //       }
+                  //     }
+                  //   },
+                  // ),
+
+                  // education
+                  // const Text(
+                  //   'Education',
+                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
+                  // ),
+                  // const SizedBox(height: 5),
+
+                  // // main work textfield
+                  // TextField(
+                  //   controller: educationController,
+                  //   readOnly: true, // prevent typing directly
+                  //   decoration: InputDecoration(
+                  //     hintText: _educationSummary ?? "Enter your education",
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   onTap: () {
+                  //     setState(() {
+                  //       _showFormeducation = !_showFormeducation; // toggle show/hide
+                  //     });
+                  //   },
+                  // ),
+
+                  // const SizedBox(height: 10),
+
+                  // // extra form shown after tapping
+                  // if (_showFormeducation) ...[
+                  //   TextField(
+                  //     controller: instituteController,
+                  //     decoration: const InputDecoration(
+                  //       hintText: "Enter your institution (e.g.,institute)",
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 8),
+                  //   TextField(
+                  //     controller: gradyearController,
+                  //     decoration: const InputDecoration(
+                  //       hintText: "EntergradYear (e.g., 2022)",
+                  //       border: OutlineInputBorder(),
+                  //     ),
+                  //   ),
+                  //   const SizedBox(height: 10),
+                  //   ElevatedButton(
+                  //     onPressed: () {
+                  //       setState(() {
+                  //         _educationSummary =
+                  //             "${instituteController.text} at ${gradyearController.text}";
+                  //         educationController.text = _educationSummary!;
+                  //         _showFormeducation = false;
+                  //       });
+
+                  //       // Prepare API object
+                  //       final educationData = {
+                  //         "institute": instituteController.text,
+                  //         "gradYear": gradyearController.text,
+                  //       };
+                  //       print("Send to API: $educationData");
+                  //     },
+                  //     child: Text(_educationSummary == null ? "Add" : "Update"),
+                  //   ),
+                  // ],
+                  // const Text(
+                  //   'Education',
+                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
+                  // ),
+                  // const SizedBox(height: 5),
+
+                  // TextField(
+                  //   controller: educationController,
+                  //   readOnly: true, // prevent direct typing
+                  //   decoration: InputDecoration(
+                  //     hintText: _educationSummary ?? "Enter your education",
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  //   onTap: () async {
+                  //     final newEducation =
+                  //         await showDialog<Map<String, dynamic>>(
+                  //       context: context,
+                  //       builder: (context) {
+                  //         final institutionController = TextEditingController();
+                  //         int? selectedYear;
+
+                  //         return AlertDialog(
+                  //           title: const Text("Add Education"),
+                  //           content: Column(
+                  //             mainAxisSize: MainAxisSize.min,
+                  //             children: [
+                  //               TextField(
+                  //                 controller: institutionController,
+                  //                 decoration: const InputDecoration(
+                  //                   hintText: "Institution Name",
+                  //                 ),
+                  //               ),
+                  //               const SizedBox(height: 10),
+                  //               DropdownButtonFormField<int>(
+                  //                 decoration: const InputDecoration(
+                  //                   labelText: "Graduation Year",
+                  //                 ),
+                  //                 value: selectedYear,
+                  //                 items: List.generate(
+                  //                   40,
+                  //                   (index) {
+                  //                     final year = DateTime.now().year - index;
+                  //                     return DropdownMenuItem<int>(
+                  //                       value: year,
+                  //                       child: Text(year.toString()),
+                  //                     );
+                  //                   },
+                  //                 ),
+                  //                 onChanged: (value) {
+                  //                   selectedYear = value;
+                  //                 },
+                  //               ),
+                  //             ],
+                  //           ),
+                  //           actions: [
+                  //             TextButton(
+                  //               onPressed: () => Navigator.pop(context),
+                  //               child: const Text("Cancel"),
+                  //             ),
+                  //             ElevatedButton(
+                  //               onPressed: () {
+                  //                 Navigator.pop(context, {
+                  //                   "institution": institutionController.text,
+                  //                   "year": selectedYear
+                  //                 });
+                  //               },
+                  //               child: const Text("Save"),
+                  //             ),
+                  //           ],
+                  //         );
+                  //       },
+                  //     );
+
+                  //     if (newEducation != null &&
+                  //         (newEducation['institution'] as String)
+                  //             .trim()
+                  //             .isNotEmpty &&
+                  //         newEducation['year'] != null) {
+                  //       /// ✅ Call Riverpod provider to save data
+                  //       final success = await ref
+                  //           .read(educationProvider.notifier)
+                  //           .addEducation(
+                  //             institution: newEducation['institution'],
+                  //             gradYear: newEducation['year'],
+                  //           );
+
+                  //       if (success) {
+                  //         /// ✅ Provider already refreshed data inside addEducation()
+                  //         /// Now just update local UI state
+                  //         setState(() {
+                  //           _educationSummary = newEducation['institution'];
+                  //           educationController.text =
+                  //               newEducation['institution'];
+                  //         });
+
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           const SnackBar(
+                  //               content: Text("Education added successfully!")),
+                  //         );
+                  //       } else {
+                  //         ScaffoldMessenger.of(context).showSnackBar(
+                  //           const SnackBar(
+                  //               content: Text("Failed to add education.")),
+                  //         );
+                  //       }
+                  //     }
+                  //   },
+                  // ),
