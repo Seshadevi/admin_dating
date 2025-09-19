@@ -1,37 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../provider/subscriptions/feature_plan_add_provider.dart';
+import '../../provider/superAdminProviders/admin_feature_provider.dart';
 
 class AddFeatureToPlanScreen extends ConsumerStatefulWidget {
   final int planTypeId;
-  const AddFeatureToPlanScreen({Key? key, required this.planTypeId}) : super(key: key);
+  const AddFeatureToPlanScreen({Key? key, required this.planTypeId})
+      : super(key: key);
 
   @override
-  ConsumerState<AddFeatureToPlanScreen> createState() => _AddFeatureToPlanScreenState();
+  ConsumerState<AddFeatureToPlanScreen> createState() =>
+      _AddFeatureToPlanScreenState();
 }
 
 class _AddFeatureToPlanScreenState extends ConsumerState<AddFeatureToPlanScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _featureIdController = TextEditingController();
+  int? _selectedFeatureId;
 
   @override
-  void dispose() {
-    _featureIdController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    Future.microtask(
+            () => ref.read(adminFeatureProvider.notifier).getAdminFeatures());
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
     final notifier = ref.read(featurePlanAddProvider.notifier);
     await notifier.addFeatureToPlan(
-      featureId: int.parse(_featureIdController.text),
+      featureId: _selectedFeatureId!,
       planTypeId: widget.planTypeId,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(featurePlanAddProvider);
+    final addFeatureState = ref.watch(featurePlanAddProvider);
+    final adminFeatureState = ref.watch(adminFeatureProvider);
+
+    final features = adminFeatureState.data ?? [];
 
     return Scaffold(
       appBar: AppBar(
@@ -42,53 +50,70 @@ class _AddFeatureToPlanScreenState extends ConsumerState<AddFeatureToPlanScreen>
         padding: const EdgeInsets.all(24),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
+            shrinkWrap: true,
             children: [
               Text("PlanType ID: ${widget.planTypeId}",
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
-              TextFormField(
-                controller: _featureIdController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: "Feature ID",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (v) =>
-                v == null || v.isEmpty ? "Enter a feature ID" : null,
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: state.loading
-                      ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                        color: Colors.white, strokeWidth: 2),
+              if (features.isEmpty)
+                const Center(child: Text("No features available."))
+              else
+                DropdownButtonFormField<int>(
+                  decoration: const InputDecoration(
+                    labelText: 'Select Feature',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: features
+                      .map(
+                        (feature) => DropdownMenuItem<int>(
+                      value: feature.id,
+                      child: Text(feature.featureName),
+                    ),
                   )
-                      : const Icon(Icons.link),
-                  label: Text(state.loading ? "Linking..." : "Add Feature"),
-                  onPressed: state.loading ? null : _submit,
+                      .toList(),
+                  value: _selectedFeatureId,
+                  onChanged: (val) => setState(() => _selectedFeatureId = val),
+                  validator: (val) =>
+                  val == null ? 'Please select a feature' : null,
+                ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                icon: addFeatureState.loading
+                    ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 2),
+                )
+                    : const Icon(Icons.link),
+                label: Text(
+                    addFeatureState.loading ? "Linking..." : "Add Feature"),
+                onPressed: addFeatureState.loading || _selectedFeatureId == null
+                    ? null
+                    : _submit,
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(50),
                 ),
               ),
-              if (state.message != null)
+              if (addFeatureState.message != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 18.0),
                   child: Text(
-                    state.message!,
+                    addFeatureState.message!,
                     style: const TextStyle(
                         color: Colors.green, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              if (state.error != null)
+              if (addFeatureState.error != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 18.0),
                   child: Text(
-                    state.error!,
+                    addFeatureState.error!,
                     style: const TextStyle(
                         color: Colors.red, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                 ),
             ],

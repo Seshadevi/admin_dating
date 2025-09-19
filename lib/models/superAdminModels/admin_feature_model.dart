@@ -1,70 +1,62 @@
 class AdminFeatureModel {
-  List<Data>? data;
+  List<Data> data;
 
-  AdminFeatureModel({this.data});
+  AdminFeatureModel({required this.data});
 
-  // Initial method
   factory AdminFeatureModel.initial() {
     return AdminFeatureModel(data: []);
   }
 
-  // CopyWith method
-  AdminFeatureModel copyWith({
-    List<Data>? data,
-  }) {
+  AdminFeatureModel copyWith({List<Data>? data}) {
     return AdminFeatureModel(
       data: data ?? this.data,
     );
   }
 
-  AdminFeatureModel.fromJson(Map<String, dynamic> json) {
-    if (json['data'] != null) {
-      data = <Data>[];
-      json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
-      });
-    }
+  factory AdminFeatureModel.fromJson(Map<String, dynamic> json) {
+    return AdminFeatureModel(
+      data: (json['data'] as List<dynamic>?)
+          ?.map((e) => Data.fromJson(e))
+          .toList() ??
+          [],
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
+    return {
+      'data': data.map((e) => e.toJson()).toList(),
+    };
   }
 }
 
 class Data {
-  int? id;
-  String? featureName;
-  int? count;
-  bool? isEnabled;
-  String? createdAt;
-  String? updatedAt;
+  int id;
+  String featureName;
+  int count;
+  bool isEnabled;
+  String createdAt;
+  String updatedAt;
 
   Data({
-    this.id,
-    this.featureName,
-    this.count,
-    this.isEnabled,
-    this.createdAt,
-    this.updatedAt,
+    required this.id,
+    required this.featureName,
+    required this.count,
+    required this.isEnabled,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  // Initial method
   factory Data.initial() {
     return Data(
       id: 0,
-      featureName: "",
+      featureName: '',
       count: 0,
       isEnabled: false,
-      createdAt: "",
-      updatedAt: "",
+      createdAt: '',
+      updatedAt: '',
     );
   }
 
-  // CopyWith method
   Data copyWith({
     int? id,
     String? featureName,
@@ -83,23 +75,25 @@ class Data {
     );
   }
 
-  Data.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    featureName = json['featureName'];
-    count = json['count'];
-    isEnabled = json['isEnabled'];
-    createdAt = json['createdAt'];
-    updatedAt = json['updatedAt'];
+  factory Data.fromJson(Map<String, dynamic> json) {
+    return Data(
+      id: json['id'] ?? 0,
+      featureName: json['featureName'] ?? '',
+      count: json['count'] ?? 0,
+      isEnabled: json['isEnabled'] ?? false,
+      createdAt: json['createdAt'] ?? '',
+      updatedAt: json['updatedAt'] ?? '',
+    );
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['id'] = this.id;
-    data['featureName'] = this.featureName;
-    data['count'] = this.count;
-    data['isEnabled'] = this.isEnabled;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    return data;
+    return {
+      'id': id,
+      'featureName': featureName,
+      'count': count,
+      'isEnabled': isEnabled,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+    };
   }
 }

@@ -3,13 +3,11 @@ import 'dart:io';
 import 'package:admin_dating/models/loginmodel.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/utils/dgapi.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:admin_dating/provider/users/admincreatedusersprovider.dart';
-
 import 'package:http_parser/http_parser.dart';
 
 class LoginNotifier extends StateNotifier<UserModel> {
@@ -23,7 +21,6 @@ class LoginNotifier extends StateNotifier<UserModel> {
       print('No user data found.');
       return false;
     }
-
     try {
       final extractedData = json.decode(prefs.getString('userData')!);
       final loginModel = UserModel.fromJson(extractedData);

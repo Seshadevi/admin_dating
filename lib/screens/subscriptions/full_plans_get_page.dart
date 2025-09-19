@@ -223,6 +223,7 @@
 //     );
 //   }
 // }
+import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../provider/subscriptions/full_plans_get_provider.dart';
@@ -266,8 +267,9 @@ class _FullPlansGetPageState extends ConsumerState<FullPlansGetPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("All Subscription Plans"),
-        backgroundColor: Colors.teal,
+        backgroundColor: DatingColors.darkGreen,
         elevation: 4,
+
       ),
       body: Padding(
         padding: const EdgeInsets.all(14),

@@ -1,9 +1,8 @@
-import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
-import 'package:admin_dating/provider/superAdminProviders/admin_feature_provider.dart';
-// import 'package:admin_dating/theme_provider.dart'; // Import your theme provider
 import 'package:admin_dating/screens/login.dart';
+import 'package:admin_dating/screens/subscriptions/AddFeatureToPlanScreen.dart';
 import 'package:admin_dating/screens/subscriptions/full_plans_get_page.dart';
+import 'package:admin_dating/screens/subscriptions/subscription_plans_list_screen.dart';
 import 'package:admin_dating/screens/superAdminScreens/add_admin_features.dart';
 import 'package:admin_dating/screens/superAdminScreens/add_roles.dart';
 import 'package:admin_dating/screens/superAdminScreens/createadminscreen.dart';
@@ -188,6 +187,9 @@ class _MyAppState extends ConsumerState<MyApp> {
         '/addroles': (context) => RolesScreen(),
         '/adminfeatures': (context) => GetAdminFeatures(),
         '/addadminfeatues': (context) => AddAdminFeatures(),
+        // '/addfeaturetoplan': (context) => AddFeatureToPlanScreen(),
+        '/SubscriptionPlansListScreen': (context) =>  SubscriptionPlansListScreen(),
+        '/full_plan_get': (context) => FullPlansGetPage(),
         '/full_plan_get': (context) => FullPlansGetPage(),
       },
     );

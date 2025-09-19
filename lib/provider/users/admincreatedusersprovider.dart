@@ -427,15 +427,46 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
     String? politics,
     double? latitude,
     double? longitude,
+    String? accestoken
   }) async {
     final loadingState = ref.read(loadingProvider.notifier);
+
     loadingState.state = true;
 
     print(
         'Updating profile data fakeuserid:$fakeuserId- industries: $industryId, experience: $experienceId, hometown: $hometown');
     print(
         'Causes: $causeId, lookingfor: $lookingfor, mode: $modeid, smoking: $smoking');
-
+    print('fakeuserId: $fakeuserId');
+    print('specificToken: $specificToken');
+    print('modeid: $modeid');
+    print('modename: $modename');
+    print('causeId: $causeId');
+    print('bio: $bio');
+    print('interestId: $interestId');
+    print('qualityId: $qualityId');
+    print('prompt: $prompt');
+    print('image: $image');
+    print('languagesId: $languagesId');
+    print('starsignId: $starsignId');
+    print('jobId: $jobId');
+    print('educationId: $educationId');
+    print('religionId: $religionId');
+    print('lookingfor: $lookingfor');
+    print('kidsId: $kidsId');
+    print('drinkingId: $drinkingId');
+    print('smoking: $smoking');
+    print('gender: $gender');
+    print('showOnProfile: $showOnProfile');
+    print('pronoun: $pronoun');
+    print('exercise: $exercise');
+    print('industryId: $industryId');
+    print('experienceId: $experienceId');
+    print('haveKids: $haveKids');
+    print('educationLevel: $educationLevel');
+    print('newarea: $newarea');
+    print('height: $height');
+    print('relationshipId: $relationshipId');
     RetryClient? client;
     try {
       final String apiUrl = Dgapi.updateprofile;
@@ -533,8 +564,8 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
 
       // Build multipart PUT request
       final request =
-          http.MultipartRequest('PUT', Uri.parse("$apiUrl/$fakeuserId"));
-      request.headers['Authorization'] = 'Bearer $token';
+          http.MultipartRequest('PUT', Uri.parse("$apiUrl"));
+      request.headers['Authorization'] = 'Bearer $specificToken';
       request.headers['Accept'] = 'application/json';
 
       // Basic string fields
@@ -659,7 +690,7 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
             await prefs.setString('userData', response.body);
             print('Updated user data saved in SharedPreferences.');
           }
-          state = responseData;
+          // state = responseData;
           // Refresh the admin users list if this was done by admin
           if (specificToken != null) {
             await ref

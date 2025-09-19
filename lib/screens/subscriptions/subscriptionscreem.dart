@@ -27,41 +27,48 @@ class SubscriptionsScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: IconButton(
-                icon: const Icon(Icons.add),
-                color: DatingColors.primaryGreen,
-                tooltip: 'Add Subscription Plan',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const FullPlansGetPage()),
-                      // SubscriptionPlansListScreen
-                  );
-                },
-              ),
-            ),
-           Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: PopupMenuButton<String>(
-              icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
-              onSelected: (value) {
-                if (value == 'Features') {
-                  Navigator.pushNamed(context, '/adminfeatures'); // 👈 navigate to Features page
-                }
-              },
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'Features',
-                  child: Text('Features'),
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: IconButton(
+                  icon: const Icon(Icons.add),
+                  color: DatingColors.primaryGreen,
+                  tooltip: 'Add Subscription Plan',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const FullPlansGetPage()),
+                      // Or push to your add plan screen if available
+                    );
+                  },
                 ),
-              ],
-            ),
-          )
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: PopupMenuButton<String>(
+                  icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
+                  onSelected: (value) {
+                    if (value == 'Features') {
+                      Navigator.pushNamed(context, '/adminfeatures');
+                    }
+                    if (value == 'Plan') {
+                      Navigator.pushNamed(context, '/SubscriptionPlansListScreen'); // Your own plan page route
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'Plan',
+                      child: Text('Plan'),
+                    ),
+                    const PopupMenuItem(
+                      value: 'Features',
+                      child: Text('Features'),
+                    ),
+                  ],
+                ),
+              ),
+            ]
 
-          ],
         ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

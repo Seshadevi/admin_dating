@@ -1,8 +1,9 @@
+import 'package:admin_dating/constants/dating_colors.dart';
+import 'package:admin_dating/screens/subscriptions/subscription_plans_list_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../provider/subscriptions/subscription_get_provider.dart';
 import 'AddFeatureToPlanScreen.dart';
-
 
 class SubscriptionPlansListScreen extends ConsumerStatefulWidget {
   const SubscriptionPlansListScreen({Key? key}) : super(key: key);
@@ -48,7 +49,9 @@ class _SubscriptionPlansListScreenState
     }
   }
 
-  void _editPlan(dynamic plan) {}
+  void _editPlan(dynamic plan) {
+    // Add edit logic or navigation here
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +60,7 @@ class _SubscriptionPlansListScreenState
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal,
+        backgroundColor: DatingColors.darkGreen,
         elevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
@@ -75,7 +78,14 @@ class _SubscriptionPlansListScreenState
               color: Colors.white,
               tooltip: 'Add Subscription Plan',
               onPressed: () {
-                // Navigate to add plan page if needed
+                {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const PostSubscriptionScreen()),
+                    // Or push to your add plan screen if available
+                  );
+                }
               },
             ),
           ),
@@ -87,9 +97,7 @@ class _SubscriptionPlansListScreenState
           ? Center(child: Text(state.error!))
           : RefreshIndicator(
         onRefresh: () async {
-          await ref
-              .read(subscriptionListProvider.notifier)
-              .fetchPlans();
+          await ref.read(subscriptionListProvider.notifier).fetchPlans();
         },
         child: ListView.separated(
           padding: const EdgeInsets.all(12),
@@ -97,6 +105,7 @@ class _SubscriptionPlansListScreenState
           separatorBuilder: (_, __) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final plan = state.plans[index];
+            final planTypeId = plan['id'] ?? 0;
             return Card(
               color: theme.colorScheme.surface,
               shape: RoundedRectangleBorder(
@@ -105,36 +114,37 @@ class _SubscriptionPlansListScreenState
                 title: Text(
                   plan['planName'] ?? plan['title'] ?? 'No Name',
                   style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.onSurface),
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
                 ),
                 subtitle: Text(
                   plan['description'] ?? '',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface
-                          .withOpacity(0.7)),
+                    color:
+                    theme.colorScheme.onSurface.withOpacity(0.7),
+                  ),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.add_box, color: Colors.indigo),
+                      icon:
+                      const Icon(Icons.add_box, color: Colors.indigo),
                       tooltip: "Add Features",
                       onPressed: () {
+                        print('Navigating with planTypeId: $planTypeId');
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => AddFeatureToPlanScreen(
-                              planTypeId: int.tryParse(plan['typeId'].toString()) ?? 0,
-
-                            ),
+                            builder: (context) =>
+                                AddFeatureToPlanScreen(planTypeId: planTypeId),
                           ),
                         );
                       },
                     ),
                     IconButton(
-                      icon:
-                      const Icon(Icons.edit, color: Colors.orange),
+                      icon: const Icon(Icons.edit, color: Colors.orange),
                       onPressed: () => _editPlan(plan),
                     ),
                     IconButton(

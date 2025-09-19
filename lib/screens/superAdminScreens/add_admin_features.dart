@@ -21,11 +21,11 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (args != null) {
-      _roleId = args['id'];
-      _featureController.text = args['featureName'] ?? '';
+      _roleId = args['id'] as int?;
+      _featureController.text = args['featureName'] as String? ?? '';
     }
   }
 
@@ -42,14 +42,14 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
       bool success;
       if (_roleId != null) {
         success = await ref.read(rolesProvider.notifier).updateRole(
-              id: _roleId!,
-              roleName: featureName,
-            );
+          id: _roleId!,
+          roleName: featureName,
+        );
       } else {
         success =
-            await ref.read(adminFeatureProvider.notifier).addAdminFeatures(
-                  featureName: featureName,
-                );
+        await ref.read(adminFeatureProvider.notifier).addAdminFeatures(
+          featureName: featureName,
+        );
       }
 
       if (success) {
@@ -88,7 +88,7 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
           child: Card(
             elevation: 4,
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Form(
@@ -96,28 +96,34 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Icon(Icons.settings,
-                    //     size: 60, color: DatingColors.darkGreen),
-                    // const SizedBox(height: 16),
                     Text(
                       isEditing
                           ? "Update this feature"
                           : "Create a new feature",
-                      style: const TextStyle( color: Colors.black,
-                          fontSize: 28, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 24),
-                   Align(
-                    alignment: Alignment.topLeft,
-                    child: Text('Feature Name',style: TextStyle(color: Colors.black, fontSize: 18,fontWeight: FontWeight.w500),)),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        'Feature Name',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _featureController,
                       decoration: InputDecoration(
-                       // labelText: "Feature Name",labelStyle: TextStyle(color: Colors.black),
                         hintText: "Enter feature name",
-                        prefixIcon:
-                            Icon(Icons.star_border, color: Colors.grey[700]),
+                        prefixIcon: Icon(Icons.star_border, color: Colors.grey[700]),
                         filled: true,
                         fillColor: Colors.grey[100],
                         border: OutlineInputBorder(
@@ -147,7 +153,9 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
                         child: Text(
                           isEditing ? "Update Feature" : "Add Feature",
                           style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
