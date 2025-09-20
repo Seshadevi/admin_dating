@@ -1,5 +1,6 @@
 import 'package:admin_dating/models/signupprocessmodels/choosefoodies_model.dart';
 import 'package:admin_dating/provider/fakeusersprovider.dart';
+import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/provider/moreabout/experienceprovider.dart';
 import 'package:admin_dating/provider/moreabout/industryprovider.dart';
@@ -149,8 +150,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   final List<String> _pronoun = [
     // "she/her",
     "he/him",
+    "she/her",
     "they/them",
-    "per/per",
+    
   ];
   final List<String> _havekids = [
     "Have kids",
@@ -491,6 +493,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     final languagelist = language.data ?? [];
     final interest = ref.watch(interestsProvider);
     final interestlist = interest.data ?? [];
+    final isLoading = ref.watch(loadingProvider);
     print('causessList........................$causessList');
     print('interestlist................$interestsList');
     print('lookingLIst..........$lookinglist');
@@ -617,22 +620,22 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Last Name
-                  const Text('Last Name',
-                      style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  const SizedBox(height: 5),
-                  TextField(
-                    controller: _lastNameController,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
+                  // // Last Name
+                  // const Text('Last Name',
+                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  // const SizedBox(height: 5),
+                  // TextField(
+                  //   controller: _lastNameController,
+                  //   decoration: InputDecoration(
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(8),
+                  //       borderSide: const BorderSide(color: Colors.grey),
+                  //     ),
+                  //     contentPadding: const EdgeInsets.symmetric(
+                  //         horizontal: 12, vertical: 8),
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 10),
 
                   // Date of Birth
                   const Text('Date of Birth',
@@ -2069,169 +2072,6 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                     },
                   ),
 
-                  // Age Dropdown
-                  // const Text('Age',
-                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  // const SizedBox(height: 5),
-                  // DropdownButtonFormField<String>(
-                  //   value: _selectedAge,
-                  //   decoration: InputDecoration(
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   items: const [
-                  //     DropdownMenuItem(value: '18-25', child: Text('18-25')),
-                  //     DropdownMenuItem(value: '26-35', child: Text('26-35')),
-                  //     DropdownMenuItem(value: '36-45', child: Text('36-45')),
-                  //   ],
-                  //   onChanged: (value) => setState(() => _selectedAge = value),
-                  // ),
-                  // const SizedBox(height: 15),
-
-                  // // Interest Dropdown
-                  // const Text('Interest',
-                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  // const SizedBox(height: 5),
-                  // DropdownButtonFormField<String>(
-                  //   value: _selectedInterest,
-                  //   decoration: InputDecoration(
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   items: const [
-                  //     DropdownMenuItem(value: 'Sports', child: Text('Sports')),
-                  //     DropdownMenuItem(value: 'Music', child: Text('Music')),
-                  //     DropdownMenuItem(
-                  //         value: 'Reading', child: Text('Reading')),
-                  //   ],
-                  //   onChanged: (value) =>
-                  //       setState(() => _selectedInterest = value),
-                  // ),
-                  // const SizedBox(height: 15),
-
-                  // // Looking For Dropdown
-                  // const Text('Looking For',
-                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  // const SizedBox(height: 5),
-                  // DropdownButtonFormField<String>(
-                  //   value: _selectedLookingFor,
-                  //   decoration: InputDecoration(
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   items: const [
-                  //     DropdownMenuItem(
-                  //         value: 'Friendship', child: Text('Friendship')),
-                  //     DropdownMenuItem(
-                  //         value: 'Relationship', child: Text('Relationship')),
-                  //     DropdownMenuItem(
-                  //         value: 'Networking', child: Text('Networking')),
-                  //   ],
-                  //   onChanged: (value) =>
-                  //       setState(() => _selectedLookingFor = value),
-                  // ),
-                  // const SizedBox(height: 15),
-
-                  // Write Few Words About You (Bio)
-
-                  // =======================================
-                  const SizedBox(height: 10),
-
-                  //               // work
-                  // const Text(
-                  //   'Work',
-                  //   style: TextStyle(fontSize: 14, color: Colors.grey),
-                  // ),
-                  // const SizedBox(height: 5),
-
-                  // // main work textfield
-                  // TextField(
-                  //   controller: workController,
-                  //   readOnly: true, // prevent typing directly
-                  //   decoration: InputDecoration(
-                  //     hintText: _workSummary ?? "Enter your work",
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  //   onTap: () {
-                  //     setState(() {
-                  //       _showForm = !_showForm; // toggle show/hide
-                  //     });
-                  //   },
-                  // ),
-
-                  // const SizedBox(height: 10),
-
-                  // // extra form shown after tapping
-                  // if (_showForm) ...[
-                  //   TextField(
-                  //     controller: titleController,
-                  //     decoration: const InputDecoration(
-                  //       hintText: "Enter your title (e.g., Developer)",
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 8),
-                  //   TextField(
-                  //     controller: companyController,
-                  //     decoration: const InputDecoration(
-                  //       hintText: "Enter company name (e.g., Infosys)",
-                  //       border: OutlineInputBorder(),
-                  //     ),
-                  //   ),
-                  //   const SizedBox(height: 10),
-                  //   ElevatedButton(
-                  //     onPressed: () {
-                  //       setState(() {
-                  //         _workSummary =
-                  //             "${titleController.text} at ${companyController.text}";
-                  //         workController.text = _workSummary!;
-                  //         _showForm = false;
-                  //       });
-
-                  //       // Prepare API object
-                  //       final workData = {
-                  //         "title": titleController.text,
-                  //         "company": companyController.text,
-                  //       };
-                  //       print("Send to API: $workData");
-                  //     },
-                  //     child: Text(_workSummary == null ? "Add" : "Update"),
-                  //   ),
-                  // ],
-                  // const SizedBox(height: 10),
-
-                  // // education
-                  // const Text('education',
-                  //     style: TextStyle(fontSize: 14, color: Colors.grey)),
-                  // const SizedBox(height: 5),
-                  // TextField(
-                  //   controller: _educationController,
-                  //   decoration: InputDecoration(
-                  //     border: OutlineInputBorder(
-                  //       borderRadius: BorderRadius.circular(8),
-                  //       borderSide: const BorderSide(color: Colors.grey),
-                  //     ),
-                  //     contentPadding: const EdgeInsets.symmetric(
-                  //         horizontal: 12, vertical: 8),
-                  //   ),
-                  // ),
                   const SizedBox(height: 10),
 
                   const Text("Prompts", style: TextStyle(fontSize: 16)),
@@ -2356,7 +2196,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: ElevatedButton(
-                        onPressed: () async {
+                        onPressed: isLoading ? null :() async {
                           // _showSuccessDialog();
                           print('presses..............');
 
@@ -2453,8 +2293,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                       finalheadline: _bioController.text,
                                       seletedprompts: prompts,
                                       choosedimages: _selectedImages,
-                                      selectedHeight:
-                                          int.tryParse(_heightController.text),
+                                      selectedHeight: int.tryParse(_heightController.text),
                                       defaultmessages: _selectedmesagesIds,
                                       experience: _selectedexperienceIds,
                                       industry: _selectedIndustryIds,
@@ -2515,7 +2354,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                     content: Text(
-                                        'Failed to upload profile data: $e')),
+                                        'Failed to add profile data: $e')),
                               );
                             }
                          
@@ -2528,8 +2367,15 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text(
-                          'add Save',
+                        child:isLoading? const SizedBox(
+                          height: 30,
+                          width: 30,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ):Text(
+                          'Save profile',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

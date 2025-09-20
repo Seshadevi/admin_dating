@@ -77,6 +77,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   bool isEditingPrompt = false;
   int? editingIndex;
   final TextEditingController promptController = TextEditingController();
+  bool _didInit = false;
 
   List<File> _finalSelectedImages = [];
   // Dropdown values
@@ -93,6 +94,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? _selectedWriteFewWords;
   bool _showProfile = false;
   String? _selectedTheirGender;
+  int? _selectedGenderId;
   List<int> _selectedInterestIds = [];
   List<String> _selectedInterestNames = [];
   List<int> _selectedcauseIds = [];
@@ -192,7 +194,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.didChangeDependencies();
    final arguments =ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-     if (arguments != null) {
+     if (arguments != null && !_didInit) {
 
       String isoToDdMmYyyy(String iso) {
         try {
@@ -216,12 +218,38 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       accestoken = arguments['accestoken'];
       userId = arguments['userId'];
       userrole = arguments['userRole'] ?? '';
-      _firstNameController.text = arguments['firstName'] ?? '';
+      if (_firstNameController.text.isEmpty) {
+          _firstNameController.text = arguments['firstName'] ?? '';
+      }
+
       _lastNameController.text = arguments['lastname'] ?? '';
       // _selectedBirth = arguments['dateOfBirth'] ?? "05/02/2000";
-      _emailController.text = arguments['email'] ?? '';
-      _phoneController.text = arguments['phoneNo'] ?? '';
-      _selectedGender = arguments['gender'] ?? ''; // âœ… FIXED
+      if (_emailController.text.isEmpty) {
+        _emailController.text = arguments['email'] ?? '';
+      }
+
+      if (_phoneController.text.isEmpty) {
+        final phoneArg = (arguments['phoneNo'] ?? '').toString();
+        _phoneController.text = phoneArg.isNotEmpty ? phoneArg : '';
+      }
+      String normalizeGender(dynamic raw) {
+          if (raw == null) return '';
+          final s = raw.toString().trim().toLowerCase();
+          if (s.contains('he') || s.contains('him')) return 'He/Him';
+          if (s.contains('she') || s.contains('her')) return 'She/Her';
+          // add any other mappings you expect:
+          if (s == 'male') return 'He/Him';
+          if (s == 'female') return 'She/Her';
+          // fallback to raw string (capitalized)
+          return raw.toString();
+        }
+        //  normalizeGender(rawGenderArg)
+      final rawGenderArg = arguments['gender'];
+        if ((_selectedGender == null || _selectedGender!.isEmpty) && rawGenderArg != null) {
+          _selectedGender = rawGenderArg;
+          print("inside args :$rawGenderArg");
+        }
+
       _showProfile = arguments['showOnProfile'] == true || arguments['showOnProfile'] == 'true';
       _heightController.text = arguments['height']?.toString() ?? '';
       // _selectedTheirGender = arguments['genderwant'] ?? '';
@@ -279,7 +307,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _selectedPronoun = arguments['pronoun']?.toString();
       // if your incoming gender identity or genderwant is object:
       final genderWant = arguments['genderwant'];
-      _selectedTheirGender = genderWant is Map ? genderWant['value']?.toString() : genderWant?.toString();
+      if (genderWant is Map) {
+          _selectedGenderId = genderWant['id'];
+          _selectedTheirGender = genderWant['identity']?.toString();
+          print("initial genderselection id:$_selectedGenderId");
+          print("initial genderselection value:$_selectedTheirGender");
+        } else if (genderWant is String) {
+          // If genderWant is just a string, store only the value
+          _selectedTheirGender = genderWant;
+        }
       final starArg = arguments['starSign'];
       if (starArg is Map && starArg['name'] != null) {
         _selectedstarsignNames = starArg['name'].toString();
@@ -325,6 +361,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     print('language::::::::::$_selectedlanguageNames');
     print('starsign::::::::::$_selectedstarsignNames');
     print('genderidentites:::##:::::$_selectedTheirGender');
+     _didInit = true; 
     // print('userid::::::::::$_selectedHOmetown');
   }
 
@@ -739,7 +776,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
                     value: (_selectedGender != null &&
-                            ['He/Him', 'She/Her'].contains(_selectedGender))
+                            ['She/Her','He/Him'].contains(_selectedGender))
                         ? _selectedGender
                         : null,
                     // value: (genderData.data?.any((item) => item.value == _selectedTheirGender) ?? false)
@@ -813,18 +850,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-
+                  
                   // BH Dropdown
                   // Interest Gender Dropdown
                   const Text(
-                    'Interest Gender',
+                    'ChoiceMates',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
                     // âœ… Only use value if it exists in the list, otherwise keep it null
                     value: (genderData.data?.any(
-                                (item) => item.value == _selectedTheirGender) ??
+                                (item) => item.id == _selectedGenderId) ??
                             false)
                         ? _selectedTheirGender
                         : null,
@@ -848,6 +885,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     onChanged: (value) {
                       setState(() {
                         _selectedTheirGender = value;
+                        print("selectedgender:$_selectedTheirGender");
                       });
                     },
                   ),
@@ -2336,6 +2374,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               print('gender: $_selectedGender');
                               print('showOnProfile: $_showProfile');
                               print('pronoun: $_selectedPronoun');
+                              print('genderidentities:$_selectedTheirGender');
                               // print('exercise: $exercise');
                               print('industryId: $_selectedIndustryIds');
                               print('experienceId: $_selectedexperienceIds');
@@ -2407,7 +2446,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                  content: Text('Failed to upload image: $e')),
+                                  content: Text('Failed to update profile:$e')),
                             );
                           }
                         },
@@ -2420,7 +2459,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                           ),
                         ),
                         child: Text(
-                          'edit save',
+                          'update profile',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

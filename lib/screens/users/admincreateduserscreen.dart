@@ -570,7 +570,10 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                             int>() // removes nulls and makes it List<String>
                         .toList() ??
                     [],
-                'pronoun':user.pronouns    
+                'pronoun':user.pronouns,
+                'location':user.location,
+                   
+                
                    
               },
             );

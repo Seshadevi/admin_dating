@@ -92,9 +92,9 @@ class _PostAdminScreenState extends State<PostAdminScreen> {
             buildTile("Industry", onTap: () {
               Navigator.pushNamed(context, '/industryget');
             }),
-            buildTile("", onTap: () {}),
-            buildTile("", onTap: () {}),
-            buildTile("", onTap: () {}),
+            // buildTile("", onTap: () {}),
+            // buildTile("", onTap: () {}),
+            // buildTile("", onTap: () {}),
           ],
         ),
       ),
