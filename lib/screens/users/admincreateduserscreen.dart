@@ -15,13 +15,34 @@ class AdminUsersScreen extends ConsumerStatefulWidget {
 }
 
 class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
+final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
-    // Fetch users when screen loads
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(admincreatedusersprovider.notifier).getAdmincreatedusers();
+      ref.read(admincreatedusersprovider.notifier).getAdmincreatedusers(page: 1);
     });
+
+    // 🔥 Add listener for infinite scroll
+  _scrollController.addListener(() {
+  final users = ref.read(admincreatedusersprovider).data ?? [];
+  
+  // Load next page when last 5 items are visible
+  if (_scrollController.position.pixels >=
+      _scrollController.position.maxScrollExtent - 200 && // ~near bottom
+      users.isNotEmpty) {
+    ref.read(admincreatedusersprovider.notifier).getNextPage();
+  }
+});
+
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -114,22 +135,34 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
     );
   }
 
-  Widget _buildUsersList(List<Data> users) {
-    return RefreshIndicator(
-      color: Colors.deepPurple,
-      onRefresh: () async {
-        ref.read(admincreatedusersprovider.notifier).getAdmincreatedusers();
+Widget _buildUsersList(List<Data> users) {
+  final isLoadingNextPage = ref.read(admincreatedusersprovider.notifier).isLoadingNextPage;
+
+  return RefreshIndicator(
+    onRefresh: () async {
+      await ref.read(admincreatedusersprovider.notifier).refreshUsers();
+    },
+    child: ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.all(16),
+      itemCount: users.length + (isLoadingNextPage ? 1 : 0), // add extra item for loader
+      itemBuilder: (context, index) {
+        if (index >= users.length) {
+          // Bottom loader for page 2+
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final user = users[index];
+        return _buildUserCard(user);
       },
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: users.length,
-        itemBuilder: (context, index) {
-          final user = users[index];
-          return _buildUserCard(user);
-        },
-      ),
-    );
-  }
+    ),
+  );
+}
+
+
+
 
   Widget _buildUserCard(Data user) {
     return Card(

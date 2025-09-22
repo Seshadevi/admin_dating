@@ -155,6 +155,8 @@ class _CustomBottomNavBarState extends ConsumerState<CustomBottomNavBar> {
     // Fallback: if backend gave nothing or none matched, show Dashboard
     if (tabs.isEmpty) {
       tabs.add(_pageMap['dashboard']!);
+     // tabs.add(_pageMap['users']!);
+      tabs.add(_pageMap['settings']!);
     }
     return tabs;
   }

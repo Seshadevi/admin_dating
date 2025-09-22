@@ -16,11 +16,32 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
   final Ref ref;
   Admincreatedusersprovider(this.ref) : super(AdminCreatedUsersModel.initial());
 
-  Future<void> getAdmincreatedusers() async {
+  int _currentPage = 1;
+  bool _hasMore = true;
+   
+   bool _isLoading = false;  
+   bool _isLoadingNextPage = false;
+   bool get isLoading => _isLoading;
+   bool get isLoadingNextPage => _isLoadingNextPage;
+
+  Future<void> getAdmincreatedusers({int page = 1, bool refresh = false}) async {
+    
+     if (refresh) {
+    _currentPage = 1;
+    _hasMore = true;
+  } else if (_isLoadingNextPage || !_hasMore) {
+    return; // do nothing if already loading next page or no more pages
+  }
+
     final loadingState = ref.read(loadingProvider.notifier);
     final prefs = await SharedPreferences.getInstance();
     try {
+      if (page == 1) {
+      _isLoading = true;
       loadingState.state = true;
+    } else {
+      _isLoadingNextPage = true;
+    }
 
       String? userDataString = prefs.getString('userData');
       if (userDataString == null || userDataString.isEmpty) {
@@ -67,10 +88,12 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
       final user = ref.read(loginProvider);
       final userinfo =
           user.data?.isNotEmpty == true ? user.data![0].user : null;
-      final String apiUrl = Dgapi.admincreatedusers;
+
+          print('get admincreatedusers, page $page');
+      final String apiUrl = "${Dgapi.admincreatedusers}?page=$page";
 
       final response = await client.get(
-        Uri.parse("$apiUrl"),
+        Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -80,26 +103,42 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
       print('Get Admincreatedusers Status Code: ${response.statusCode}');
       print('Get Admincreatedusers Response Body: $responseBody');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        try {
-          final res = jsonDecode(responseBody);
-          final usersData = AdminCreatedUsersModel.fromJson(res);
-          state = usersData;
-          print('get Admincreatedusers successfully');
-        } catch (e) {
-          print("Invalid response format: $e");
-          throw Exception("Error parsing Admincreatedusers");
-        }
+           if (response.statusCode == 200 || response.statusCode == 201) {
+        final res = jsonDecode(response.body);
+        final newUsers = AdminCreatedUsersModel.fromJson(res);
+
+        if (page == 1) {
+        state = newUsers; // initial load / refresh
       } else {
-        print("Error fetching Admincreatedusers${response.body}");
+        state = state.copyWith(
+          data: [...(state.data ?? []), ...(newUsers.data ?? [])], // append page 2+
+        );
+      }
+
+        _currentPage = page;
+        _hasMore = (newUsers.data?.isNotEmpty ?? false);
+      } else {
         throw Exception("Error fetching Admincreatedusers: ${response.body}");
       }
     } catch (e) {
       print("Failed to fetch Admincreatedusers: $e");
     } finally {
-      loadingState.state = false;
+      _isLoading = false;
+       _isLoadingNextPage = false;
+       loadingState.state = false;
     }
   }
+
+  Future<void> getNextPage() async {
+    await getAdmincreatedusers(page: _currentPage + 1);
+  }
+
+  Future<void> refreshUsers() async {
+    _currentPage = 1;
+    _hasMore = true;
+    await getAdmincreatedusers(page: 1, refresh: true);
+  }
+
 
   Future<int> signupuserApi({
   String? email,
