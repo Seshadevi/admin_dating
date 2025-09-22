@@ -553,9 +553,15 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                         .join(', ') // join list into one string
                     ??
                     '',
+                 'religion': user.religions
+                        ?.map((e) => e.religion)
+                        .whereType<String>()
+                        .join(', ') // join list into one string
+                    ??
+                    '',   
 
                 // 'pronoun': user.pronouns,
-                'prompts': user.prompts,
+                'prompts': user.prompts?.map((p) => p.toJson()).toList(),
                 'profilePics': user.profilePics,
                 'politics': user.politics,
                 'languages': user.spokenLanguages
@@ -571,8 +577,9 @@ class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
                         .toList() ??
                     [],
                 'pronoun':user.pronouns,
-                'location':user.location,
-                   
+                'latitude':user.location!.latitude,
+                'longitude':user.location!.longitude,
+                'city':user.location!.name
                 
                    
               },

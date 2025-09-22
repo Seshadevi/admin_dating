@@ -149,10 +149,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       Navigator.pushNamed(context, '/postadminscreen');
                     },
                   ),
-                  buildTile("Add a subscription method",
-                    icon: Icons.add_card_outlined,
-                    context: context,
-                  ),
+                  // buildTile("Add a subscription method",
+                  //   icon: Icons.add_card_outlined,
+                  //   context: context,
+                  // ),
 
                   // Push Notifications Switch
                   Container(

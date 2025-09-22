@@ -3,7 +3,6 @@ import 'package:admin_dating/models/users/educationmodel.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/utils/dgapi.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/retry.dart';
 import 'package:shared_preferences/shared_preferences.dart';

@@ -3,78 +3,92 @@ import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/models/superAdminModels/admin_feature_model.dart';
 import 'package:admin_dating/utils/dgapi.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/retry.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/retry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdminFeatureProvider extends StateNotifier<AdminFeatureModel> {
   final Ref ref;
   AdminFeatureProvider(this.ref) : super(AdminFeatureModel.initial());
 
-  bool loading = false;
-
+  /// 🔹 Get Features with token + refresh
   Future<void> getAdminFeatures() async {
-    loading = true;
-    state = state.copyWith(); // To notify listeners
-
     final prefs = await SharedPreferences.getInstance();
-    final token = ref.read(loginProvider).data![0].accessToken;
-
+    final accesstoken = ref.read(loginProvider).data![0].accessToken;
     try {
-      final client = _retryClient(prefs, token!);
+      // String? token = await _getToken(prefs);
+
+      final client = _retryClient(prefs, accesstoken);
+
       final response = await client.get(
         Uri.parse(Dgapi.adminfeatures),
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
+          "Authorization": "Bearer $accesstoken",
         },
       );
 
+      print('Get AdminFeature Status Code: ${response.statusCode}');
+      print('Get AdminFeature Response Body: ${response.body}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final jsonResp = jsonDecode(response.body);
-        final features = AdminFeatureModel.fromJson(jsonResp);
+        final res = jsonDecode(response.body);
+        final features = AdminFeatureModel.fromJson(res);
         state = features;
+        print('✅ AdminFeature fetched successfully');
       } else {
-        throw Exception('Failed to load admin features');
+        throw Exception("Error fetching AdminFeature: ${response.body}");
       }
     } catch (e) {
-      print("Fetch Admin Features Failed: $e");
-    } finally {
-      loading = false;
-      state = state.copyWith(); // To notify listeners
+      print("❌ Failed to fetch AdminFeature: $e");
     }
   }
 
-  /// New method to add feature
-  Future<bool> addAdminFeatures({required String featureName}) async {
-    final prefs = await SharedPreferences.getInstance();
-    try {
-      String? token = await _getToken(prefs);
+  /// 🔹 Add Feature with token + refresh
+  Future<bool> addAdminFeatures({
+    required String featureName,
 
-      final client = _retryClient(prefs, token!);
+  }) async {
+
+    final prefs = await SharedPreferences.getInstance();
+    final accesstoken = ref.read(loginProvider).data![0].accessToken;
+
+    try {
+      // String? token = await _getToken(prefs);
+
+       if (accesstoken == null || accesstoken.isEmpty) {
+         throw Exception("User token invalid. Please log in again.");
+       }
+
+      final client = _retryClient(prefs,accesstoken);
 
       final response = await client.post(
         Uri.parse(Dgapi.adminaddfeatures),
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
+          "Authorization": "Bearer $accesstoken",
         },
-        body: jsonEncode({"featureName": featureName}),
+        body: jsonEncode({
+          "featureName": featureName,
+        }),
       );
+
+      print('Post AdminFeatures Status Code: ${response.statusCode}');
+      print('Post AdminFeatures Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         await getAdminFeatures(); // refresh list
         return true;
       } else {
-        print("Failed to add admin feature: ${response.body}");
         return false;
       }
     } catch (e) {
-      print("Failed to create AdminFeature: $e");
+      print("❌ Failed to create AdminFeature: $e");
       return false;
     }
   }
 
+  /// 🔹 Extract token from prefs (with fallback)
   Future<String?> _getToken(SharedPreferences prefs) async {
     String? userDataString = prefs.getString('userData');
     if (userDataString == null || userDataString.isEmpty) {
@@ -85,8 +99,8 @@ class AdminFeatureProvider extends StateNotifier<AdminFeatureModel> {
 
     String? token = userData['accessToken'] ??
         (userData['data'] != null &&
-            (userData['data'] as List).isNotEmpty &&
-            userData['data'][0]['access_token'] != null
+                (userData['data'] as List).isNotEmpty &&
+                userData['data'][0]['access_token'] != null
             ? userData['data'][0]['access_token']
             : null);
 
@@ -97,7 +111,8 @@ class AdminFeatureProvider extends StateNotifier<AdminFeatureModel> {
     return token;
   }
 
-  RetryClient _retryClient(SharedPreferences prefs, String token) {
+  /// 🔹 Retry client with refresh logic
+  RetryClient _retryClient(SharedPreferences prefs, String? accesstoken) {
     return RetryClient(
       http.Client(),
       retries: 3,
@@ -107,7 +122,7 @@ class AdminFeatureProvider extends StateNotifier<AdminFeatureModel> {
             (res?.statusCode == 401 || res?.statusCode == 400)) {
           print("⚠️ Token expired, refreshing...");
           String? newAccessToken =
-          await ref.read(loginProvider.notifier).restoreAccessToken();
+              await ref.read(loginProvider.notifier).restoreAccessToken();
 
           if (newAccessToken != null && newAccessToken.isNotEmpty) {
             await prefs.setString('accessToken', newAccessToken);
@@ -121,6 +136,6 @@ class AdminFeatureProvider extends StateNotifier<AdminFeatureModel> {
 }
 
 final adminFeatureProvider =
-StateNotifierProvider<AdminFeatureProvider, AdminFeatureModel>(
-      (ref) => AdminFeatureProvider(ref),
-);
+    StateNotifierProvider<AdminFeatureProvider, AdminFeatureModel>((ref) {
+  return AdminFeatureProvider(ref);
+});

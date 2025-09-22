@@ -78,7 +78,7 @@ class AdminGetsProvider extends StateNotifier<List<Admin>> {
       request.fields['password'] = password;
       request.fields['roleId'] = roleId;
       if (pageIds != null && pageIds.isNotEmpty) {
-        request.fields['pages'] = pageIds.join(',');
+        request.fields['pagesIds'] = pageIds.join(',');
       }
 
       // Attach image

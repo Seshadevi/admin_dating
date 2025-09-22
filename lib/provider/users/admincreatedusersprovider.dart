@@ -211,7 +211,7 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
 
 
   try {
-    
+
     loadingState.state = true;
 
     // Get admin token from SharedPreferences
@@ -450,10 +450,12 @@ Future<int> updateProfile({
   List<int>? drinkingId,
   String? smoking,
   String? gender,
+  int?choosegender,
   bool? showOnProfile,
   String? pronoun,
   String? exercise,
   List<int>? industryId,
+  List<int>? defaultMessages,
   List<int>? experienceId,
   String? haveKids,
   String? educationLevel,
@@ -497,6 +499,7 @@ Future<int> updateProfile({
   print('drinkingId: $drinkingId');
   print('smoking: $smoking');
   print('gender: $gender');
+  print("choosegender: $choosegender");
   print('showOnProfile: $showOnProfile');
   print('pronoun: $pronoun');
   print('exercise: $exercise');
@@ -587,6 +590,7 @@ Future<int> updateProfile({
       if (dob != null) request.fields['dob'] = dob;
       if (hometown != null) request.fields['hometown'] = hometown;
       if (politics != null) request.fields['politics'] = politics;
+      if (choosegender != null) request.fields['genderIdentities'] = choosegender.toString();
       if (email != null) request.fields['email'] = email;
       if (mobile != null) request.fields['mobile']= mobile;
     } catch (e) {
@@ -648,6 +652,7 @@ Future<int> updateProfile({
     addListField('relationshipId', relationshipId);
     addListField('industryId', industryId);
     addListField('experienceId', experienceId);
+    addListField('defaultMessages',defaultMessages);
 
     // Prompts array
     try {

@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:geocoding/geocoding.dart';
 import 'package:admin_dating/models/signupprocessmodels/choosefoodies_model.dart';
 import 'package:admin_dating/provider/fakeusersprovider.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
@@ -132,6 +132,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   int? userId;
   String? userrole;
   String? accestoken;
+  String ? location;
   final List<String> _newtoarea = [
     "New to town",
     "I'm a local",
@@ -285,24 +286,49 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _selectedhavekids = arguments['haveKids'] ?? '';
       _selectedReligion = arguments['religion'] ?? '';
       _selectedDrinking = arguments['drinking'] ?? '';
+  
+    
+        selectedLat = arguments['latitude'] ?? 0.0;
+        selectedLng = arguments['longitude'] ?? 0.0;
 
+       _setInitialAddress(selectedLat, selectedLng);
+
+      
       _selectedPronoun = arguments['pronoun'] ?? '';
       _selectedPolitics = arguments['politics'] ?? '';
       final argsPrompts = arguments['prompts'];
       if (argsPrompts != null) {
-        if (argsPrompts is List) {
-          prompts = argsPrompts.map((e) => e?.toString() ?? '').where((s) => s.isNotEmpty).toList();
-        } else if (argsPrompts is String) {
-          // sometimes server returns JSON string
-          try {
-            final parsed = jsonDecode(argsPrompts);
-            if (parsed is List) prompts = parsed.map((e) => e?.toString() ?? '').toList();
-          } catch (_) {
-            // fallback
-            prompts = argsPrompts.split(',').map((s) => s.trim()).toList();
+          if (argsPrompts is List) {
+            prompts = argsPrompts.map((e) {
+              if (e is Map && e.containsKey('prompt')) {
+                // ✅ extract the actual prompt text
+                return e['prompt']?.toString() ?? '';
+              }
+              return e?.toString() ?? '';
+            }).where((s) => s.isNotEmpty).toList();
+          } else if (argsPrompts is String) {
+            // sometimes server returns JSON string
+            try {
+              final parsed = jsonDecode(argsPrompts);
+              if (parsed is List) {
+                prompts = parsed.map((e) {
+                  if (e is Map && e.containsKey('prompt')) {
+                    return e['prompt']?.toString() ?? '';
+                  }
+                  return e?.toString() ?? '';
+                }).where((s) => s.isNotEmpty).toList();
+              }
+            } catch (_) {
+              // fallback: assume comma separated
+              prompts = argsPrompts
+                  .split(',')
+                  .map((s) => s.trim())
+                  .where((s) => s.isNotEmpty)
+                  .toList();
+            }
           }
         }
-      }
+
       _bioController.text = (arguments['headLine'] ?? arguments['bio'] ?? '').toString();
       _selectedPronoun = arguments['pronoun']?.toString();
       // if your incoming gender identity or genderwant is object:
@@ -364,6 +390,24 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
      _didInit = true; 
     // print('userid::::::::::$_selectedHOmetown');
   }
+   Future<void> _setInitialAddress(double? lat, double? lng) async {
+  if (lat == null || lng == null) return; // exit if null
+
+  try {
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+    if (placemarks.isNotEmpty) {
+      final place = placemarks.first;
+      final address =
+          "${place.name}, ${place.locality}, ${place.administrativeArea}";
+      setState(() {
+        _locationController.text = address;
+      });
+    }
+  } catch (e) {
+    print("Error getting address: $e");
+  }
+}
+
 
   Future<void> _pickImage(int index) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -859,36 +903,37 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
-                    // âœ… Only use value if it exists in the list, otherwise keep it null
-                    value: (genderData.data?.any(
-                                (item) => item.id == _selectedGenderId) ??
-                            false)
+                    value: (genderData.data?.any((item) => item.id == _selectedGenderId) ?? false)
                         ? _selectedTheirGender
                         : null,
-
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: const BorderSide(color: Colors.grey),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
-
                     items: genderData.data?.map((dataItem) {
                       return DropdownMenuItem<String>(
                         value: dataItem.value,
                         child: Text(dataItem.value ?? ''),
                       );
                     }).toList(),
-
-                    onChanged: (value) {
+                    onChanged: (selectedValue) {
                       setState(() {
-                        _selectedTheirGender = value;
-                        print("selectedgender:$_selectedTheirGender");
+                        _selectedTheirGender = selectedValue;
+                        // Find the corresponding id from the list
+                        final selectedItem = genderData.data?.firstWhere(
+                          (item) => item.value == selectedValue,
+                          orElse: () =>genderData.data!.first,
+                        );
+                        _selectedGenderId = selectedItem?.id;
+                        print("selected gender: $_selectedTheirGender");
+                        print("selected gender id: $_selectedGenderId");
                       });
                     },
                   ),
+
 
                   const SizedBox(height: 10),
 
@@ -2374,7 +2419,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               print('gender: $_selectedGender');
                               print('showOnProfile: $_showProfile');
                               print('pronoun: $_selectedPronoun');
-                              print('genderidentities:$_selectedTheirGender');
+                              print('genderidentities:$_selectedGenderId');
+                              print("defaultmessages:$_selectedmesagesIds");
                               // print('exercise: $exercise');
                               print('industryId: $_selectedIndustryIds');
                               print('experienceId: $_selectedexperienceIds');
@@ -2415,10 +2461,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   drinkingId: _selecteddrinkingIds,
                                   // smoking,
                                   gender: _selectedGender,
+                                  choosegender:_selectedGenderId,
                                   showOnProfile: _showProfile,
                                   pronoun: _selectedPronoun,
                                   // exercise,
                                   industryId: _selectedIndustryIds,
+                                  defaultMessages:_selectedmesagesIds,
                                   experienceId: _selectedexperienceIds,
                                   haveKids: _selectedhavekids,
                                   educationLevel: _selectedEducationlevel,
