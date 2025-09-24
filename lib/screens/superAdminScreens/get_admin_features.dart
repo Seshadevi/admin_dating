@@ -49,7 +49,7 @@ class _GetAdminFeaturesState extends ConsumerState<GetAdminFeatures> {
         ],
       ),
       body: adminsState.data == null || adminsState.data!.isEmpty
-          ? const Center(child: Text("No roles found"))
+          ? const Center(child: Text("No features found"))
           : ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: adminsState.data!.length,
@@ -71,7 +71,7 @@ class _GetAdminFeaturesState extends ConsumerState<GetAdminFeatures> {
                         // Role name
                         Expanded(
                           child: Text(
-                            admin.featureName ?? "No Role Name",
+                            admin.featureName ?? "No feature Name",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -85,10 +85,10 @@ class _GetAdminFeaturesState extends ConsumerState<GetAdminFeatures> {
                         onPressed: () {
                           Navigator.pushNamed(
                             context,
-                            '/addroles',
+                            '/addadminfeatues',
                             arguments: {
-                              'id': admin.id,
-                              'roleName': admin.featureName,
+                              'featureId': admin.id,
+                              'featureName': admin.featureName,
                             },
                           );
                         },
@@ -102,9 +102,9 @@ class _GetAdminFeaturesState extends ConsumerState<GetAdminFeatures> {
                             final confirm = await showDialog<bool>(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: const Text("Delete Role"),
+                                title: const Text("Delete feature"),
                                 content: Text(
-                                  "Are you sure you want to delete the role: ${admin.featureName ?? ''}?",
+                                  "Are you sure you want to delete the feature: ${admin.featureName ?? ''}?",
                                 ),
                                 actions: [
                                   TextButton(
@@ -123,20 +123,21 @@ class _GetAdminFeaturesState extends ConsumerState<GetAdminFeatures> {
                             );
 
                             if (confirm == true) {
+                              
                               final success =
-                                  await ref.read(rolesProvider.notifier).deleteRole(admin.id);
+                                  await ref.read(adminFeatureProvider.notifier).deleteAdminFeature(featureId: admin.id, );
 
                               if (success) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Deleted role: ${admin.featureName ?? ''}",style: TextStyle(color: Colors.white),),
+                                    content: Text("Deleted Feature: ${admin.featureName ?? ''}",style: TextStyle(color: Colors.white),),
                                     backgroundColor: DatingColors.darkGreen,
                                   ),
                                 );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text("Failed to delete role"),
+                                    content: Text("Failed to delete Feature"),
                                     backgroundColor: Colors.red,
                                   ),
                                 );

@@ -90,4 +90,10 @@ class Dgapi {
   static const String admingetpages = "$baseUrl/admin/pages";
   static const String adminfeatures = "$baseUrl/admin/feature/get";
   static const String adminaddfeatures = "$baseUrl/admin/feature/post";
+   static const String plansupdate = "$baseUrl/admin/plan-types";
+   static const String plansdelete = "$baseUrl/admin/plan-types";
+   static const String updateAdminFeatures = "$baseUrl/admin/features";
+   static const String getandAddFeatureplans = "$baseUrl/admin/featureplan";
+   static const String updateandDeleteFeatureplans = "$baseUrl/admin/feature-plan";
+   
 }

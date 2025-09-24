@@ -1,3 +1,4 @@
+import 'package:admin_dating/provider/subscriptions/feature_plans_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../provider/subscriptions/feature_plan_add_provider.dart';
@@ -24,19 +25,44 @@ class _AddFeatureToPlanScreenState extends ConsumerState<AddFeatureToPlanScreen>
             () => ref.read(adminFeatureProvider.notifier).getAdminFeatures());
   }
 
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+Future<void> _submit() async {
+  if (!_formKey.currentState!.validate()) return;
 
-    final notifier = ref.read(featurePlanAddProvider.notifier);
-    await notifier.addFeatureToPlan(
+  final notifier = ref.read(featurePlansProviders.notifier);
+
+
+  try {
+    final success = await notifier.addFeatureToPlan(
       featureId: _selectedFeatureId!,
       planTypeId: widget.planTypeId,
     );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? "Feature linked to plan successfully!"
+              : "Failed to link feature. Please try again.",
+        ),
+        backgroundColor: success ? Colors.green : Colors.red,
+      ),
+    );
+   Navigator.pop(context);
+  } catch (e) {
+    Navigator.pop(context); 
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Error occurred: $e"),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
-    final addFeatureState = ref.watch(featurePlanAddProvider);
+    final addFeatureState = ref.watch(featurePlansProviders);
     final adminFeatureState = ref.watch(adminFeatureProvider);
 
     final features = adminFeatureState.data ?? [];
@@ -53,7 +79,7 @@ class _AddFeatureToPlanScreenState extends ConsumerState<AddFeatureToPlanScreen>
           child: ListView(
             shrinkWrap: true,
             children: [
-              Text("PlanType ID: ${widget.planTypeId}",
+              Text("PlanType Id: ${widget.planTypeId}",
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
               if (features.isEmpty)
@@ -78,44 +104,34 @@ class _AddFeatureToPlanScreenState extends ConsumerState<AddFeatureToPlanScreen>
                   val == null ? 'Please select a feature' : null,
                 ),
               const SizedBox(height: 24),
-              ElevatedButton.icon(
-                icon: addFeatureState.loading
-                    ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                      color: Colors.white, strokeWidth: 2),
-                )
-                    : const Icon(Icons.link),
-                label: Text(
-                    addFeatureState.loading ? "Linking..." : "Add Feature"),
-                onPressed: addFeatureState.loading || _selectedFeatureId == null
-                    ? null
-                    : _submit,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(50),
-                ),
+                ElevatedButton.icon(
+              icon: const Icon(Icons.link),
+              label: const Text("Add Feature"),
+              onPressed: _selectedFeatureId == null ? null : _submit,
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
               ),
-              if (addFeatureState.message != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 18.0),
-                  child: Text(
-                    addFeatureState.message!,
-                    style: const TextStyle(
-                        color: Colors.green, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              if (addFeatureState.error != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 18.0),
-                  child: Text(
-                    addFeatureState.error!,
-                    style: const TextStyle(
-                        color: Colors.red, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+            ),
+              // if (addFeatureState.message != null)
+              //   Padding(
+              //     padding: const EdgeInsets.only(top: 18.0),
+              //     child: Text(
+              //       addFeatureState.message!,
+              //       style: const TextStyle(
+              //           color: Colors.green, fontWeight: FontWeight.bold),
+              //       textAlign: TextAlign.center,
+              //     ),
+              //   ),
+              // if (addFeatureState.error != null)
+              //   Padding(
+              //     padding: const EdgeInsets.only(top: 18.0),
+              //     child: Text(
+              //       addFeatureState.error!,
+              //       style: const TextStyle(
+              //           color: Colors.red, fontWeight: FontWeight.bold),
+              //       textAlign: TextAlign.center,
+              //     ),
+              //   ),
             ],
           ),
         ),

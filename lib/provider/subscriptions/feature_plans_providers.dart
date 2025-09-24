@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:admin_dating/models/supscription/feature_plans_model.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/models/superAdminModels/admin_feature_model.dart';
 import 'package:admin_dating/utils/dgapi.dart';
@@ -7,12 +8,12 @@ import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class AdminFeatureProvider extends StateNotifier<AdminFeatureModel> {
+class FeaturePlansProviders extends StateNotifier<FeatureplansModel> {
   final Ref ref;
-  AdminFeatureProvider(this.ref) : super(AdminFeatureModel.initial());
+  FeaturePlansProviders(this.ref) : super(FeatureplansModel.initial());
 
   /// 🔹 Get Features with token + refresh
-  Future<void> getAdminFeatures() async {
+  Future<void> getFeaturesPlans() async {
     final prefs = await SharedPreferences.getInstance();
     final accesstoken = ref.read(loginProvider).data![0].accessToken;
     try {
@@ -21,32 +22,33 @@ class AdminFeatureProvider extends StateNotifier<AdminFeatureModel> {
       final client = _retryClient(prefs, accesstoken);
 
       final response = await client.get(
-        Uri.parse(Dgapi.adminfeatures),
+        Uri.parse(Dgapi.getandAddFeatureplans),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $accesstoken",
         },
       );
 
-      print('Get AdminFeature Status Code: ${response.statusCode}');
-      print('Get AdminFeature Response Body: ${response.body}');
+      print('Get Feature Plans Status Code: ${response.statusCode}');
+      print('Get Feature Plans Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final res = jsonDecode(response.body);
-        final features = AdminFeatureModel.fromJson(res);
+        final features = FeatureplansModel.fromJson(res);
         state = features;
-        print('✅ AdminFeature fetched successfully');
+        print('✅ Feature Plans fetched successfully');
       } else {
-        throw Exception("Error fetching AdminFeature: ${response.body}");
+        throw Exception("Error fetching Feature Plans: ${response.body}");
       }
     } catch (e) {
-      print("❌ Failed to fetch AdminFeature: $e");
+      print("❌ Failed to fetch Feature Plans: $e");
     }
   }
 
-  /// 🔹 Add Feature with token + refresh
-  Future<bool> addAdminFeatures({
-    required String featureName,
+  // /// 🔹 Add Feature with token + refresh
+   Future<bool> addFeatureToPlan({
+    required int featureId,
+    required int planTypeId,
 
   }) async {
 
@@ -63,34 +65,37 @@ class AdminFeatureProvider extends StateNotifier<AdminFeatureModel> {
       final client = _retryClient(prefs,accesstoken);
 
       final response = await client.post(
-        Uri.parse(Dgapi.adminaddfeatures),
+        Uri.parse(Dgapi.getandAddFeatureplans),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $accesstoken",
         },
         body: jsonEncode({
-          "featureName": featureName,
+          "featureId": featureId,
+          "planTypeId": planTypeId,
         }),
       );
 
-      print('Post AdminFeatures Status Code: ${response.statusCode}');
-      print('Post AdminFeatures Response Body: ${response.body}');
+      print('Post Feature Plans Status Code: ${response.statusCode}');
+      print('Post Feature Plans Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await getAdminFeatures(); // refresh list
+        await getFeaturesPlans(); // refresh list
         return true;
       } else {
         return false;
       }
     } catch (e) {
-      print("❌ Failed to create AdminFeature: $e");
+      print("❌ Failed to create Feature Plans: $e");
       return false;
     }
   }
 
 
+
+
 /// 🔹 Update Feature with token + refresh
-Future<bool> updateAdminFeature({
+Future<bool> updateFeatureplans({
   required int featureId, // id of the feature to update
   required String featureName,
 }) async {
@@ -105,7 +110,7 @@ Future<bool> updateAdminFeature({
     final client = _retryClient(prefs, accesstoken);
 
     final response = await client.put(
-      Uri.parse('${Dgapi.updateAdminFeatures}/$featureId'), // assuming your API requires featureId in the URL
+      Uri.parse('${Dgapi.updateandDeleteFeatureplans}/$featureId'), // assuming your API requires featureId in the URL
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $accesstoken",
@@ -115,24 +120,24 @@ Future<bool> updateAdminFeature({
       }),
     );
 
-    print('PUT AdminFeature Status Code: ${response.statusCode}');
-    print('PUT AdminFeature Response Body: ${response.body}');
+    print('PUT Feature Plans Status Code: ${response.statusCode}');
+    print('PUT Feature Plans Response Body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      await getAdminFeatures(); // refresh list
+      await getFeaturesPlans(); // refresh list
       return true;
     } else {
       return false;
     }
   } catch (e) {
-    print("❌ Failed to update AdminFeature: $e");
+    print("❌ Failed to update Feature Plans: $e");
     return false;
   }
 }
 
 
 /// 🔹 Delete Feature by ID with token + refresh
-Future<bool> deleteAdminFeature({
+Future<bool> deleteFeaturePlans({
   required int featureId, // id of the feature to delete
 }) async {
   final prefs = await SharedPreferences.getInstance();
@@ -146,24 +151,24 @@ Future<bool> deleteAdminFeature({
     final client = _retryClient(prefs, accesstoken);
 
     final response = await client.delete(
-      Uri.parse('${Dgapi.updateAdminFeatures}/$featureId'), // API expects featureId in URL
+      Uri.parse('${Dgapi.updateandDeleteFeatureplans}/$featureId'), // API expects featureId in URL
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $accesstoken",
       },
     );
 
-    print('DELETE AdminFeature Status Code: ${response.statusCode}');
-    print('DELETE AdminFeature Response Body: ${response.body}');
+    print('DELETE Feature Plans Status Code: ${response.statusCode}');
+    print('DELETE Feature Plans Response Body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 204) {
-      await getAdminFeatures(); // refresh list
+      await getFeaturesPlans(); // refresh list
       return true;
     } else {
       return false;
     }
   } catch (e) {
-    print("❌ Failed to delete AdminFeature: $e");
+    print("❌ Failed to delete Feature Plans: $e");
     return false;
   }
 }
@@ -219,7 +224,7 @@ Future<bool> deleteAdminFeature({
 
 }
 
-final adminFeatureProvider =
-    StateNotifierProvider<AdminFeatureProvider, AdminFeatureModel>((ref) {
-  return AdminFeatureProvider(ref);
+final featurePlansProviders =
+    StateNotifierProvider<FeaturePlansProviders, FeatureplansModel>((ref) {
+  return FeaturePlansProviders(ref);
 });

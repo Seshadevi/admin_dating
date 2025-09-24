@@ -1,4 +1,5 @@
 import 'package:admin_dating/constants/dating_colors.dart';
+import 'package:admin_dating/screens/subscriptions/get_feature_plans.dart';
 import 'package:admin_dating/screens/subscriptions/subscription_plans_list_post_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,8 +51,14 @@ class _SubscriptionPlansListScreenState
   }
 
   void _editPlan(dynamic plan) {
-    // Add edit logic or navigation here
-  }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => PostSubscriptionScreen(plan: plan),
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +69,7 @@ class _SubscriptionPlansListScreenState
       appBar: AppBar(
         backgroundColor: DatingColors.darkGreen,
         elevation: 0,
-        automaticallyImplyLeading: false,
+       automaticallyImplyLeading: true,
         title: Text(
           'Subscription Plans',
           style: theme.textTheme.headlineSmall?.copyWith(
@@ -130,16 +137,13 @@ class _SubscriptionPlansListScreenState
                   children: [
                     IconButton(
                       icon:
-                      const Icon(Icons.add_box, color: Colors.indigo),
-                      tooltip: "Add Features",
+                      const Icon(Icons.diamond, color: Colors.indigo,size: 30,),
+                      tooltip: "Feature Plans",
                       onPressed: () {
                         print('Navigating with planTypeId: $planTypeId');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                AddFeatureToPlanScreen(planTypeId: planTypeId),
-                          ),
+                        Navigator.pushNamed(
+                          context,'/get_feature_plans'
+                         
                         );
                       },
                     ),

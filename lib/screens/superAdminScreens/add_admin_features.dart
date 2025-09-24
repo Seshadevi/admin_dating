@@ -15,7 +15,7 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _featureController = TextEditingController();
 
-  int? _roleId;
+  int? _featureId;
 
   @override
   void didChangeDependencies() {
@@ -24,7 +24,7 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
     ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (args != null) {
-      _roleId = args['id'] as int?;
+      _featureId = args['featureId'] as int?;
       _featureController.text = args['featureName'] as String? ?? '';
     }
   }
@@ -40,10 +40,11 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
       final featureName = _featureController.text.trim();
 
       bool success;
-      if (_roleId != null) {
-        success = await ref.read(rolesProvider.notifier).updateRole(
-          id: _roleId!,
-          roleName: featureName,
+      if (_featureId != null) {
+        success = await ref.read(adminFeatureProvider.notifier).updateAdminFeature(
+          featureId: _featureId!,
+          featureName: featureName,
+          
         );
       } else {
         success =
@@ -55,7 +56,7 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(_roleId != null
+              content: Text(_featureId != null
                   ? "Features updated successfully"
                   : "Features added successfully")),
         );
@@ -70,7 +71,7 @@ class _AddAdminFeaturesState extends ConsumerState<AddAdminFeatures> {
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = _roleId != null;
+    final isEditing = _featureId != null;
 
     return Scaffold(
       appBar: AppBar(

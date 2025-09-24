@@ -2,6 +2,7 @@ import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/screens/login.dart';
 import 'package:admin_dating/screens/subscriptions/AddFeatureToPlanScreen.dart';
 import 'package:admin_dating/screens/subscriptions/full_plans_get_page.dart';
+import 'package:admin_dating/screens/subscriptions/get_feature_plans.dart';
 import 'package:admin_dating/screens/subscriptions/subscription_plans_list_screen.dart';
 import 'package:admin_dating/screens/superAdminScreens/add_admin_features.dart';
 import 'package:admin_dating/screens/superAdminScreens/add_roles.dart';
@@ -190,7 +191,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         // '/addfeaturetoplan': (context) => AddFeatureToPlanScreen(),
         '/SubscriptionPlansListScreen': (context) =>  SubscriptionPlansListScreen(),
         '/full_plan_get': (context) => FullPlansGetPage(),
-        '/full_plan_get': (context) => FullPlansGetPage(),
+        '/get_feature_plans': (context) => GetFeaturePlans(),
       },
     );
   }
