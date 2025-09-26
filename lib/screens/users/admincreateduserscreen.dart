@@ -35,7 +35,7 @@ final ScrollController _scrollController = ScrollController();
       users.isNotEmpty) {
     ref.read(admincreatedusersprovider.notifier).getNextPage();
   }
-});
+ });
 
   }
 

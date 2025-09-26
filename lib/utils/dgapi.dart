@@ -95,5 +95,7 @@ class Dgapi {
    static const String updateAdminFeatures = "$baseUrl/admin/features";
    static const String getandAddFeatureplans = "$baseUrl/admin/featureplan";
    static const String updateandDeleteFeatureplans = "$baseUrl/admin/feature-plan";
-   
+   static const String getreportcategories = "$baseUrl/categorys";
+   static const String updateandDeletecategoies = "$baseUrl/categorys";
+   static const String updateandDeleteplantofeatures = "$baseUrl/admin//deleteFeaturewithPlan";
 }

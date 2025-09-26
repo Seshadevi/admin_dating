@@ -1,5 +1,8 @@
 import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/screens/login.dart';
+import 'package:admin_dating/screens/profile/cat_report.dart';
+import 'package:admin_dating/screens/settings/add_report_categories.dart';
+import 'package:admin_dating/screens/settings/report_categories.dart';
 import 'package:admin_dating/screens/subscriptions/AddFeatureToPlanScreen.dart';
 import 'package:admin_dating/screens/subscriptions/full_plans_get_page.dart';
 import 'package:admin_dating/screens/subscriptions/get_feature_plans.dart';
@@ -192,6 +195,8 @@ class _MyAppState extends ConsumerState<MyApp> {
         '/SubscriptionPlansListScreen': (context) =>  SubscriptionPlansListScreen(),
         '/full_plan_get': (context) => FullPlansGetPage(),
         '/get_feature_plans': (context) => GetFeaturePlans(),
+        '/get_report_categories': (context) => ReportCategories(),
+        '/add_report_categories': (context) => AddReportCategories(),
       },
     );
   }

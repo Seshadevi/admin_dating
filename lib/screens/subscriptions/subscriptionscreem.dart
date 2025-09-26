@@ -43,6 +43,8 @@ class SubscriptionsScreen extends StatelessWidget {
                   },
                 ),
               ),
+              const SizedBox(width: 8),
+                Icon(Icons.filter_alt_outlined, color: colorScheme.onSurface.withOpacity(0.7)),
               Padding(
                 padding: const EdgeInsets.only(right: 16),
                 child: PopupMenuButton<String>(
@@ -75,36 +77,7 @@ class SubscriptionsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search By ID......',
-                      prefixIcon: Icon(Icons.search, color: DatingColors.secondaryText),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(25)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      filled: true,
-                      fillColor: colorScheme.surface,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(Icons.filter_alt_outlined, color: colorScheme.onSurface.withOpacity(0.7)),
-                const SizedBox(width: 8),
-                Icon(Icons.sort, color: colorScheme.onSurface.withOpacity(0.7)),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: DatingColors.primaryGreen,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.add, color: Colors.white),
-                )
-              ],
-            ),
-            const SizedBox(height: 20),
+                      
             Text("Churn Rate",
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
             const SizedBox(height: 12),
@@ -143,38 +116,8 @@ class SubscriptionsScreen extends StatelessWidget {
             _barWithTooltip(context, "Premium", "1 Month \$5536\n3 Month \$4536\n6 Month \$5345"),
             _barWithTooltip(context, "Premium +", "1 Month \$5536\n3 Month \$4536\n6 Month \$5345"),
             const SizedBox(height: 20),
-            Text("Customer Growth",
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: DatingColors.primaryGreen.withOpacity(0.1),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("BFF 5536",
-                      style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
-                  Text("New Login 126", style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface)),
-                  Text("Subscriptions 326", style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurface)),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: List.generate(7, (index) {
-                      final barHeights = [30, 60, 20, 90, 40, 50, 30];
-                      return Expanded(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          height: barHeights[index].toDouble(),
-                          color: DatingColors.primaryGreen,
-                        ),
-                      );
-                    }),
-                  )
-                ],
-              ),
-            ),
+            
+            
             const SizedBox(height: 20),
             Text("Recent Subscriptions",
                 style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),

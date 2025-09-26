@@ -6,7 +6,8 @@ import '../../provider/superAdminProviders/admin_feature_provider.dart';
 
 class AddFeatureToPlanScreen extends ConsumerStatefulWidget {
   final int planTypeId;
-  const AddFeatureToPlanScreen({Key? key, required this.planTypeId})
+  final String planName;
+  const AddFeatureToPlanScreen({Key? key, required this.planTypeId,required this.planName})
       : super(key: key);
 
   @override
@@ -79,7 +80,7 @@ Future<void> _submit() async {
           child: ListView(
             shrinkWrap: true,
             children: [
-              Text("PlanType Id: ${widget.planTypeId}",
+              Text("Plan Name: ${widget.planName}",
                   style: const TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
               if (features.isEmpty)

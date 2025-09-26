@@ -1,19 +1,22 @@
 import 'dart:convert';
-import 'package:admin_dating/models/supscription/feature_plans_model.dart';
+import 'package:admin_dating/models/users/report_categories_model.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
-import 'package:admin_dating/models/superAdminModels/admin_feature_model.dart';
 import 'package:admin_dating/utils/dgapi.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FeaturePlansProviders extends StateNotifier<FeatureplansModel> {
+class ReportCategoriesProviders extends StateNotifier<ReportCategoriesModel> {
   final Ref ref;
-  FeaturePlansProviders(this.ref) : super(FeatureplansModel.initial());
+  ReportCategoriesProviders(this.ref) : super(ReportCategoriesModel.initial());
 
   /// 🔹 Get Features with token + refresh
-  Future<void> getFeaturesPlans() async {
+  Future<void> getReportCategries({
+    int page = 1, 
+    bool append = false
+    }
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     //final accesstoken = ref.read(loginProvider).data![0].accessToken;
     
@@ -23,34 +26,47 @@ class FeaturePlansProviders extends StateNotifier<FeatureplansModel> {
       final client = _retryClient(prefs, token);
 
       final response = await client.get(
-        Uri.parse(Dgapi.getandAddFeatureplans),
+        Uri.parse("${Dgapi.getreportcategories}?page=$page"),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
         },
       );
 
-      print('Get Feature Plans Status Code: ${response.statusCode}');
-      print('Get Feature Plans Response Body: ${response.body}');
+      print('Get ReportCategries Status Code: ${response.statusCode}');
+      print('Get ReportCategries Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final res = jsonDecode(response.body);
-        final features = FeatureplansModel.fromJson(res);
-        state = features;
-        print('✅ Feature Plans fetched successfully');
+         final newModel = ReportCategoriesModel.fromJson(res);
+
+      if (append && state.data != null) {
+        // ✅ Append data (do not replace)
+        state = state.copyWith(
+          data: [...state.data!, ...?newModel.data],
+          pagination: newModel.pagination,
+          success: true,
+        );
+        } else {
+        // ✅ First page (replace state)
+        state = newModel.copyWith(success: true);
+      }
+        print('✅ ReportCategries fetched successfully');
       } else {
-        throw Exception("Error fetching Feature Plans: ${response.body}");
+        throw Exception("Error fetching ReportCategries: ${response.body}");
       }
     } catch (e) {
-      print("❌ Failed to fetch Feature Plans: $e");
+      print("❌ Failed to fetch ReportCategries: $e");
     }
   }
 
-  // /// 🔹 Add Feature with token + refresh
-   Future<bool> addFeatureToPlan({
-    required int featureId,
-    required int planTypeId,
 
+
+
+  // /// 🔹 Add Feature with token + refresh
+   Future<bool> addReportCategories({
+    required List<String> category,
+    
   }) async {
 
     final prefs = await SharedPreferences.getInstance();
@@ -66,14 +82,14 @@ class FeaturePlansProviders extends StateNotifier<FeatureplansModel> {
       final client = _retryClient(prefs,token);
 
       final response = await client.post(
-        Uri.parse(Dgapi.getandAddFeatureplans),
+        Uri.parse(Dgapi.getreportcategories),
         headers: {
           "Content-Type": "application/json",
           "Authorization": "Bearer $token",
         },
         body: jsonEncode({
-          "featureId": featureId,
-          "planTypeId": planTypeId,
+          "category": category,
+         
         }),
       );
 
@@ -81,7 +97,7 @@ class FeaturePlansProviders extends StateNotifier<FeatureplansModel> {
       print('Post Feature Plans Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        await getFeaturesPlans(); // refresh list
+        await getReportCategries(); // refresh list
         return true;
       } else {
         return false;
@@ -96,9 +112,9 @@ class FeaturePlansProviders extends StateNotifier<FeatureplansModel> {
 
 
 /// 🔹 Update Feature with token + refresh
-Future<bool> updateFeatureplans({
-  required int featureId, // id of the feature to update
-  required String featureName,
+Future<bool> updateReportCategories( {
+  int? categoryId,
+  required List<String> category,
 }) async {
   final prefs = await SharedPreferences.getInstance();
  // final accesstoken = ref.read(loginProvider).data![0].accessToken;
@@ -113,13 +129,13 @@ Future<bool> updateFeatureplans({
     final client = _retryClient(prefs, token);
 
     final response = await client.put(
-      Uri.parse('${Dgapi.updateandDeleteFeatureplans}/$featureId'), // assuming your API requires featureId in the URL
+      Uri.parse('${Dgapi.updateandDeletecategoies}/$categoryId'), 
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
       },
       body: jsonEncode({
-        "featureName": featureName,
+       "category": category,
       }),
     );
 
@@ -127,7 +143,7 @@ Future<bool> updateFeatureplans({
     print('PUT Feature Plans Response Body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      await getFeaturesPlans(); // refresh list
+      await getReportCategries(); // refresh list
       return true;
     } else {
       return false;
@@ -140,17 +156,14 @@ Future<bool> updateFeatureplans({
 
 
 /// 🔹 Delete Feature by ID with token + refresh
-Future<bool> deleteFeaturePlans({
-  required int featureId, 
-  required int planTypeId,
-
+Future<bool> deleteReportCategories({
+  required int? categoryId, 
 }) async {
   final prefs = await SharedPreferences.getInstance();
  // final accesstoken = ref.read(loginProvider).data![0].accessToken;
 
   try {
     String? token = await _getToken(prefs);
-
     if (token == null || token.isEmpty) {
       throw Exception("User token invalid. Please log in again.");
     }
@@ -158,22 +171,18 @@ Future<bool> deleteFeaturePlans({
     final client = _retryClient(prefs, token);
 
     final response = await client.delete(
-      Uri.parse(Dgapi.updateandDeleteplantofeatures), // API expects featureId in URL
+      Uri.parse('${Dgapi.updateandDeletecategoies}/$categoryId'), // API expects featureId in URL
       headers: {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
       },
-       body: jsonEncode({
-          "featureId": featureId,
-          "planTypeId": planTypeId,
-        }),
     );
 
     print('DELETE Feature Plans Status Code: ${response.statusCode}');
     print('DELETE Feature Plans Response Body: ${response.body}');
 
     if (response.statusCode == 200 || response.statusCode == 204) {
-      await getFeaturesPlans(); // refresh list
+      await getReportCategries(); // refresh list
       return true;
     } else {
       return false;
@@ -235,7 +244,7 @@ Future<bool> deleteFeaturePlans({
 
 }
 
-final featurePlansProviders =
-    StateNotifierProvider<FeaturePlansProviders, FeatureplansModel>((ref) {
-  return FeaturePlansProviders(ref);
+final reportCategoriesProviders =
+    StateNotifierProvider<ReportCategoriesProviders, ReportCategoriesModel>((ref) {
+  return ReportCategoriesProviders(ref);
 });
