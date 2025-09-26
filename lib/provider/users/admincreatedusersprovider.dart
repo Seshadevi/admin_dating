@@ -140,7 +140,7 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
   }
 
 
-  Future<int> signupuserApi({
+  Future<int> fakeusercreateApi({
   String? email,
   String? mobile,
   double? latitude,
@@ -167,8 +167,13 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
   List<int>? experience,
   List<int>? industry,
   List<int>? relationship,
-  List<int>? starsign,
+  int? starsign,
   List<int>? languages,
+  String? work,
+  String? selectedsmoke,
+  String? selecteddiet,
+  String? selectedexercise,
+  String? selectedslipping,
   String? hometown,
   String? newtotown,
   String? politics,
@@ -339,6 +344,7 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
     }
     if (havekids != null) request.fields['haveKids'] = havekids;
     if (newtotown != null) request.fields['newToArea'] = newtotown;
+  
 
     // Numeric fields
     if (selectedHeight != null) {
@@ -350,7 +356,12 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
     if (hometown != null) request.fields['hometown'] = hometown;
     if (politics != null) request.fields['politics'] = politics;
     if (pronoun != null) request.fields['pronouns'] = pronoun;
-
+    if (work != null) request.fields['works']=work;
+    if (selectedsmoke != null) request.fields['smoking']=selectedsmoke;
+    if (selecteddiet != null) request.fields['dietaryPreference']=selecteddiet;
+    if (selectedexercise != null) request.fields['exercise']=selectedexercise;
+    if (selectedslipping != null) request.fields['sleepingHabits']=selectedslipping;
+    if (starsign != null) request.fields['starsignId'] = starsign.toString();
     // Helper function for list fields
     void addListField(String key, List<int>? values) {
       if (values != null && values.isNotEmpty) {
@@ -378,7 +389,7 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
     addListField('kids', selectedkidsIds);
     addListField('drinking', drinkingId);
     addListField('defaultMessages', defaultmessages);
-    addListField('starSignId', starsign);
+    //addListField('starSignId', starsign);
     addListField('relationshipId', relationship);
     addListField('experienceId', experience);
     addListField('industryId', industry);
@@ -453,9 +464,9 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
 
       return response.statusCode;
     } else {
-      print("Signup failed with status: ${response.statusCode}");
-      print("Error response: ${responseBody.body}");
-      return response.statusCode;
+        print("Signup failed with status: ${response.statusCode}");
+        print("Error response: ${responseBody.body}");
+        return response.statusCode;
     }
   } catch (e, stackTrace) {
     print("Exception during signup: $e");
