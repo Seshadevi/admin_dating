@@ -460,11 +460,13 @@ Widget _buildUsersList(List<Data> users) {
                 'gender': user.gender,
                 'showOnProfile':user.showOnProfile,
                 'height': user.height,
-                'genderWant': user.genderIdentities
-                        ?.where((e) => e.identity != null)
-                        .map((e) => e.identity!)
-                        .toList() ??
-                    [],
+                'genderWant': user.genderIdentities != null && user.genderIdentities!.isNotEmpty
+                        ? {
+                            "id": user.genderIdentities!.first.id,
+                            "identity": user.genderIdentities!.first.identity
+                          }
+                        : [],
+
                 'causes': user.causesAndCommunities
                         ?.where((e) => e.causesAndCommunities != null)
                         .map((e) => e.causesAndCommunities!)
@@ -612,9 +614,12 @@ Widget _buildUsersList(List<Data> users) {
                 'pronoun':user.pronouns,
                 'latitude':user.location!.latitude,
                 'longitude':user.location!.longitude,
-                'city':user.location!.name
-                
-                   
+                'city':user.location!.name,
+                'sleepingHabbits':user.sleepingHabits,
+                'dietarypreference' : user.dietaryPreference,
+                'headLine': user.headLine,
+                'smoking':user.smoking,
+                'exercise':user.exercise
               },
             );
           },

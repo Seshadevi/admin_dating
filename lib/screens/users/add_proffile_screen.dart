@@ -35,6 +35,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import '../../models/users/admincreatedusersmodes.dart';
 import '../../provider/signupprocessProviders copy/genderProvider.dart';
+import 'package:admin_dating/models/more section/starsign.dart' as starsigns;
 
 class AddProfileScreen extends ConsumerStatefulWidget {
   const AddProfileScreen({super.key});
@@ -57,9 +58,10 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   final TextEditingController _bioController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
-  final TextEditingController workController = TextEditingController();
+  final TextEditingController _workController = TextEditingController();
   final TextEditingController titleController = TextEditingController();
   final TextEditingController companyController = TextEditingController();
+  final TextEditingController hometowncontroller =TextEditingController();
 
   final TextEditingController _educationController = TextEditingController();
   bool _showForm = false;
@@ -107,11 +109,16 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   List<int> _selectedrelationshipIds = [];
   List<String> _selectedrelationshipNames = [];
   List<int> _selectedstarsignIds = [];
+  int? _selectedstarsignId;
   String? _selectedstarsignNames;
   List<int> _selectedlanguageIds = [];
   List<String> _selectedlanguageNames = [];
   double? selectedLat;
   double? selectedLng;
+  String? _selectedsmoking;
+  String? _selectedexercise;
+  String? _selecteddietarypreferences;
+  String? _selectedsleeping;
   String? selectedAddress;
   String? _selectedNewtoarea;
   String? _selectedHOmetown;
@@ -122,6 +129,30 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   int? userId;
   String? userrole;
   String? accestoken;
+  final List<String> _dietorypreference =[
+     "Vegan",
+     "Vegetarian",
+     "Pescatarian",
+     "Non-Vegan",
+     "Other",
+    
+  ];
+  final List<String> _sleeping =[
+    'Early Bird',
+    'Night Owl', 
+    'In a Spectrum'
+  ];
+  final List<String> _exercise =[
+    'Active',
+    'Sometimes',
+    'Almost Never',
+  ];
+  final List<String> _smoking = [
+     "Teetotaller",
+      "No, I don't smoke",
+      "Yes, I smoke",
+      "I'm trying to quit",  
+  ];
   final List<String> _newtoarea = [
     "New to town",
     "I'm a local",
@@ -140,12 +171,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     "Socialist",
   ];
   final List<String> _educationlevel = [
-    "High school",
-    "Trade/tech school",
-    "In college",
-    "Undergraduate degree",
-    "In grad school",
-    "Graduate degree",
+    'Masters',
+    'Bachelors',
+    'In College'
   ];
   final List<String> _pronoun = [
     // "she/her",
@@ -1258,7 +1286,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
 
                   // --- Relationship SECTION ---
                   const SizedBox(height: 10),
-                  const Text('Select relationship for',
+                  const Text('Select relationship status',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 8),
                   GestureDetector(
@@ -1355,6 +1383,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                               onTap: () {
                                 setState(() {
                                   _selectedstarsignNames = null;
+                                  _selectedstarsignId = null; 
                                 });
                               },
                               child: const Padding(
@@ -1374,7 +1403,20 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       );
                     }).toList(),
                     onChanged: (value) {
-                      setState(() => _selectedstarsignNames = value);
+                      setState(() {
+                          _selectedstarsignNames = value;
+
+                          // 🔑 find the ID based on the selected name
+                          final matchedItem = starsign.data?.firstWhere(
+                            (item) => item.name == value,
+                            orElse: () => starsigns.Data.initial(),
+                          );
+
+                          _selectedstarsignId = matchedItem?.id;
+                        });
+
+                        print("Selected Starsign Name: $_selectedstarsignNames");
+                        print("Selected Starsign ID: $_selectedstarsignId");
                     },
                   ),
 
@@ -1455,7 +1497,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       ),
                     ),
 
-// --- QUALITIES SECTION ---
+                  // --- QUALITIES SECTION ---
                   const SizedBox(height: 10),
                   const Text('Select qualities for',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
@@ -1537,7 +1579,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   SizedBox(
                     height: 10,
                   ),
-
+                  // default messages
                   const Text('Select DefaultMessages',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
 
@@ -1614,9 +1656,24 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         ),
                       ),
                     ),
-
+                // selectedkids
                   const SizedBox(height: 10),
-                  const Text('select Kids',
+                   const Text('Work',
+                      style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  const SizedBox(height: 5),
+                  TextField(
+                    controller: _workController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Select Kids',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
@@ -1665,6 +1722,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   ),
 
                   const SizedBox(height: 10),
+                  // drinking
                   const Text('Do you Drink',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
@@ -1710,7 +1768,164 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   ),
 
                   const SizedBox(height: 10),
-                  const Text('select Religion',
+                //  smoke
+                const Text(
+                    'Do you smoke',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: _selectedsmoking,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selectedsmoking != null)
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedsmoking = null;
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                    items: _smoking.map((smoking) {
+                      return DropdownMenuItem<String>(
+                        value: smoking,
+                        child: Text(smoking),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedsmoking = value);
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  // exercise
+                  const Text(
+                    'Jym',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: _selectedexercise,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selectedexercise != null)
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedexercise = null;
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                    items: _exercise.map((exercise) {
+                      return DropdownMenuItem<String>(
+                        value: exercise,
+                        child: Text(exercise),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedexercise = value);
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+
+                  const Text(
+                    'Dietary preference',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: _selecteddietarypreferences,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selecteddietarypreferences != null)
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _selecteddietarypreferences = null;
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                    items: _dietorypreference.map((dietorypreference) {
+                      return DropdownMenuItem<String>(
+                        value: dietorypreference,
+                        child: Text(dietorypreference),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selecteddietarypreferences = value);
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  
+                  const Text(
+                    'Sleeping habbit',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: _selectedsleeping,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selectedsleeping != null)
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedsleeping = null;
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                    items: _sleeping.map((sleeping) {
+                      return DropdownMenuItem<String>(
+                        value: sleeping,
+                        child: Text(sleeping),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedsleeping = value);
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  // religion
+                  const Text('Select Religion',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
@@ -1840,8 +2055,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 5),
-                  DropdownButtonFormField<String>(
-                    value: _selectedHOmetown,
+             
+                  TextField(
+                    controller: hometowncontroller,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1849,36 +2065,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
-                      suffixIcon: (_selectedHOmetown != null)
-                          ? GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedHOmetown = null;
-                                });
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  'Clear',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : null,
                     ),
-                    items: _hometown.map((hometown) {
-                      return DropdownMenuItem<String>(
-                        value: hometown,
-                        child: Text(hometown),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() => _selectedHOmetown = value);
-                    },
                   ),
+                  const SizedBox(height: 10),
                   SizedBox(
                     height: 10,
                   ),
@@ -2266,13 +2455,53 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           }
                           print('seleted data$_selectedgenderIds');
                           // if (userId == null) {
-                            print('signup part exicuted,,,,,,,,,,,');
-                            try {
-                              await ref
-                                  .read(admincreatedusersprovider.notifier)
-                                  .signupuserApi(
+                            print('bot users in ui screen----start');
+                            print("----- User Data -----");
+                            print("Email: ${_emailController.text}");
+                            print("Mobile: ${_phoneController.text}");
+                            print("Latitude: $selectedLat");
+                            print("Longitude: $selectedLng");
+                            print("User Name: ${_firstNameController.text}");
+                            print("Date of Birth: $_selectedBirth");
+                            print("Selected Gender: $_selectedGender");
+                            print("Show Gender on Profile: $_showProfile");
+                            print("Mode Id: $_selectedmodeId");
+                            print("Drinking Id: $_selecteddrinkingIds");
+                            print("Selected Kids Ids: $_selectedkidsIds");
+                            print("Selected Religion Ids: $_selectedreligionIds");
+                            print("Selected Gender Ids: $_selectedgenderIds");
+                            print("Selected Interest Ids: $_selectedInterestIds");
+                            print("Selected Causes: $_selectedcauseIds");
+                            print("Selected Looking For: $_selectedLookingIds");
+                            print("Selected Qualities: $_selectedqualitiesIds");
+                            print("Final Headline: ${_bioController.text}");
+                            print("Selected Prompts: $prompts");
+                            print("Chosen Images: $_selectedImages");
+                            print("Selected Height: ${int.tryParse(_heightController.text)}");
+                            print("Default Messages: $_selectedmesagesIds");
+                            print("Experience: $_selectedexperienceIds");
+                            print("Industry: $_selectedIndustryIds");
+                            print("Relationship: $_selectedrelationshipIds");
+                            print("Star Sign: $_selectedstarsignId");
+                            print("Languages: $_selectedlanguageIds");
+                            print("Work: ${_workController.text}");
+                            print("Selected Smoke: $_selectedsmoking");
+                            print("Selected Diet: $_selecteddietarypreferences");
+                            print("Selected Exercise: $_selectedexercise");
+                            print("Selected Sleeping: $_selectedsleeping");
+                            print("Hometown: $hometowncontroller");
+                            print("New To Town: $_selectedNewtoarea");
+                            print("Politics: $_selectedPolitics");
+                            print("Pronoun: $_selectedPronoun");
+                            print("Education Level: $_selectedEducationlevel");
+                            print("Have Kids: $_selectedhavekids");
+                            print("----------------------");
 
-                                      // :_lastNameController ,
+                            print('bot users in ui screen----end');
+                            try {
+                               final statusCode = await ref
+                                  .read(admincreatedusersprovider.notifier)
+                                  .fakeusercreateApi(
                                       email: _emailController.text,
                                       mobile: _phoneController.text,
                                       latitude: selectedLat,
@@ -2298,58 +2527,31 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                       experience: _selectedexperienceIds,
                                       industry: _selectedIndustryIds,
                                       relationship: _selectedrelationshipIds,
-                                      starsign: _selectedstarsignIds,
+                                      starsign: _selectedstarsignId,
                                       languages: _selectedlanguageIds,
-                                      hometown: _selectedHOmetown,
+                                      work:_workController.text,
+                                      selectedsmoke:_selectedsmoking,
+                                      selecteddiet:_selecteddietarypreferences,
+                                      selectedexercise:_selectedexercise,
+                                      selectedslipping:_selectedsleeping,
+                                      hometown: hometowncontroller.text,
                                       newtotown: _selectedNewtoarea,
                                       politics: _selectedPolitics,
                                       pronoun: _selectedPronoun,
                                       educationlevel: _selectedEducationlevel,
                                       havekids: _selectedhavekids);
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'upload profile data successfully!')),
-                              );
-                              Navigator.pop(context);
-                              // ✅ CLEAR ALL DATA AFTER SUCCESS
-                              // setState(() {
-                              //   _emailController.clear();
-                              //   _phoneController.clear();
-                              //   _firstNameController.clear();
-                              //   _bioController.clear();
-                              //   _heightController.clear();
-
-                              //   // reset selections
-                              //   _selectedBirth = null;
-                              //   _selectedGender = null;
-                              //   _showProfile = false;
-                              //   _selectedmodeId = null;
-                              //   _selecteddrinkingIds = [];
-                              //   _selectedkidsIds = [];
-                              //   _selectedreligionIds = [];
-                              //   _selectedgenderIds = [];
-                              //   _selectedInterestIds = [];
-                              //   _selectedcauseIds = [];
-                              //   _selectedLookingIds = [];
-                              //   _selectedqualitiesIds = [];
-                              //   prompts = [];
-                              //   _selectedImages.clear();
-                              //   _selectedmesagesIds = [];
-                              //   _selectedexperienceIds = [];
-                              //   _selectedIndustryIds = [];
-                              //   _selectedrelationshipIds = [];
-                              //   _selectedstarsignIds = [];
-                              //   _selectedlanguageIds = [];
-                              //   _selectedHOmetown = null;
-                              //   _selectedNewtoarea = null;
-                              //   _selectedPolitics = null;
-                              //   _selectedPronoun = null;
-                              //   _selectedEducationlevel = null;
-                              //   _selectedhavekids = null;
-                              // }
-                              // );
+                              if (statusCode == 200 || statusCode == 201) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Profile uploaded successfully!')),
+                                    );
+                                    Navigator.pop(context); // ✅ go back if success
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Failed with status: $statusCode')),
+                                    );
+                                  }
+                             
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -2389,62 +2591,6 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
               ),
             ),
           ),
-
-          // Profile Image - Positioned to overlap
-          //      Positioned(
-          //   top: 0,
-          //   left: 0,
-          //   right: 0,
-          //   child: Center(
-          //     child: Column(
-          //       children: [
-          //         Wrap(
-          //           spacing: 10,
-          //           runSpacing: 10,
-          //           children: List.generate(6, (index) {
-          //             return GestureDetector(
-          //               onTap: _pickImages,
-          //               child: Container(
-          //                 width: 90,
-          //                 height: 90,
-          //                 decoration: BoxDecoration(
-          //                   color: Colors.grey[200],
-          //                   border: Border.all(color: Colors.grey),
-          //                   image: _selectedImages[index] != null
-          //                       ? DecorationImage(
-          //                           image: FileImage(_selectedImages[index]!),
-          //                           fit: BoxFit.cover,
-          //                         )
-          //                       : null,
-          //                 ),
-          //                 child: _selectedImages[index] == null
-          //                     ? const Icon(Icons.add_a_photo, color: Colors.grey)
-          //                     : null,
-          //               ),
-          //             );
-          //           }),
-          //         ),
-
-          //         const SizedBox(height: 16),
-
-          //         ElevatedButton(
-          //           onPressed: () {
-          //             final selected = _selectedImages!.whereType<File>().toList();
-          //             if (selected.length < 4) {
-          //               ScaffoldMessenger.of(context).showSnackBar(
-          //                 const SnackBar(content: Text("Select at least 4 images")),
-          //               );
-          //             } else {
-          //               // Store or send these images
-          //               print("Selected ${selected.length} images");
-          //             }
-          //           },
-          //           child: const Text("Continue"),
-          //         )
-          //       ],
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

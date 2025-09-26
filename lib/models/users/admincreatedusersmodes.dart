@@ -88,6 +88,7 @@ class Data {
   String? pronouns;
   String? dob;
   bool? showOnProfile;
+  String? headLine;
   List<Qualities>? qualities;
   List<Drinking>? drinking;
   List<Kids>? kids;
@@ -107,6 +108,8 @@ class Data {
   String? haveKids;
   List<GenderIdentities>? genderIdentities;
   String? smoking;
+  String? sleepingHabits;
+  String? dietaryPreference;
   String? politics;
   String? hometown;
   int? height;
@@ -131,6 +134,7 @@ class Data {
     this.pronouns,
     this.dob,
     this.showOnProfile,
+    this.headLine,
     this.qualities,
     this.drinking,
     this.kids,
@@ -150,6 +154,8 @@ class Data {
     this.haveKids,
     this.genderIdentities,
     this.smoking,
+    this.sleepingHabits,
+    this.dietaryPreference,
     this.politics,
     this.hometown,
     this.height,
@@ -175,6 +181,7 @@ class Data {
         pronouns = null,
         dob = null,
         showOnProfile = false,
+        headLine = null,
         qualities = [],
         drinking = [],
         kids = [],
@@ -194,6 +201,8 @@ class Data {
         haveKids = null,
         genderIdentities = [],
         smoking = null,
+        sleepingHabits = null,
+        dietaryPreference=null,
         politics = null,
         hometown = null,
         height = null,
@@ -242,6 +251,7 @@ class Data {
       gender = _parseString(json['gender']);
       pronouns = _parseString(json['pronouns']);
       dob = _parseString(json['dob']);
+      headLine=_parseString(json['headLine']);
       
       // Fixed showOnProfile parsing
       showOnProfile = _parseBool(json['showOnProfile']);
@@ -421,6 +431,8 @@ class Data {
       }
       
       smoking = _parseString(json['smoking']);
+      sleepingHabits = _parseString(json['sleepingHabits']);
+      dietaryPreference = _parseString(json['dietaryPreference']);
       politics = _parseString(json['politics']);
       hometown = _parseString(json['hometown']);
       newToArea=_parseString(json['newToArea']);
@@ -536,7 +548,7 @@ class Data {
     data['pronouns'] = pronouns;
     data['dob'] = dob;
     data['showOnProfile'] = showOnProfile;
-    
+    data['headLine'] = headLine;
     if (qualities != null) {
       data['qualities'] = qualities!.map((v) => v.toJson()).toList();
     }
@@ -588,6 +600,8 @@ class Data {
     }
     
     data['smoking'] = smoking;
+    data['sleepingHabits'] = sleepingHabits;
+    data['dietaryPreference'] = dietaryPreference;
     data['politics'] = politics;
     data['hometown'] = hometown;
     data['height'] = height;
@@ -619,6 +633,7 @@ class Data {
     String? pronouns,
     String? dob,
     bool? showOnProfile,
+    String? headLine,
     List<Qualities>? qualities,
     List<Drinking>? drinking,
     List<Kids>? kids,
@@ -638,6 +653,8 @@ class Data {
     String? haveKids,
     List<GenderIdentities>? genderIdentities,
     String? smoking,
+    String ? sleepingHabits,
+    String? dietaryPreference ,
     String? politics,
     String? hometown,
     int? height,
@@ -662,6 +679,7 @@ class Data {
       pronouns: pronouns ?? this.pronouns,
       dob: dob ?? this.dob,
       showOnProfile: showOnProfile ?? this.showOnProfile,
+      headLine :headLine ?? this.headLine,
       qualities: qualities ?? this.qualities,
       drinking: drinking ?? this.drinking,
       kids: kids ?? this.kids,
@@ -681,6 +699,8 @@ class Data {
       haveKids: haveKids ?? this.haveKids,
       genderIdentities: genderIdentities ?? this.genderIdentities,
       smoking: smoking ?? this.smoking,
+      sleepingHabits:sleepingHabits?? this.sleepingHabits,
+      dietaryPreference :dietaryPreference?? this.dietaryPreference,
       politics: politics ?? this.politics,
       hometown: hometown ?? this.hometown,
       height: height ?? this.height,

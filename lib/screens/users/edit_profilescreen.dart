@@ -66,6 +66,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final TextEditingController educationController = TextEditingController();
   final TextEditingController instituteController = TextEditingController();
   final TextEditingController gradyearController = TextEditingController();
+   final TextEditingController _workController = TextEditingController();
+  final TextEditingController _hometownController = TextEditingController();
 
   final TextEditingController _educationController = TextEditingController();
   bool _showForm = false;
@@ -127,12 +129,39 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String? _selectedHOmetown;
   String? _selectedPolitics;
   String? _selectedEducationlevel;
+  String? _selectedsmoking;
+  String? _selectedexercise;
+  String? _seletedsleepinghabbits;
+  String? _selecteddietarypreferences;
   String? _selectedhavekids;
   String? _selectedPronoun;
   int? userId;
   String? userrole;
   String? accestoken;
   String ? location;
+  final List<String> _dietorypreference =[
+    "Vegan",
+     "Vegetarian",
+     "Pescatarian",
+     "Non-Vegan",
+     "Other",
+  ];
+  final List<String> _sleeping =[
+    'Early Bird',
+    'Night Owl', 
+    'In a Spectrum'
+  ];
+  final List<String> _exercise =[
+    'Active',
+    'Sometimes',
+    'Almost Never',
+  ];
+  final List<String> _smoking = [
+      "Teetotaller",
+      "No, I don't smoke",
+      "Yes, I smoke",
+      "I'm trying to quit",   
+  ];
   final List<String> _newtoarea = [
     "New to town",
     "I'm a local",
@@ -151,16 +180,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     "Socialist",
   ];
   final List<String> _educationlevel = [
-    "High school",
-    "Trade/tech school",
-    "In college",
-    "Undergraduate degree",
-    "In grad school",
-    "Graduate degree",
+     'Masters',
+     'Bachelors',
+     'In College'
   ];
   final List<String> _pronoun = [
+     "he/him",
     "she/her",
-    "he/him",
     "they/them",
     // "per/per",
   ];
@@ -275,7 +301,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       // _selectedstarsignNames = arguments['starSign'] ?? ''; // âœ… FIXED
       _selectedEducationlevel = arguments['educationLevel'] ?? '';
       _selectedNewtoarea = arguments['newToArea'] ?? '';
-      _selectedHOmetown = arguments['hometown'] ?? '';
+      _hometownController.text  = arguments['hometown'] ?? '';
+      _selectedsmoking = arguments['smoking'] ?? '';
+      _selectedexercise = arguments['exercise'] ?? '';
+      _selecteddietarypreferences = arguments['dietarypreference'] ?? '';
+      _seletedsleepinghabbits = arguments['sleepingHabbits'] ?? '';
       _selectedlanguageNames = List<String>.from(arguments['languages'] ?? []);
       _selectedlanguageIds = List<int>.from(arguments['languagesId'] ?? []);
       _selectedmesagesNames =
@@ -332,16 +362,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _bioController.text = (arguments['headLine'] ?? arguments['bio'] ?? '').toString();
       _selectedPronoun = arguments['pronoun']?.toString();
       // if your incoming gender identity or genderwant is object:
-      final genderWant = arguments['genderwant'];
-      if (genderWant is Map) {
+       final genderWant = arguments['genderWant'];
+
+        if (genderWant is Map) {
           _selectedGenderId = genderWant['id'];
           _selectedTheirGender = genderWant['identity']?.toString();
-          print("initial genderselection id:$_selectedGenderId");
-          print("initial genderselection value:$_selectedTheirGender");
-        } else if (genderWant is String) {
-          // If genderWant is just a string, store only the value
-          _selectedTheirGender = genderWant;
+        } else {
+          // Handle null or unexpected type
+          _selectedGenderId = null;
+          _selectedTheirGender = null;
         }
+
+        print("initial genderselection id: $_selectedGenderId");
+        print("initial genderselection value: $_selectedTheirGender");
+
       final starArg = arguments['starSign'];
       if (starArg is Map && starArg['name'] != null) {
         _selectedstarsignNames = starArg['name'].toString();
@@ -897,45 +931,46 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   
                   // BH Dropdown
                   // Interest Gender Dropdown
-                  const Text(
-                    'ChoiceMates',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 5),
-                  DropdownButtonFormField<String>(
-                    value: (genderData.data?.any((item) => item.id == _selectedGenderId) ?? false)
-                        ? _selectedTheirGender
-                        : null,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.grey),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                 const Text(
+                  'ChoiceMates',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 5),
+                DropdownButtonFormField<String>(
+                  value: (genderData.data?.any((item) => item.value == _selectedTheirGender) ?? false)
+                      ? _selectedTheirGender
+                      : null,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: const BorderSide(color: Colors.grey),
                     ),
-                    items: genderData.data?.map((dataItem) {
-                      return DropdownMenuItem<String>(
-                        value: dataItem.value,
-                        child: Text(dataItem.value ?? ''),
-                      );
-                    }).toList(),
-                    onChanged: (selectedValue) {
-                      setState(() {
-                        _selectedTheirGender = selectedValue;
-                        // Find the corresponding id from the list
-                        final selectedItem = genderData.data?.firstWhere(
-                          (item) => item.value == selectedValue,
-                          orElse: () =>genderData.data!.first,
-                        );
-                        _selectedGenderId = selectedItem?.id;
-                        print("selected gender: $_selectedTheirGender");
-                        print("selected gender id: $_selectedGenderId");
-                      });
-                    },
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
+                  hint: const Text("Select gender"), // ✅ show placeholder when empty
+                  items: genderData.data?.map((dataItem) {
+                    return DropdownMenuItem<String>(
+                      value: dataItem.value,   // <-- use identity string from API
+                      child: Text(dataItem.value ?? ''),
+                    );
+                  }).toList(),
+                  onChanged: (selectedValue) {
+                    setState(() {
+                      _selectedTheirGender = selectedValue;
 
+                      final selectedItem = genderData.data?.firstWhere(
+                        (item) => item.value == selectedValue,
+                        orElse: () => genderData.data!.first,
+                      );
+                      _selectedGenderId = selectedItem?.id;
 
-                  const SizedBox(height: 10),
+                      print("selected gender: $_selectedTheirGender");
+                      print("selected gender id: $_selectedGenderId");
+                    });
+                  },
+                ),
+
+                 const SizedBox(height: 10),
 
                   // Profession Dropdown
                   const Text('Mode',
@@ -1354,7 +1389,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
                   // --- Relationship SECTION ---
                   const SizedBox(height: 10),
-                  const Text('Select relationship for',
+                  const Text('Select relationship status',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 8),
                   GestureDetector(
@@ -1557,7 +1592,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       ),
                     ),
 
-// --- QUALITIES SECTION ---
+               // --- QUALITIES SECTION ---
                   const SizedBox(height: 10),
                   const Text('Select qualities for',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
@@ -1718,7 +1753,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     ),
 
                   const SizedBox(height: 10),
-                  const Text('select Kids',
+                   const Text('Work',
+                      style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  const SizedBox(height: 5),
+                  TextField(
+                    controller: _workController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Select Kids',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
@@ -1773,7 +1823,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
 
                   const SizedBox(height: 10),
-                  const Text('Do you Drink',
+                  const Text('Do you drink',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
@@ -1824,6 +1874,174 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
 
                   const SizedBox(height: 10),
+                  const Text(
+                    'Do you smoke',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    // value: _selectedNewtoarea,
+                    value: _selectedsmoking != null &&
+                            _smoking.contains(_selectedsmoking)
+                        ? _selectedsmoking
+                        : null,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selectedsmoking != null)
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedsmoking = null;
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                    items: _smoking.map((smoking) {
+                      return DropdownMenuItem<String>(
+                        value: smoking,
+                        child: Text(smoking),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedsmoking = value);
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  const Text(
+                    'Jym',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    // value: _selectedNewtoarea,
+                    value: _selectedexercise != null &&
+                            _exercise.contains(_selectedexercise)
+                        ? _selectedexercise
+                        : null,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selectedexercise != null)
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedexercise = null;
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                    items: _exercise.map((exercise) {
+                      return DropdownMenuItem<String>(
+                        value: exercise,
+                        child: Text(exercise),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedexercise = value);
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  const Text(
+                    'Dietary preference',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    // value: _selectedNewtoarea,
+                    value: _selecteddietarypreferences != null &&
+                            _dietorypreference.contains(_selecteddietarypreferences)
+                        ? _selecteddietarypreferences
+                        : null,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selecteddietarypreferences != null)
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _selecteddietarypreferences = null;
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                    items: _dietorypreference.map((dietorypreference) {
+                      return DropdownMenuItem<String>(
+                        value: dietorypreference,
+                        child: Text(dietorypreference),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selecteddietarypreferences = value);
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  const Text(
+                    'Slepping habbit',
+                    style: TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    // value: _selectedNewtoarea,
+                    value: _seletedsleepinghabbits != null &&
+                            _sleeping.contains(_seletedsleepinghabbits)
+                        ? _seletedsleepinghabbits
+                        : null,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_seletedsleepinghabbits != null)
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.red),
+                              onPressed: () {
+                                setState(() {
+                                  _seletedsleepinghabbits = null;
+                                });
+                              },
+                            )
+                          : null,
+                    ),
+                    items: _sleeping.map((sleeping) {
+                      return DropdownMenuItem<String>(
+                        value: sleeping,
+                        child: Text(sleeping),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _seletedsleepinghabbits = value);
+                    },
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   const Text('select Religion',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
@@ -1964,13 +2182,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 5),
-                  DropdownButtonFormField<String>(
-                    // value: _selectedHOmetown,
-                    value: _selectedHOmetown != null &&
-                            _hometown.contains(_selectedHOmetown)
-                        ? _selectedHOmetown
-                        : null,
-
+                  TextField(
+                    controller: _hometownController,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -1978,39 +2191,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       ),
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
-                      suffixIcon: (_selectedHOmetown != null)
-                          ? GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedHOmetown = null;
-                                });
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  'Clear',
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : null,
                     ),
-                    items: _hometown.map((hometown) {
-                      return DropdownMenuItem<String>(
-                        value: hometown,
-                        child: Text(hometown),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() => _selectedHOmetown = value);
-                    },
                   ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
 
                   const Text(
                     'Select pronoun',
@@ -2475,7 +2658,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   relationshipId: _selectedrelationshipIds,
                                   name: _firstNameController.text,
                                   dob: _selectedBirth,
-
+                                  
                                   hometown: _selectedHOmetown,
                                   politics: _selectedPolitics,
                                   // latitude: selectedLat,
