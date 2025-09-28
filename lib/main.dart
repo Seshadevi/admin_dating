@@ -2,6 +2,8 @@ import 'package:admin_dating/provider/loginprovider.dart';
 import 'package:admin_dating/screens/login.dart';
 import 'package:admin_dating/screens/profile/cat_report.dart';
 import 'package:admin_dating/screens/settings/add_report_categories.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/sportsget.dart';
+import 'package:admin_dating/screens/settings/getsandpostsofadmin/sportspost.dart';
 import 'package:admin_dating/screens/settings/report_categories.dart';
 import 'package:admin_dating/screens/subscriptions/AddFeatureToPlanScreen.dart';
 import 'package:admin_dating/screens/subscriptions/full_plans_get_page.dart';
@@ -197,6 +199,8 @@ class _MyAppState extends ConsumerState<MyApp> {
         '/get_feature_plans': (context) => GetFeaturePlans(),
         '/get_report_categories': (context) => ReportCategories(),
         '/add_report_categories': (context) => AddReportCategories(),
+          '/sportspost': (context) =>Sportspostscreen(),
+        '/sportsget': (context) =>SportsGetScreen(),
       },
     );
   }
