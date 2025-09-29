@@ -207,7 +207,7 @@ class _IndustryGetScreenState extends ConsumerState<IndustryGetScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("'${item.industry}' deleted successfully"),
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

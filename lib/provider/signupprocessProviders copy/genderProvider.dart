@@ -108,7 +108,7 @@ Future<int> updateGender(int? genderId, String? genderName) async {
       // Request body (adjust key names to match your backend)
       final body = jsonEncode({
         // "user_id": userId,
-        "preference": genderName, // List of IDs
+        "value": genderName, // List of IDs
       });
 
       final response = await http.put(

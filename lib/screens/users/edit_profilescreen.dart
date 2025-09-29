@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:admin_dating/provider/loader.dart';
+import 'package:admin_dating/provider/signupprocessProviders%20copy/sportsprovider.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:admin_dating/models/signupprocessmodels/choosefoodies_model.dart';
 import 'package:admin_dating/provider/fakeusersprovider.dart';
@@ -66,34 +68,27 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final TextEditingController educationController = TextEditingController();
   final TextEditingController instituteController = TextEditingController();
   final TextEditingController gradyearController = TextEditingController();
-   final TextEditingController _workController = TextEditingController();
+  final TextEditingController _workController = TextEditingController();
   final TextEditingController _hometownController = TextEditingController();
-
   final TextEditingController _educationController = TextEditingController();
+  final TextEditingController promptController = TextEditingController();
   bool _showForm = false;
   bool _showFormeducation = false;
   String? _workSummary;
   String? _educationSummary;
-
   List<String> prompts = [];
   bool isEditingPrompt = false;
   int? editingIndex;
-  final TextEditingController promptController = TextEditingController();
   bool _didInit = false;
-
   List<File> _finalSelectedImages = [];
-  // Dropdown values
   String? _selectedBirth;
   String? _selectedGender;
-  // String? _selectedBH;
   String? _selectedMode;
   String? _selectedDrinking;
   String? _selectedKids;
   String? _selectedReligion;
-  String? _selectedAge;
-  String? _selectedInterest;
+  String? _selectedSports;
   String? _selectedLookingFor;
-  String? _selectedWriteFewWords;
   bool _showProfile = false;
   String? _selectedTheirGender;
   int? _selectedGenderId;
@@ -107,6 +102,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   List<int> _selectedkidsIds = [];
   List<int>? _selectedmodeId;
   List<int> _selecteddrinkingIds = [];
+  List<int> _selectedsportsIds= [];
   List<String> _selectedqualitiesNames = [];
   List<int> _selectedmesagesIds = [];
   List<String> _selectedmesagesNames = [];
@@ -118,7 +114,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   List<String> _selectedexperienceNames = [];
   List<int> _selectedrelationshipIds = [];
   List<String> _selectedrelationshipNames = [];
-  List<int> _selectedstarsignIds = [];
+  List<int> selectedstarsignIds = [];
   String? _selectedstarsignNames;
   List<int> _selectedlanguageIds = [];
   List<String> _selectedlanguageNames = [];
@@ -166,11 +162,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     "New to town",
     "I'm a local",
   ];
-  final List<String> _hometown = [
-    "hyderabad",
-    "Telangana",
-    "Ap",
-  ];
+ 
   final List<String> _politics = [
     "Apolitical",
     "Moderate",
@@ -204,6 +196,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     Future.microtask(() => ref.read(causesProvider.notifier).getCauses());
     Future.microtask(() => ref.read(lookingProvider.notifier).getLookingFor());
     Future.microtask(() => ref.read(qualitiesProvider.notifier).getQualities());
+    Future.microtask(() => ref.read(sportsprovider.notifier).getSports());
     Future.microtask(() => ref.read(drinkingProvider.notifier).getdrinking());
     Future.microtask(() => ref.read(religionProvider.notifier).getReligions());
     Future.microtask(() => ref.read(kidsProvider.notifier).getKids());
@@ -220,6 +213,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
    final arguments =ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+     print("this is my edit page arg0");
 
      if (arguments != null && !_didInit) {
 
@@ -250,7 +244,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       }
 
       _lastNameController.text = arguments['lastname'] ?? '';
-      // _selectedBirth = arguments['dateOfBirth'] ?? "05/02/2000";
       if (_emailController.text.isEmpty) {
         _emailController.text = arguments['email'] ?? '';
       }
@@ -267,7 +260,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           // add any other mappings you expect:
           if (s == 'male') return 'He/Him';
           if (s == 'female') return 'She/Her';
-          // fallback to raw string (capitalized)
+         
           return raw.toString();
         }
         //  normalizeGender(rawGenderArg)
@@ -279,8 +272,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
       _showProfile = arguments['showOnProfile'] == true || arguments['showOnProfile'] == 'true';
       _heightController.text = arguments['height']?.toString() ?? '';
-      // _selectedTheirGender = arguments['genderwant'] ?? '';
-      _selectedMode = arguments['modeId'] ?? [];
+      _selectedMode = arguments['modeId'] ?? "";
       _selectedcauseNames = List<String>.from(arguments['causes'] ?? []);
       _selectedcauseIds = List<int>.from(arguments['causesId'] ?? []);
       _selectedInterestNames = List<String>.from(arguments['interests'] ?? []);
@@ -291,35 +283,30 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       _selectedLookingIds = List<int>.from(arguments['lookingForId'] ?? []);
       _selectedIndustryNames = List<String>.from(arguments['industry'] ?? []);
       _selectedIndustryIds = List<int>.from(arguments['industryId'] ?? []);
-      _selectedexperienceNames =
-          List<String>.from(arguments['experience'] ?? []);
+      _selectedexperienceNames =List<String>.from(arguments['experience'] ?? []);
       _selectedexperienceIds = List<int>.from(arguments['experienceId'] ?? []);
-      _selectedrelationshipNames =
-          List<String>.from(arguments['relationship'] ?? []);
-      _selectedrelationshipIds =
-          List<int>.from(arguments['relationshipId'] ?? []);
-      // _selectedstarsignNames = arguments['starSign'] ?? ''; // âœ… FIXED
+      _selectedrelationshipNames =List<String>.from(arguments['relationship'] ?? []);
+      _selectedrelationshipIds =List<int>.from(arguments['relationshipId'] ?? []);
       _selectedEducationlevel = arguments['educationLevel'] ?? '';
       _selectedNewtoarea = arguments['newToArea'] ?? '';
       _hometownController.text  = arguments['hometown'] ?? '';
+      _workController.text= arguments['works'] ?? '';
       _selectedsmoking = arguments['smoking'] ?? '';
       _selectedexercise = arguments['exercise'] ?? '';
       _selecteddietarypreferences = arguments['dietarypreference'] ?? '';
       _seletedsleepinghabbits = arguments['sleepingHabbits'] ?? '';
       _selectedlanguageNames = List<String>.from(arguments['languages'] ?? []);
       _selectedlanguageIds = List<int>.from(arguments['languagesId'] ?? []);
-      _selectedmesagesNames =
-          List<String>.from(arguments['defaultMessages'] ?? []);
-      _selectedmesagesIds =
-          List<int>.from(arguments['defaultMessagesId'] ?? []);
+      _selectedmesagesNames = List<String>.from(arguments['defaultMessages'] ?? []);
+      _selectedmesagesIds =List<int>.from(arguments['defaultMessagesId'] ?? []);
       _selectedKids = arguments['kids'] ?? '';
       _selectedhavekids = arguments['haveKids'] ?? '';
       _selectedReligion = arguments['religion'] ?? '';
       _selectedDrinking = arguments['drinking'] ?? '';
-  
-    
-        selectedLat = arguments['latitude'] ?? 0.0;
-        selectedLng = arguments['longitude'] ?? 0.0;
+      _selectedstarsignNames = arguments['starsign'];
+      _selectedSports = arguments['sports'] ?? '';
+       selectedLat = arguments['latitude'] ?? 0.0;
+       selectedLng = arguments['longitude'] ?? 0.0;
 
        _setInitialAddress(selectedLat, selectedLng);
 
@@ -377,14 +364,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         print("initial genderselection value: $_selectedTheirGender");
 
       final starArg = arguments['starSign'];
-      if (starArg is Map && starArg['name'] != null) {
-        _selectedstarsignNames = starArg['name'].toString();
-      } else if (starArg is String) {
-        _selectedstarsignNames = starArg;
-      }
-      // promptController.text = (arguments['prompts'] as List).join(', ');
-      const String baseUrl =
-          "http://97.74.93.26:6100"; // ðŸ‘ˆ change to your API base
+      // if (starArg is Map && starArg['name'] != null) {
+      //   _selectedstarsignNames = starArg['name'].toString();
+      // } else if (starArg is String) {
+      //   _selectedstarsignNames = starArg;
+      // }
+      promptController.text = (arguments['prompts'] as List).join(', ');
+      const String baseUrl = "http://97.74.93.26:6100"; // change to your API base
 
       // Handle both Map and List cases
       final picsData = arguments['profilePics'];
@@ -422,9 +408,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     print('starsign::::::::::$_selectedstarsignNames');
     print('genderidentites:::##:::::$_selectedTheirGender');
      _didInit = true; 
-    // print('userid::::::::::$_selectedHOmetown');
+   
   }
-   Future<void> _setInitialAddress(double? lat, double? lng) async {
+
+
+Future<void> _setInitialAddress(double? lat, double? lng) async {
   if (lat == null || lng == null) return; // exit if null
 
   try {
@@ -574,6 +562,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget build(BuildContext context) {
     final genderData = ref.watch(genderProvider);
     final drinkingData = ref.watch(drinkingProvider);
+    final sportsData = ref.watch(sportsprovider);
     final kidsData = ref.watch(kidsProvider);
     final religionData = ref.watch(religionProvider);
     final modeData = ref.watch(modesProvider);
@@ -596,7 +585,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final starsign = ref.watch(starsignProvider);
     final startsignlist = starsign.data ?? [];
     final language = ref.watch(languagesProvider);
-
+    final isLoading = ref.watch(loadingProvider);
     final languagelist = language.data ?? [];
     final interest = ref.watch(interestsProvider);
     final interestlist = interest.data ?? [];
@@ -936,40 +925,40 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 5),
-                DropdownButtonFormField<String>(
-                  value: (genderData.data?.any((item) => item.value == _selectedTheirGender) ?? false)
-                      ? _selectedTheirGender
-                      : null,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.grey),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+               DropdownButtonFormField<String>(
+                value: (genderData.data?.any((item) => item.value == _selectedTheirGender) ?? false)
+                    ? _selectedTheirGender
+                    : null,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.grey),
                   ),
-                  hint: const Text("Select gender"), // ✅ show placeholder when empty
-                  items: genderData.data?.map((dataItem) {
-                    return DropdownMenuItem<String>(
-                      value: dataItem.value,   // <-- use identity string from API
-                      child: Text(dataItem.value ?? ''),
-                    );
-                  }).toList(),
-                  onChanged: (selectedValue) {
-                    setState(() {
-                      _selectedTheirGender = selectedValue;
-
-                      final selectedItem = genderData.data?.firstWhere(
-                        (item) => item.value == selectedValue,
-                        orElse: () => genderData.data!.first,
-                      );
-                      _selectedGenderId = selectedItem?.id;
-
-                      print("selected gender: $_selectedTheirGender");
-                      print("selected gender id: $_selectedGenderId");
-                    });
-                  },
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
+                hint: const Text("Select gender"), // ✅ show placeholder when empty
+                items: genderData.data?.map((dataItem) {
+                  return DropdownMenuItem<String>(
+                    value: dataItem.value, // <-- use identity string from API
+                    child: Text(dataItem.value ?? ''),
+                  );
+                }).toList(),
+                onChanged: (selectedValue) {
+                  setState(() {
+                    _selectedTheirGender = selectedValue;
 
+                    final selectedItem = genderData.data?.firstWhere(
+                      (item) => item.value == selectedValue,
+                      orElse: () => genderData.data!.first,
+                    );
+                    _selectedGenderId = selectedItem?.id;
+
+                    print("selected gender: $_selectedTheirGender");
+                    print("selected gender id: $_selectedGenderId");
+                  });
+                },
+              ),
+              
                  const SizedBox(height: 10),
 
                   // Profession Dropdown
@@ -1874,6 +1863,59 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
 
                   const SizedBox(height: 10),
+                  // sports
+                  const Text('Sports',
+                      style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    // value: _selectedDrinking,
+                    value: (sportsData.data?.any((item) =>
+                                item.sportsTitle == _selectedSports) ??
+                            false)
+                        ? _selectedSports
+                        : null,
+
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selectedSports != null)
+                          ? GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedSports = null;
+                                });
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  'Clear',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                    items: sportsData.data?.map((dataItem) {
+                      return DropdownMenuItem<String>(
+                        value: dataItem.sportsTitle,
+                        child: Text(dataItem.sportsTitle ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedSports = value);
+                    },
+                  ),
+
+
+                  const SizedBox(height: 10),
                   const Text(
                     'Do you smoke',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
@@ -2042,7 +2084,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   SizedBox(
                     height: 10,
                   ),
-                  const Text('select Religion',
+                  const Text('Select Religion',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
@@ -2509,7 +2551,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: ElevatedButton(
-                        onPressed: () async {
+                        onPressed:isLoading ? null : () async {
                           // _showSuccessDialog();
                           print('presses..............');
 
@@ -2539,6 +2581,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             }
                           }
 
+                          if (_selectedSports != null) {
+                            final matchingItems = sportsData.data?.where(
+                              (item) => item.sportsTitle == _selectedSports,
+                            );
+                            if (matchingItems != null &&
+                                matchingItems.isNotEmpty) {
+                              final selectedItem = matchingItems.first;
+                              if (selectedItem.id != null) {
+                                _selectedsportsIds = [selectedItem.id!];
+                              }
+                            }
+                          }
+
                           if (_selectedMode != null) {
                             final matchingItems = modeData.data?.where(
                               (item) => item.value == _selectedMode,
@@ -2548,6 +2603,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               final selectedItem = matchingItems.first;
                               if (selectedItem.id != null) {
                                 _selectedmodeId = [selectedItem.id!];
+                              }
+                            }
+                          }
+                          if (_selectedstarsignNames != null) {
+                            final matchingItems = starsign.data?.where(
+                              (item) => item.name == _selectedstarsignNames,
+                            );
+                            if (matchingItems != null &&
+                                matchingItems.isNotEmpty) {
+                              final selectedItem = matchingItems.first;
+                              if (selectedItem.id != null) {
+                                selectedstarsignIds = [selectedItem.id!];
                               }
                             }
                           }
@@ -2591,7 +2658,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               print('prompt: $prompts');
                               print('image: $_selectedImages');
                               print('languagesId: $_selectedlanguageIds');
-                              print('starsignId: $_selectedstarsignIds');
+                              print('starsignId: $selectedstarsignIds');
                               print('religionId: $_selectedreligionIds');
                               print('lookingfor: $_selectedLookingIds');
                               print('lookingforNames: $_selectedLookingNames');
@@ -2613,8 +2680,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               print('height: ${int.tryParse(_heightController.text)}');
                               print('relationshipId: $_selectedrelationshipIds');
                               print('name: ${_firstNameController.text}');
+                              print('sportsid:$_selectedsportsIds');
+                              print('works:$workController');
+                              print('smoking:$_selectedsmoking');
+                              print('exercise:$_selectedexercise');
+                              print('dietpreferences:$_selecteddietarypreferences');
+                              print('sleepinghabbits:$_seletedsleepinghabbits');
                               print('todaydate: $_selectedBirth');
-                              print('hometown: $_selectedHOmetown');
+                              print('hometown: $_hometownController');
                               print('politics: $_selectedPolitics');
                               print('latitude: $selectedLat');
                               print('longitude888: $selectedLng');
@@ -2635,7 +2708,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   prompt: prompts,
                                   image: _selectedImages,
                                   languagesId: _selectedlanguageIds,
-                                  starsignId: _selectedstarsignIds,
+                                  starsignId: selectedstarsignIds,
                                   // jobId,
                                   // educationId,
                                   religionId: _selectedreligionIds,
@@ -2659,12 +2732,20 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   name: _firstNameController.text,
                                   dob: _selectedBirth,
                                   
-                                  hometown: _selectedHOmetown,
+                                  hometown: _hometownController.text,
                                   politics: _selectedPolitics,
                                   // latitude: selectedLat,
                                   // longitude: selectedLng,
                                   latitude: selectedLat ?? 0.0,
                                   longitude: selectedLng ?? 0.0,
+                                  work:_workController.text,
+                                  sportsid:_selectedsportsIds,
+                                  smokings:_selectedsmoking,
+                                  exercises:_selectedexercise,
+                                  dietpreferences:_selecteddietarypreferences,
+                                  sleepinghabbits:_seletedsleepinghabbits,
+
+
                                 );
                             print('home...........$_selectedHOmetown');
 
@@ -2689,7 +2770,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        child: Text(
+                        child: isLoading? const SizedBox(
+                          height: 30,
+                          width: 30,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                         ):Text(
                           'update profile',
                           style: TextStyle(
                             color: Colors.white,

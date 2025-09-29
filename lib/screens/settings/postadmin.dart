@@ -71,10 +71,10 @@ class _PostAdminScreenState extends State<PostAdminScreen> {
             buildTile("Gender", onTap: () {
               Navigator.pushNamed(context, '/genderget');
             }),
-            buildTile("TermsAndConditions", onTap: () {
-              Navigator.pushNamed(context, '/termsget');
-            }),
-            buildTile("ChooseFoodies", onTap: () {
+            // buildTile("TermsAndConditions", onTap: () {
+            //   Navigator.pushNamed(context, '/termsget');
+            // }),
+            buildTile("Interests", onTap: () {
               Navigator.pushNamed(context, '/interestget');
             }),
             buildTile("StarSign", onTap: () {

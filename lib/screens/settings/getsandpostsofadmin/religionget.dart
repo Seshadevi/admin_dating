@@ -206,7 +206,7 @@ class _ReligionGetScreenState extends ConsumerState<ReligionGetScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text("'${item.religion}' deleted successfully"),
-              backgroundColor: Colors.green,
+              backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

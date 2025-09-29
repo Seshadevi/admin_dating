@@ -60,7 +60,7 @@ class QualitiesNotifier extends StateNotifier<QualitiesModel> {
        
       },
       body: jsonEncode({
-        'value':qulities,
+        'name':qulities,
       }),
     );
 

@@ -16,6 +16,7 @@ import 'package:admin_dating/provider/signupprocessProviders%20copy/lookingProvi
 import 'package:admin_dating/provider/signupprocessProviders%20copy/modeProvider.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/qualities.dart';
 import 'package:admin_dating/provider/signupprocessProviders%20copy/religionProvider.dart';
+import 'package:admin_dating/provider/signupprocessProviders%20copy/sportsprovider.dart';
 import 'package:admin_dating/provider/users/admincreatedusersprovider.dart';
 import 'package:admin_dating/screens/profile/dropdown/defaultmessages.dart';
 import 'package:admin_dating/screens/profile/dropdown/experiencescreen.dart';
@@ -81,6 +82,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   String? _selectedDrinking;
   String? _selectedKids;
   String? _selectedReligion;
+  String? _selectedSports;
   String? _selectedAge;
   String? _selectedInterest;
   String? _selectedLookingFor;
@@ -109,7 +111,9 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   List<int> _selectedrelationshipIds = [];
   List<String> _selectedrelationshipNames = [];
   List<int> _selectedstarsignIds = [];
+ 
   int? _selectedstarsignId;
+  List<int> selectedsportsIds =[];
   String? _selectedstarsignNames;
   List<int> _selectedlanguageIds = [];
   List<String> _selectedlanguageNames = [];
@@ -200,6 +204,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     Future.microtask(() => ref.read(religionProvider.notifier).getReligions());
     Future.microtask(() => ref.read(kidsProvider.notifier).getKids());
     Future.microtask(() => ref.read(interestsProvider.notifier).getInterests());
+    Future.microtask(() => ref.read(sportsprovider.notifier).getSports());
     Future.microtask(
         () => ref.read(defaultmessagesProvider.notifier).getdefaultmessages());
     Future.microtask(() => ref.read(languagesProvider.notifier).getLanguages());
@@ -495,6 +500,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
   Widget build(BuildContext context) {
     final genderData = ref.watch(genderProvider);
     final drinkingData = ref.watch(drinkingProvider);
+    final sportsData = ref.watch(sportsprovider);
     final kidsData = ref.watch(kidsProvider);
     final religionData = ref.watch(religionProvider);
     final modeData = ref.watch(modesProvider);
@@ -846,7 +852,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   const SizedBox(height: 10),
 
                   // BH Dropdown
-                  const Text('Interest Gender',
+                  const Text('ChoiceMates',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   DropdownButtonFormField<String>(
@@ -1768,6 +1774,53 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   ),
 
                   const SizedBox(height: 10),
+                // sports  
+
+                const Text('Sports',
+                      style: TextStyle(fontSize: 14, color: Colors.grey)),
+                  const SizedBox(height: 5),
+                  DropdownButtonFormField<String>(
+                    value: _selectedSports,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
+                      suffixIcon: (_selectedSports != null)
+                          ? GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedSports = null;
+                                });
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Text(
+                                  'Clear',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
+                    items: sportsData.data?.map((dataItem) {
+                      return DropdownMenuItem<String>(
+                        value: dataItem.sportsTitle,
+                        child: Text(dataItem.sportsTitle ?? ''),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() => _selectedSports = value);
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
                 //  smoke
                 const Text(
                     'Do you smoke',
@@ -2389,6 +2442,21 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                           // _showSuccessDialog();
                           print('presses..............');
 
+                           // ✅ Validation first
+                            if (_emailController.text.isEmpty &&
+                                _phoneController.text.isEmpty &&
+                                _selectedGender == null &&
+                                _selectedgenderIds.isEmpty && _selectedMode!.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Please fill Email,Mobile,Mode,Gender,and choosemates fields.",
+                                  ),
+                                ),
+                              );
+                              return; // stop execution if validation fails
+                            }
+
                           if (_selectedKids != null) {
                             final matchingItems = kidsData.data?.where(
                               (item) => item.kids == _selectedKids,
@@ -2411,6 +2479,19 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                               final selectedItem = matchingItems.first;
                               if (selectedItem.id != null) {
                                 _selecteddrinkingIds = [selectedItem.id!];
+                              }
+                            }
+                          }
+                          
+                          if (_selectedSports != null) {
+                            final matchingItems = sportsData.data?.where(
+                              (item) => item.sportsTitle == _selectedSports,
+                            );
+                            if (matchingItems != null &&
+                                matchingItems.isNotEmpty) {
+                              final selectedItem = matchingItems.first;
+                              if (selectedItem.id != null) {
+                                selectedsportsIds = [selectedItem.id!];
                               }
                             }
                           }
@@ -2489,6 +2570,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                             print("Selected Diet: $_selecteddietarypreferences");
                             print("Selected Exercise: $_selectedexercise");
                             print("Selected Sleeping: $_selectedsleeping");
+                            print("seleted sports:$selectedsportsIds");
                             print("Hometown: $hometowncontroller");
                             print("New To Town: $_selectedNewtoarea");
                             print("Politics: $_selectedPolitics");
@@ -2534,6 +2616,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                       selecteddiet:_selecteddietarypreferences,
                                       selectedexercise:_selectedexercise,
                                       selectedslipping:_selectedsleeping,
+                                      selectedsports:selectedsportsIds,
                                       hometown: hometowncontroller.text,
                                       newtotown: _selectedNewtoarea,
                                       politics: _selectedPolitics,

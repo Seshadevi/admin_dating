@@ -174,6 +174,7 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
   String? selecteddiet,
   String? selectedexercise,
   String? selectedslipping,
+  List<int>? selectedsports,
   String? hometown,
   String? newtotown,
   String? politics,
@@ -245,6 +246,7 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
   print('industry: $industry');
   print('relationship: $relationship');
   print('starsign: $starsign');
+  print('works:$work');
   print('languages: $languages');
   print('hometown: $hometown');
   print('newtotown: $newtotown');
@@ -361,7 +363,8 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
     if (selecteddiet != null) request.fields['dietaryPreference']=selecteddiet;
     if (selectedexercise != null) request.fields['exercise']=selectedexercise;
     if (selectedslipping != null) request.fields['sleepingHabits']=selectedslipping;
-    if (starsign != null) request.fields['starsignId'] = starsign.toString();
+    if (starsign != null) request.fields['starSignId'] = starsign.toString();
+  
     // Helper function for list fields
     void addListField(String key, List<int>? values) {
       if (values != null && values.isNotEmpty) {
@@ -394,6 +397,7 @@ class Admincreatedusersprovider extends StateNotifier<AdminCreatedUsersModel> {
     addListField('experienceId', experience);
     addListField('industryId', industry);
     addListField('languageId', languages);
+    addListField('sportsId',selectedsports);
 
     // Handle image uploads - Fixed to properly handle File objects
     if (choosedimages != null && choosedimages.isNotEmpty) {
@@ -518,49 +522,64 @@ Future<int> updateProfile({
   String? politics,
   double? latitude,
   double? longitude,
+  String? work,
+  List<int>?sportsid,
+  String? smokings,
+  String?exercises,
+  String?dietpreferences,
+  String?sleepinghabbits
 }) async {
   final loadingState = ref.read(loadingProvider.notifier);
   final accestoken = ref.read(loginProvider).data![0].accessToken;
   loadingState.state = true;
 
-  print(
-      'Updating profile data fakeuserid:$fakeuserId- industries: $industryId, experience: $experienceId, hometown: $hometown');
-  print(
-      'Causes: $causeId, lookingfor: $lookingfor, mode: $modeid, smoking: $smoking');
-
-  print('in api ------fakeuserId: $fakeuserId');
-  print('specificToken: $specificToken');
-  print("firstName:$name");
-  print('modeid: $modeid');
-  print('modename: $modename');
-  print('causeId: $causeId');
-  print('bio: $bio');
-  print('interestId: $interestId');
-  print('qualityId: $qualityId');
-  print('prompt: $prompt');
-  print('image: $image');
-  print('languagesId: $languagesId');
-  print('starsignId: $starsignId');
-  print('jobId: $jobId');
-  print('educationId: $educationId');
-  print('religionId: $religionId');
-  print('lookingfor: $lookingfor');
-  print('kidsId: $kidsId');
-  print('drinkingId: $drinkingId');
-  print('smoking: $smoking');
-  print('gender: $gender');
-  print("choosegender: $choosegender");
-  print('showOnProfile: $showOnProfile');
-  print('pronoun: $pronoun');
-  print('exercise: $exercise');
-  print('industryId: $industryId');
-  print('dateofbirth:$dob');
-  print('experienceId: $experienceId');
-  print('haveKids: $haveKids');
-  print('educationLevel: $educationLevel');
-  print('newarea: $newarea');
-  print('height: $height');
-  print('in--------api relationshipId: $relationshipId');
+print("==== Debugging API Params ====");
+print("fakeuserId: $fakeuserId");
+print("specificToken: $specificToken");
+print("modeid: $modeid");
+print("modename: $modename");
+print("email: $email");
+print("mobile: $mobile");
+print("causeId: $causeId");
+print("bio: $bio");
+print("interestId: $interestId");
+print("qualityId: $qualityId");
+print("prompt: $prompt");
+print("image: $image");
+print("languagesId: $languagesId");
+print("starsignId: $starsignId");
+print("jobId: $jobId");
+print("educationId: $educationId");
+print("religionId: $religionId");
+print("lookingfor: $lookingfor");
+print("kidsId: $kidsId");
+print("drinkingId: $drinkingId");
+print("smoking: $smoking");
+print("gender: $gender");
+print("choosegender: $choosegender");
+print("showOnProfile: $showOnProfile");
+print("pronoun: $pronoun");
+print("exercise: $exercise");
+print("industryId: $industryId");
+print("defaultMessages: $defaultMessages");
+print("haveKids: $haveKids");
+print("educationLevel: $educationLevel");
+print("newarea: $newarea");
+print("height: $height");
+print("relationshipId: $relationshipId");
+print("name: $name");
+print("dob: $dob");
+print("hometown: $hometown");
+print("politics: $politics");
+print("latitude: $latitude");
+print("longitude: $longitude");
+print("work: $work");
+print("sportsid: $sportsid");
+print("smokings: $smokings");
+print("exercises: $exercises");
+print("dietpreferences: $dietpreferences");
+print("sleepinghabbits: $sleepinghabbits");
+print("==============================");
 
   RetryClient? client;
   try {
@@ -635,6 +654,7 @@ Future<int> updateProfile({
       if (educationLevel != null) {
         request.fields['educationLevel'] = educationLevel;
       }
+      if (work != null) request.fields['works']=work;
       if (newarea != null) request.fields['newToArea'] = newarea;
       if (name != null) request.fields['firstName'] = name;
       if (dob != null) request.fields['dob'] = dob;
@@ -643,6 +663,10 @@ Future<int> updateProfile({
       if (choosegender != null) request.fields['genderIdentities'] = choosegender.toString();
       if (email != null) request.fields['email'] = email;
       if (mobile != null) request.fields['mobile']= mobile;
+      if (smokings != null) request.fields['smoking']= smokings;
+      if (exercises != null) request.fields['exercise']=exercises;
+      if (dietpreferences != null) request.fields['dietaryPreference']=dietpreferences;
+      if (sleepinghabbits != null) request.fields['sleepingHabits']=sleepinghabbits;
     } catch (e) {
       print("Error while adding basic fields: $e");
     }
@@ -703,6 +727,7 @@ Future<int> updateProfile({
     addListField('industryId', industryId);
     addListField('experienceId', experienceId);
     addListField('defaultMessages',defaultMessages);
+    addListField('sportsId',sportsid);
 
     // Prompts array
     try {
@@ -800,7 +825,7 @@ Future<int> updateProfile({
     rethrow;
   } finally {
     loadingState.state = false;
-    // client?.close();
+    
   }
 }
 

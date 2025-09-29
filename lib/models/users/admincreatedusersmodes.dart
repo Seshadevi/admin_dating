@@ -99,9 +99,10 @@ class Data {
   List<Prompts>? prompts;
   List<DefaultMessages>? defaultMessages;
   List<ProfilePics>? profilePics;
-  String? starSign;
+  StarSign? starSign;
   String? education;
-  String? work;
+  List<Sports>? sports;
+  List<Work>? works;
   Location? location;
   String? educationLevel;
   String? exercise;
@@ -147,7 +148,8 @@ class Data {
     this.profilePics,
     this.starSign,
     this.education,
-    this.work,
+    this.works,
+    this.sports,
     this.location,
     this.educationLevel,
     this.exercise,
@@ -194,7 +196,8 @@ class Data {
         profilePics = [],
         starSign = null,
         education = null,
-        work = null,
+        works=[],
+        sports=[],
         location = null,
         educationLevel = null,
         exercise = null,
@@ -325,6 +328,18 @@ class Data {
           }
         });
       }
+       if (json['sports'] != null) {
+      sports = <Sports>[];
+      json['sports'].forEach((v) {
+        sports!.add(Sports.fromJson(v));
+      });
+    }
+    if (json['works'] != null) {
+      works = <Work>[];
+      json['works'].forEach((v) {
+        works!.add(Work.fromJson(v));
+      });
+    }
       
       // Parse lookingFor
       if (json['lookingFor'] != null && json['lookingFor'] is List) {
@@ -381,7 +396,8 @@ class Data {
           }
         });
       }
-      
+      starSign =
+        json['starSign'] != null ? StarSign.fromJson(json['starSign']) : null;
       // Parse profile_pics (note the underscore in JSON)
       if (json['profile_pics'] != null && json['profile_pics'] is List) {
         profilePics = <ProfilePics>[];
@@ -397,9 +413,9 @@ class Data {
         });
       }
       
-      starSign = _parseString(json['starSign']);
+
       education = _parseString(json['education']);
-      work = _parseString(json['work']);
+  
       
       if (json['location'] != null && json['location'] is Map<String, dynamic>) {
         try {
@@ -564,6 +580,12 @@ class Data {
     if (interests != null) {
       data['interests'] = interests!.map((v) => v.toJson()).toList();
     }
+    if (sports != null) {
+      data['sports'] = sports!.map((v) => v.toJson()).toList();
+    }
+    if (works != null) {
+      data['works'] = works!.map((v) => v.toJson()).toList();
+    }
     if (lookingFor != null) {
       data['lookingFor'] = lookingFor!.map((v) => v.toJson()).toList();
     }
@@ -578,13 +600,16 @@ class Data {
       data['defaultMessages'] =
           defaultMessages!.map((v) => v.toJson()).toList();
     }
+     if (starSign != null) {
+      data['starSign'] = starSign!.toJson();
+    }
     if (profilePics != null) {
       data['profile_pics'] = profilePics!.map((v) => v.toJson()).toList();
     }
     
-    data['starSign'] = starSign;
+
     data['education'] = education;
-    data['work'] = work;
+
     
     if (location != null) {
       data['location'] = location!.toJson();
@@ -644,9 +669,10 @@ class Data {
     List<Prompts>? prompts,
     List<DefaultMessages>? defaultMessages,
     List<ProfilePics>? profilePics,
-    String? starSign,
+    StarSign? starSign,
     String? education,
-    String? work,
+    List<Sports>? sports,
+    List<Work>? works,
     Location? location,
     String? educationLevel,
     String? exercise,
@@ -692,7 +718,8 @@ class Data {
       profilePics: profilePics ?? this.profilePics,
       starSign: starSign ?? this.starSign,
       education: education ?? this.education,
-      work: work ?? this.work,
+      sports: sports ?? this.sports,
+      works: works ?? this.works  ,
       location: location ?? this.location,
       educationLevel: educationLevel ?? this.educationLevel,
       exercise: exercise ?? this.exercise,
@@ -714,6 +741,49 @@ class Data {
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
     );
+  }
+}
+
+class StarSign {
+  int? id;
+  String? name;
+  String? createdAt;
+  String? updatedAt;
+
+  StarSign({this.id, this.name, this.createdAt, this.updatedAt});
+
+  StarSign.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    return data;
+  }
+
+  StarSign copyWith({
+    int? id,
+    String? name,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return StarSign(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  static StarSign initial() {
+    return StarSign();
   }
 }
 
@@ -1197,7 +1267,95 @@ class Industries {
     );
   }
 }
+class Work {
+  final int? id;
+  final String? title;
+  final String? company;
 
+  Work({
+    this.id,
+    this.title,
+    this.company,
+  });
+
+  /// Factory constructor for initial empty state
+  factory Work.initial() {
+    return Work(
+      id: 0,
+      title: '',
+      company: '',
+    );
+  }
+
+  /// Parse from JSON
+  factory Work.fromJson(Map<String, dynamic> json) {
+    return Work(
+      id: json['id'],
+      title: json['title'],
+      company: json['company'],
+    );
+  }
+
+  /// Convert to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'company': company,
+    };
+  }
+
+  /// CopyWith for immutability
+  Work copyWith({
+    int? id,
+    String? title,
+    String? company,
+  }) {
+    return Work(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      company: company ?? this.company,
+    );
+  }
+}
+
+class Sports {
+  final int? id;
+  final String? title;
+
+  Sports({this.id, this.title});
+
+  factory Sports.fromJson(Map<String, dynamic> json) {
+    return Sports(
+      id: json['id'],
+      title: json['title'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+    };
+  }
+
+  Sports copyWith({
+    int? id,
+    String? title,
+  }) {
+    return Sports(
+      id: id ?? this.id,
+      title: title ?? this.title,
+    );
+  }
+
+  factory Sports.initial() {
+    return Sports(
+      id: 0,
+      title: '',
+    );
+  }
+}
 
 
 class UserIndustries {
@@ -1384,13 +1542,13 @@ class Modes {
 
   Modes.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    mode = json['mode'] is String ? json['mode'] : json['mode']?.toString();
+    mode = json['value'] is String ? json['value'] : json['value']?.toString();
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['mode'] = mode;
+    data['value'] = mode;
     return data;
   }
 

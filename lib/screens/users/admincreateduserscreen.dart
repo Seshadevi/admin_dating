@@ -465,7 +465,7 @@ Widget _buildUsersList(List<Data> users) {
                             "id": user.genderIdentities!.first.id,
                             "identity": user.genderIdentities!.first.identity
                           }
-                        : [],
+                        : null,
 
                 'causes': user.causesAndCommunities
                         ?.where((e) => e.causesAndCommunities != null)
@@ -553,7 +553,7 @@ Widget _buildUsersList(List<Data> users) {
                         .toList() ??
                     [],
 
-                'starSign': user.starSign ?? '',
+                // 'starSign': user.starSign ?? '',
                 'educationLevel': user.educationLevel ?? '',
                 'newToArea': user.newToArea ?? "",
                 'hometown': user.hometown ?? '',
@@ -576,6 +576,9 @@ Widget _buildUsersList(List<Data> users) {
                 //   .whereType<String>()
                 //   .join(', ')  // join list into one string
                 //   ?? '',
+                'starsign':(user.starSign!= null )
+                    ? user.starSign!.name
+                    : null,
                 'kids': user.kids
                         ?.map((e) => e.kids)
                         .whereType<String>()
@@ -594,8 +597,12 @@ Widget _buildUsersList(List<Data> users) {
                         .join(', ') // join list into one string
                     ??
                     '',   
-
-                // 'pronoun': user.pronouns,
+                 'sports': user.sports
+                        ?.map((e) => e.title)
+                        .whereType<String>()
+                        .join(', ') // join list into one string
+                    ??
+                    '', 
                 'prompts': user.prompts?.map((p) => p.toJson()).toList(),
                 'profilePics': user.profilePics,
                 'politics': user.politics,
@@ -619,7 +626,10 @@ Widget _buildUsersList(List<Data> users) {
                 'dietarypreference' : user.dietaryPreference,
                 'headLine': user.headLine,
                 'smoking':user.smoking,
-                'exercise':user.exercise
+                'exercise':user.exercise,
+                'works':(user.works != null && user.works!.isNotEmpty)
+                    ? user.works!.first.title
+                    : null,
               },
             );
           },

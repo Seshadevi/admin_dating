@@ -61,7 +61,7 @@ class InterestsProvider extends StateNotifier<InterestsModel> {
        
       },
       body: jsonEncode({
-        'preference':interests,
+        'interests':interests,
       }),
     );
 

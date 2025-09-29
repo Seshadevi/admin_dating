@@ -60,7 +60,7 @@ class ModeNotifier extends StateNotifier<ModeModel> {
        
       },
       body: jsonEncode({
-        'value':modes,
+        'valuesss':modes,
       }),
     );
 
@@ -106,7 +106,7 @@ Future<int> updatemode(int? modeId, String? modeName) async {
       // Request body (adjust key names to match your backend)
       final body = jsonEncode({
         // "user_id": userId,
-        "": modeName, // List of IDs
+        "value": modeName, // List of IDs
       });
 
       final response = await http.put(
