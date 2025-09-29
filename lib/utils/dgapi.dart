@@ -102,4 +102,5 @@ class Dgapi {
    static const String  sportsGet= "$baseUrl/admin/getSport";
    static const String  sportsUpdate= "$baseUrl/admin/updatesports";
    static const String  sportsDelete= "$baseUrl/admin/deletesports";
+  static const String  getreports= "$baseUrl/getreports";
 }
