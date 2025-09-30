@@ -1,5 +1,8 @@
 import 'package:admin_dating/provider/logout_notifier.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
+import 'package:admin_dating/screens/settings/AboutCompanyPage.dart';
+import 'package:admin_dating/screens/settings/ever_qpid_terms_conditions.dart';
+import 'package:admin_dating/screens/settings/privacy_policy.dart';
 // import 'package:admin_dating/theme_provider.dart'; // Import your theme provider
 import 'package:flutter/material.dart';
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
@@ -17,6 +20,18 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool pushNotifications = true;
+  DateTime? _lastPressedAt;
+Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+      _lastPressedAt = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Press back again to exit")),
+      );
+      return false; // don’t exit
+    }
+    return true; // exit app
+  }
 
   @override
   void initState() {
@@ -54,227 +69,258 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       }
     }
 
-    return Scaffold(
-      backgroundColor: isDarkMode
-          ? const Color(0xFF1E1E1E)  // Dark background
-          : const Color(0xFFA5C63B),  // Light green background
-      body: Column(
-        children: [
-          const SizedBox(height: 50),
-          Padding(
-            padding: const EdgeInsets.only(left: 16.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Settings",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: isDarkMode
+            ? const Color(0xFF1E1E1E)  // Dark background
+            : const Color(0xFFA5C63B),  // Light green background
+        body: Column(
+          children: [
+            const SizedBox(height: 50),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Settings",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(50)),
-              ),
-              child: ListView(
-                children: [
-                  // Profile Section
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 26,
-                        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                        child: Icon(
-                          Icons.person,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 30,
-                        ),
-                        // You can replace with actual profile image:
-                        // backgroundImage: AssetImage('assets/images/settingpage.png'),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            userName,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(50)),
+                ),
+                child: ListView(
+                  children: [
+                    // Profile Section
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 26,
+                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          child: Icon(
+                            Icons.person,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 30,
                           ),
-                          Text(
-                            'Admin User',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          // You can replace with actual profile image:
+                          // backgroundImage: AssetImage('assets/images/settingpage.png'),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userName,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                             ),
+                            Text(
+                              'Admin User',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+      
+                    Text(
+                      "Account Settings",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+      
+                    buildTile("Edit profile",
+                      icon: Icons.edit_outlined,
+                      context: context,
+                    ),
+                    buildTile("Change password",
+                      icon: Icons.lock_outline,
+                      context: context,
+                    ),
+                    buildTile("Signin process data changes",
+                      icon: Icons.admin_panel_settings_outlined,
+                      context: context,
+                      onTap: () {
+                        Navigator.pushNamed(context, '/postadminscreen');
+                      },
+                    ),
+                    buildTile("Add Report Categories",
+                      icon: Icons.add_card_outlined,
+                      context: context,
+                      onTap: () {
+                        Navigator.pushNamed(context, '/get_report_categories');
+                      },
+                    ),
+      
+                    // Push Notifications Switch
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: SwitchListTile(
+                        value: pushNotifications,
+                        onChanged: (val) {
+                          setState(() => pushNotifications = val);
+                          _saveNotificationSettings(val);
+                        },
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        title: Text(
+                          "Push notifications",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-
-                  Text(
-                    "Account Settings",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  buildTile("Edit profile",
-                    icon: Icons.edit_outlined,
-                    context: context,
-                  ),
-                  buildTile("Change password",
-                    icon: Icons.lock_outline,
-                    context: context,
-                  ),
-                  buildTile("Signin process data changes",
-                    icon: Icons.admin_panel_settings_outlined,
-                    context: context,
-                    onTap: () {
-                      Navigator.pushNamed(context, '/postadminscreen');
-                    },
-                  ),
-                  buildTile("Add Report Categories",
-                    icon: Icons.add_card_outlined,
-                    context: context,
-                    onTap: () {
-                      Navigator.pushNamed(context, '/get_report_categories');
-                    },
-                  ),
-
-                  // Push Notifications Switch
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: SwitchListTile(
-                      value: pushNotifications,
-                      onChanged: (val) {
-                        setState(() => pushNotifications = val);
-                        _saveNotificationSettings(val);
-                      },
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text(
-                        "Push notifications",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 16,
                         ),
-                      ),
-                      secondary: Icon(
-                        Icons.notifications_outlined,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
-                      ),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ),
-
-                  // Dark Mode Switch
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    child: SwitchListTile(
-                      value: isDarkMode,
-                      onChanged: (val) {
-                        ref.read(themeProvider.notifier).toggleTheme();
-                      },
-                      activeColor: Theme.of(context).colorScheme.primary,
-                      title: Text(
-                        "Dark mode",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontSize: 16,
+                        secondary: Icon(
+                          Icons.notifications_outlined,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                         ),
+                        contentPadding: EdgeInsets.zero,
                       ),
-                      secondary: Icon(
-                        isDarkMode ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    ),
+      
+                    // Dark Mode Switch
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      child: SwitchListTile(
+                        value: isDarkMode,
+                        onChanged: (val) {
+                          ref.read(themeProvider.notifier).toggleTheme();
+                        },
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        title: Text(
+                          "Dark mode",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 16,
+                          ),
+                        ),
+                        secondary: Icon(
+                          isDarkMode ? Icons.dark_mode_outlined : Icons.light_mode_outlined,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                        contentPadding: EdgeInsets.zero,
                       ),
-                      contentPadding: EdgeInsets.zero,
                     ),
-                  ),
-
-                  const SizedBox(height: 20),
-                  Text(
-                    "More",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
+      
+                    const SizedBox(height: 20),
+                    Text(
+                      "More",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  buildTile("User management",
-                    icon: Icons.people_outline,
-                    context: context,
-                  ),
-                  buildTile("Privacy policy",
+                    const SizedBox(height: 10),
+      
+                    buildTile("User management",
+                      icon: Icons.people_outline,
+                      context: context,
+                    ),
+                     buildTile("Privacy policy",
                     icon: Icons.privacy_tip_outlined,
                     context: context,
-                  ),
-                  buildTile("Notifications",
-                    icon: Icons.notifications_none_outlined,
-                    context: context,
                     onTap: () {
-                      Navigator.pushNamed(context, 'notificationscreen');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PrivacyPolicyPage(),
+                        ),
+                      );
                     },
                   ),
-                  buildTile("Analytics",
-                    icon: Icons.analytics_outlined,
+                    buildTile("Notifications",
+                      icon: Icons.notifications_none_outlined,
+                      context: context,
+                      onTap: () {
+                        Navigator.pushNamed(context, 'notificationscreen');
+                      },
+                    ),
+                    buildTile("Analytics",
+                      icon: Icons.analytics_outlined,
+                      context: context,
+                    ),
+                    buildTile("About Us",
+                    icon: Icons.info_outline,
                     context: context,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AboutCompanyPage(),
+                        ),
+                      );
+                    },
                   ),
-                  buildTile("Terms And Conditions",
+                    buildTile("Terms And Conditions",
                     icon: Icons.article_outlined,
                     context: context,
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  // Logout Button
-                  Container(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        _confirmLogout();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const TermsAndConditionsPage(),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      icon: const Icon(Icons.logout),
-                      label: const Text(
-                        "Log Out",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                      );
+                    },
+                  ),
+      
+                    const SizedBox(height: 20),
+      
+                    // Logout Button
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          _confirmLogout();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        icon: const Icon(Icons.logout),
+                        label: const Text(
+                          "Log Out",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
+        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
     );
   }
 

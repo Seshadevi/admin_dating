@@ -16,6 +16,18 @@ class VerificationScreen extends ConsumerStatefulWidget {
 
 class _VerificationScreenState extends ConsumerState<VerificationScreen> with TickerProviderStateMixin {
   late final TabController _tabController;
+  DateTime? _lastPressedAt;
+Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+      _lastPressedAt = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Press back again to exit")),
+      );
+      return false; // don’t exit
+    }
+    return true; // exit app
+  }
 
   @override
   void initState() {
@@ -95,89 +107,92 @@ class _VerificationScreenState extends ConsumerState<VerificationScreen> with Ti
     final verified = allVerifications.where((v) => _normalizeStatus(v.status) == 'verified').toList();
     final rejected = allVerifications.where((v) => _normalizeStatus(v.status) == 'rejected').toList();
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), offset: const Offset(0, 2), blurRadius: 8)],
-              ),
-              child: Row(
-                children: [
-                  const Text('ID Verifications', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
-                  const Spacer(),
-                  Container(
-                    decoration: BoxDecoration(color: const Color(0xFFF0F2F5), borderRadius: BorderRadius.circular(12)),
-                    child: IconButton(
-                      tooltip: 'Refresh',
-                      onPressed: () => ref.read(verificationIdProvider.notifier).verificationid(),
-                      icon: const Icon(Icons.refresh_rounded, color: Color(0xFF4A5568)),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF8F9FA),
+        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), offset: const Offset(0, 2), blurRadius: 8)],
+                ),
+                child: Row(
+                  children: [
+                    const Text('ID Verifications', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A))),
+                    const Spacer(),
+                    Container(
+                      decoration: BoxDecoration(color: const Color(0xFFF0F2F5), borderRadius: BorderRadius.circular(12)),
+                      child: IconButton(
+                        tooltip: 'Refresh',
+                        onPressed: () => ref.read(verificationIdProvider.notifier).verificationid(),
+                        icon: const Icon(Icons.refresh_rounded, color: Color(0xFF4A5568)),
+                      ),
                     ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 80,
+                margin: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), offset: const Offset(0, 4), blurRadius: 12)],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: TabBar(
+                    controller: _tabController,
+                    indicator: BoxDecoration(
+                      color: const Color.fromARGB(255, 231, 233, 224),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    indicatorPadding: const EdgeInsets.all(6),
+                    tabs: [
+                      _buildTab('Processing', Icons.hourglass_top_rounded, processing.length, Colors.orange),
+                      _buildTab('Verified', Icons.verified_rounded, verified.length, Colors.black),
+                      _buildTab('Rejected', Icons.close_rounded, rejected.length, Colors.red),
+                    ],
+                    labelColor: Colors.white,
+                    unselectedLabelColor: const Color(0xFF647B8B),
+                    labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                    unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                   ),
-                ],
+                ),
               ),
-            ),
-            Container(
-              height: 80,
-              margin: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), offset: const Offset(0, 4), blurRadius: 12)],
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    color: const Color.fromARGB(255, 231, 233, 224),
-                    borderRadius: BorderRadius.circular(12),
+              Expanded(
+                child: isLoading
+                    ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667EEA))),
+                      SizedBox(height: 16),
+                      Text('Loading verifications...', style: TextStyle(color: Color(0xFF647B8B), fontSize: 16)),
+                    ],
                   ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  indicatorPadding: const EdgeInsets.all(6),
-                  tabs: [
-                    _buildTab('Processing', Icons.hourglass_top_rounded, processing.length, Colors.orange),
-                    _buildTab('Verified', Icons.verified_rounded, verified.length, Colors.black),
-                    _buildTab('Rejected', Icons.close_rounded, rejected.length, Colors.red),
-                  ],
-                  labelColor: Colors.white,
-                  unselectedLabelColor: const Color(0xFF647B8B),
-                  labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+                )
+                    : RefreshIndicator(
+                  onRefresh: () => ref.read(verificationIdProvider.notifier).verificationid(),
+                  color: const Color(0xFF667EEA),
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _VerificationListView(verifications: processing),
+                      _VerificationListView(verifications: verified),
+                      _VerificationListView(verifications: rejected),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Expanded(
-              child: isLoading
-                  ? const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF667EEA))),
-                    SizedBox(height: 16),
-                    Text('Loading verifications...', style: TextStyle(color: Color(0xFF647B8B), fontSize: 16)),
-                  ],
-                ),
-              )
-                  : RefreshIndicator(
-                onRefresh: () => ref.read(verificationIdProvider.notifier).verificationid(),
-                color: const Color(0xFF667EEA),
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _VerificationListView(verifications: processing),
-                    _VerificationListView(verifications: verified),
-                    _VerificationListView(verifications: rejected),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

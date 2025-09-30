@@ -1862,7 +1862,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   ),
                   // exercise
                   const Text(
-                    'Jym',
+                    'Gym',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 5),
