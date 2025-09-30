@@ -1151,39 +1151,34 @@ class DefaultMessages {
 
 class ProfilePics {
   int? id;
-  String? url;
-  bool? isPrimary;
+  String? imagePath;
 
-  ProfilePics({this.id, this.url, this.isPrimary});
+  ProfilePics({this.id, this.imagePath});
 
   ProfilePics.initial()
       : id = null,
-        url = null,
-        isPrimary = false;
+        imagePath = null;
 
   ProfilePics.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    url = json['url'] is String ? json['url'] : json['url']?.toString();
-    isPrimary = json['isPrimary'] is bool ? json['isPrimary'] : 
-                json['isPrimary']?.toString().toLowerCase() == 'true';
+    imagePath = json['imagePath'] is String ? json['imagePath'] : json['imagePath']?.toString();
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['url'] = url;
-    data['isPrimary'] = isPrimary;
+    data['imagePath'] = imagePath;
     return data;
   }
 
-  ProfilePics copyWith({int? id, String? url, bool? isPrimary}) {
+  ProfilePics copyWith({int? id, String? imagePath}) {
     return ProfilePics(
       id: id ?? this.id,
-      url: url ?? this.url,
-      isPrimary: isPrimary ?? this.isPrimary,
+      imagePath: imagePath ?? this.imagePath,
     );
   }
 }
+
 
 class Location {
   double? latitude;

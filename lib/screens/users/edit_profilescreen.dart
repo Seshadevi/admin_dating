@@ -379,7 +379,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           // Handle as List
           for (int i = 0; i < picsData.length && i < 6; i++) {
             final profilePic = picsData[i] as ProfilePics;
-            _selectedImages[i] = "$baseUrl${profilePic.url}";
+            _selectedImages[i] = "$baseUrl${profilePic.imagePath}";
           }
         } else if (picsData is Map) {
           // Handle as Map - convert to list or extract URLs differently
@@ -387,7 +387,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           final picsList = picsData.values.toList();
           for (int i = 0; i < picsList.length && i < 6; i++) {
             final profilePic = picsList[i] as ProfilePics;
-            _selectedImages[i] = "$baseUrl${profilePic.url}";
+            _selectedImages[i] = "$baseUrl${profilePic.imagePath}";
           }
         }
       }
@@ -1959,7 +1959,7 @@ Future<void> _setInitialAddress(double? lat, double? lng) async {
                     height: 10,
                   ),
                   const Text(
-                    'Jym',
+                    'Gym',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   const SizedBox(height: 5),

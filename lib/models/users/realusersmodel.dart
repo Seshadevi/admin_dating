@@ -824,7 +824,7 @@ class ProfilePics {
 
   ProfilePics.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-    url = json['url'];
+    url = json['imagePath'];
     isPrimary = json['isPrimary'];
   }
 
@@ -843,7 +843,7 @@ class ProfilePics {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
-    data['url'] = url;
+    data['imagePath'] = url;
     data['isPrimary'] = isPrimary;
     return data;
   }

@@ -219,7 +219,7 @@ Widget _buildUsersList(List<Data> users) {
   Widget _buildProfileImage(Data user) {
     String baseUrl = "http://97.74.93.26:6100";
     String? imageUrl = user.profilePics?.isNotEmpty == true
-        ? "$baseUrl${user.profilePics!.first.url}" // 👈 prepend base URL
+        ? "$baseUrl${user.profilePics!.first.imagePath}" // 👈 prepend base URL
         : null;
     print('images.......$imageUrl');
 
@@ -845,10 +845,10 @@ class UserDetailsSheet extends StatelessWidget {
                         ),
                         child: ClipOval(
                           child: user.profilePics?.isNotEmpty == true &&
-                                  user.profilePics!.first.url?.isNotEmpty ==
+                                  user.profilePics!.first.imagePath?.isNotEmpty ==
                                       true
                               ? Image.network(
-                                  user.profilePics!.first.url!,
+                                  user.profilePics!.first.imagePath!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return _buildDefaultAvatar();
