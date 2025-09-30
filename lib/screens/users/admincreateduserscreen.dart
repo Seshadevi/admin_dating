@@ -16,6 +16,18 @@ class AdminUsersScreen extends ConsumerStatefulWidget {
 
 class _AdminUsersScreenState extends ConsumerState<AdminUsersScreen> {
 final ScrollController _scrollController = ScrollController();
+DateTime? _lastPressedAt;
+Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+      _lastPressedAt = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Press again to exit")),
+      );
+      return false; // don’t exit
+    }
+    return true; // exit app
+  }
 
   @override
   void initState() {
@@ -50,55 +62,58 @@ final ScrollController _scrollController = ScrollController();
     final usersState = ref.watch(admincreatedusersprovider);
     final isLoading = ref.watch(loadingProvider);
 
-    return Scaffold(
-      backgroundColor: DatingColors.surfaceGrey,
-      appBar: AppBar(
-        title: const Text(
-          'Users',
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: DatingColors.white,
-              fontSize: 26),
-        ),
-        backgroundColor: DatingColors.primaryGreen,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: () {
-              // Add user functionality
-              // _showAddUserDialog(context);
-              Navigator.pushNamed(
-                context,
-                '/addprofilescreen',
-              );
-            },
-            icon: const Icon(
-              Icons.add_circle_outline,
-              color: DatingColors.white,
-              size: 48,
-            ),
+    return WillPopScope(
+       onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: DatingColors.surfaceGrey,
+        appBar: AppBar(
+          title: const Text(
+            'Users',
+            style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: DatingColors.white,
+                fontSize: 26),
           ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: DatingColors.darkGreen,
+          backgroundColor: DatingColors.primaryGreen,
+          elevation: 0,
+          actions: [
+            IconButton(
+              onPressed: () {
+                // Add user functionality
+                // _showAddUserDialog(context);
+                Navigator.pushNamed(
+                  context,
+                  '/addprofilescreen',
+                );
+              },
+              icon: const Icon(
+                Icons.add_circle_outline,
+                color: DatingColors.white,
+                size: 48,
               ),
-            )
-          : usersState.data == null || usersState.data!.isEmpty
-              ? _buildEmptyState()
-              : _buildUsersList(usersState.data!),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          ref.read(admincreatedusersprovider.notifier).getAdmincreatedusers();
-        },
-        backgroundColor: DatingColors.darkGreen,
-        child: const Icon(Icons.refresh, color: DatingColors.white),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: 1,
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
+        body: isLoading
+            ? const Center(
+                child: CircularProgressIndicator(
+                  color: DatingColors.darkGreen,
+                ),
+              )
+            : usersState.data == null || usersState.data!.isEmpty
+                ? _buildEmptyState()
+                : _buildUsersList(usersState.data!),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            ref.read(admincreatedusersprovider.notifier).getAdmincreatedusers();
+          },
+          backgroundColor: DatingColors.darkGreen,
+          child: const Icon(Icons.refresh, color: DatingColors.white),
+        ),
+        bottomNavigationBar: CustomBottomNavBar(
+          currentIndex: 1,
+        ),
       ),
     );
   }

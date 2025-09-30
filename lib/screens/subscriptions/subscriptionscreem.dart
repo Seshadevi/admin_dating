@@ -1,135 +1,158 @@
 import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
 import 'package:flutter/material.dart';
 import 'package:admin_dating/constants/dating_colors.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'full_plan_post_screen.dart';
 import 'full_plans_get_page.dart';
 import 'subscription_plans_list_screen.dart';
 
-class SubscriptionsScreen extends StatelessWidget {
-  const SubscriptionsScreen({super.key});
+class SubscriptionsScreen extends ConsumerStatefulWidget {
+
+  const SubscriptionsScreen({Key? key}) : super(key: key);
+  @override
+  ConsumerState<SubscriptionsScreen> createState() => _SubscriptionsScreenState();
+}
+
+class _SubscriptionsScreenState extends ConsumerState<SubscriptionsScreen> {
+  
+  DateTime? _lastPressedAt;
+Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+      _lastPressedAt = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Press back again to exit")),
+      );
+      return false; // don’t exit
+    }
+    return true; // exit app
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Scaffold(
-      backgroundColor: colorScheme.background,
-        appBar: AppBar(
-          backgroundColor: colorScheme.surface,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          title: Text(
-            'Subscriptions',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: IconButton(
-                  icon: const Icon(Icons.add),
-                  color: DatingColors.primaryGreen,
-                  tooltip: 'Add Subscription Plan',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const FullPlansGetPage()),
-                      // Or push to your add plan screen if available
-                    );
-                  },
-                ),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: colorScheme.background,
+          appBar: AppBar(
+            backgroundColor: colorScheme.surface,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            title: Text(
+              'Subscriptions',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(width: 8),
-                Icon(Icons.filter_alt_outlined, color: colorScheme.onSurface.withOpacity(0.7)),
-              Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
-                  onSelected: (value) {
-                    if (value == 'Features') {
-                      Navigator.pushNamed(context, '/adminfeatures');
-                    }
-                    if (value == 'Plan') {
-                      Navigator.pushNamed(context, '/SubscriptionPlansListScreen'); // Your own plan page route
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'Plan',
-                      child: Text('Plan'),
+            ),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: IconButton(
+                    icon: const Icon(Icons.add),
+                    color: DatingColors.primaryGreen,
+                    tooltip: 'Add Subscription Plan',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const FullPlansGetPage()),
+                        // Or push to your add plan screen if available
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(width: 8),
+                  Icon(Icons.filter_alt_outlined, color: colorScheme.onSurface.withOpacity(0.7)),
+                Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: PopupMenuButton<String>(
+                    icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
+                    onSelected: (value) {
+                      if (value == 'Features') {
+                        Navigator.pushNamed(context, '/adminfeatures');
+                      }
+                      if (value == 'Plan') {
+                        Navigator.pushNamed(context, '/SubscriptionPlansListScreen'); // Your own plan page route
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'Plan',
+                        child: Text('Plan'),
+                      ),
+                      const PopupMenuItem(
+                        value: 'Features',
+                        child: Text('Features'),
+                      ),
+                    ],
+                  ),
+                ),
+              ]
+      
+          ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+                        
+              Text("Churn Rate",
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
+              const SizedBox(height: 12),
+              Center(
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 150,
+                      height: 150,
+                      child: CircularProgressIndicator(
+                        value: 0.39,
+                        strokeWidth: 18,
+                        backgroundColor: colorScheme.onSurface.withOpacity(0.1),
+                        color: DatingColors.primaryGreen,
+                      ),
                     ),
-                    const PopupMenuItem(
-                      value: 'Features',
-                      child: Text('Features'),
-                    ),
+                    Text("39.1%",
+                        style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
                   ],
                 ),
               ),
-            ]
-
-        ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-                      
-            Text("Churn Rate",
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
-            const SizedBox(height: 12),
-            Center(
-              child: Stack(
-                alignment: Alignment.center,
+              const SizedBox(height: 20),
+              Row(
                 children: [
-                  SizedBox(
-                    width: 150,
-                    height: 150,
-                    child: CircularProgressIndicator(
-                      value: 0.39,
-                      strokeWidth: 18,
-                      backgroundColor: colorScheme.onSurface.withOpacity(0.1),
-                      color: DatingColors.primaryGreen,
-                    ),
-                  ),
-                  Text("39.1%",
-                      style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
+                  Expanded(child: _statBox(context, "BFF Customer", "500", true)),
+                  const SizedBox(width: 12),
+                  Expanded(child: _statBox(context, "Subscriptions", "126", false)),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(child: _statBox(context, "BFF Customer", "500", true)),
-                const SizedBox(width: 12),
-                Expanded(child: _statBox(context, "Subscriptions", "126", false)),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Text("Top 5 Subscriptions By Category",
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
-            const SizedBox(height: 12),
-            _barWithTooltip(context, "Boost", "1 Month \$5536\n3 Month \$4536\n6 Month \$5345"),
-            _barWithTooltip(context, "Premium", "1 Month \$5536\n3 Month \$4536\n6 Month \$5345"),
-            _barWithTooltip(context, "Premium +", "1 Month \$5536\n3 Month \$4536\n6 Month \$5345"),
-            const SizedBox(height: 20),
-            
-            
-            const SizedBox(height: 20),
-            Text("Recent Subscriptions",
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
-            const SizedBox(height: 12),
-            _recentSubTile(context, "Denis Dias", "Feb 24, 12:00 Pm", "assets/user1.png"),
-            _recentSubTile(context, "Riyas", "Jan 12, 12:00 Pm", "assets/user2.png"),
-            _recentSubTile(context, "Halmud Alam", "Jan 2, 12:00 Pm", "assets/user3.png"),
-            const SizedBox(height: 80),
-          ],
+              const SizedBox(height: 20),
+              Text("Top 5 Subscriptions By Category",
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
+              const SizedBox(height: 12),
+              _barWithTooltip(context, "Boost", "1 Month \$5536\n3 Month \$4536\n6 Month \$5345"),
+              _barWithTooltip(context, "Premium", "1 Month \$5536\n3 Month \$4536\n6 Month \$5345"),
+              _barWithTooltip(context, "Premium +", "1 Month \$5536\n3 Month \$4536\n6 Month \$5345"),
+              const SizedBox(height: 20),
+              
+              
+              const SizedBox(height: 20),
+              Text("Recent Subscriptions",
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: colorScheme.onSurface)),
+              const SizedBox(height: 12),
+              _recentSubTile(context, "Denis Dias", "Feb 24, 12:00 Pm", "assets/user1.png"),
+              _recentSubTile(context, "Riyas", "Jan 12, 12:00 Pm", "assets/user2.png"),
+              _recentSubTile(context, "Halmud Alam", "Jan 2, 12:00 Pm", "assets/user3.png"),
+              const SizedBox(height: 80),
+            ],
+          ),
         ),
+        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 3),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 3),
     );
   }
 

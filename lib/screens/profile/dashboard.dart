@@ -1,41 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart'; // Your custom nav bar
+import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Your custom nav bar
 
 // Ensure you import DatingColors and AppThemes from theme_provider.dart
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
+   @override
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+   DateTime? _lastPressedAt;
+  
+
+  Future<bool> _onWillPop() async {
+    final now = DateTime.now();
+    if (_lastPressedAt == null || now.difference(_lastPressedAt!) > const Duration(seconds: 2)) {
+      _lastPressedAt = now;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Press back again to exit")),
+      );
+      return false; // don’t exit
+    }
+    return true; // exit app
+  }
+  
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(context),
-            _buildSearchBar(context),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: 8,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _chartCard(
-                    context,
-                    _labelFor(index),
-                    _subLabelFor(index),
-                    _chartFor(index, context),
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(context),
+              _buildSearchBar(context),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: 8,
+                  itemBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _chartCard(
+                      context,
+                      _labelFor(index),
+                      _subLabelFor(index),
+                      _chartFor(index, context),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: CustomBottomNavBar(currentIndex: 0),
       ),
-      bottomNavigationBar: CustomBottomNavBar(currentIndex: 0),
     );
   }
 
