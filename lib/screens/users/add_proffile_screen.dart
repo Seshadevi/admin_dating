@@ -190,7 +190,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     "Have kids",
     "Don't have kids",
   ];
-
+  
   @override
   void initState() {
     super.initState();
@@ -638,7 +638,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                   // const SizedBox(height: 10),
 
                   // First Name
-                  const Text('First Name',
+                  const Text('First Name *',
                       style: TextStyle(fontSize: 14, color: Colors.grey)),
                   const SizedBox(height: 5),
                   TextField(
@@ -1084,7 +1084,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                       0xFFF3EDF7), // Background like the image
                                   child: SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.9,
+                                        0.75,
                                     width: MediaQuery.of(context).size.width *
                                         0.85,
                                     child: LookingForSelection(
@@ -1450,7 +1450,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                       0xFFF3EDF7), // Background like the image
                                   child: SizedBox(
                                     height: MediaQuery.of(context).size.height *
-                                        0.9,
+                                        0.75,
                                     width: MediaQuery.of(context).size.width *
                                         0.85,
                                     child: Lannguagescreen(
@@ -1527,7 +1527,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                     0xFFF3EDF7), // Background like the image
                                 child: SizedBox(
                                   height:
-                                      MediaQuery.of(context).size.height * 0.9,
+                                      MediaQuery.of(context).size.height * 0.75,
                                   width:
                                       MediaQuery.of(context).size.width * 0.85,
                                   child: QualitiesSelection(
@@ -1611,7 +1611,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                                     child: SizedBox(
                                       height:
                                           MediaQuery.of(context).size.height *
-                                              0.85,
+                                              0.75,
                                       width: MediaQuery.of(context).size.width *
                                           0.85,
                                       child: DefaultMessage(
@@ -2441,6 +2441,19 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
                         onPressed: isLoading ? null :() async {
                           // _showSuccessDialog();
                           print('presses..............');
+                           final errorMessage = _validateForm();
+  
+                                    if (errorMessage != null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(errorMessage),
+                                          backgroundColor: Colors.red,
+                                          duration: const Duration(seconds: 3),
+                                        ),
+                                      );
+                                      return; // Stop execution
+                                    }
+
 
                            // ✅ Validation first
                             if (_emailController.text.isEmpty &&
@@ -2678,6 +2691,73 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
       ),
     );
   }
+  String? _validateForm() {
+  // Email validation
+  if (_emailController.text.trim().isEmpty) {
+    return "Email is required";
+  }
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  if (!emailRegex.hasMatch(_emailController.text.trim())) {
+    return "Please enter a valid email";
+  }
+
+  // Phone validation
+  if (_phoneController.text.trim().isEmpty) {
+    return "Phone number is required";
+  }
+  if (_phoneController.text.trim().length != 10) {
+    return "Phone number must be 10 digits";
+  }
+
+  // First name validation
+  if (_firstNameController.text.trim().isEmpty) {
+    return "First name is required";
+  }
+
+  // Date of birth validation
+  if (_selectedBirth == null) {
+    return "Date of birth is required";
+  }
+
+  // Gender validation
+  if (_selectedGender == null) {
+    return "Your gender is required";
+  }
+
+  // Height validation
+  if (_heightController.text.trim().isEmpty) {
+    return "Height is required";
+  }
+
+  // ChoiceMates validation
+  // if (_selectedTheirGender == null || _selectedgenderIds.isEmpty) {
+  //   return "ChoiceMates selection is required";
+  // }
+
+  // Mode validation
+  if (_selectedMode == null) {
+    return "Mode selection is required";
+  }
+
+  // Images validation (at least 4)
+  final selectedImageCount = _selectedImages.where((img) => img != null).length;
+  if (selectedImageCount < 4) {
+    return "Please select at least 4 images";
+  }
+
+  // Interests validation (at least 4)
+  // if (_selectedInterestIds.length < 4) {
+  //   return "Please select at least 4 interests";
+  // }
+
+  // Location validation
+  if (_locationController.text.trim().isEmpty || selectedLat == null || selectedLng == null) {
+    return "Location is required";
+  }
+
+  return null; // All validations passed
+}
+
 
   @override
   void dispose() {
