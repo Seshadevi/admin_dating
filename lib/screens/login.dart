@@ -1,5 +1,7 @@
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/loginprovider.dart';
+import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
+import 'package:admin_dating/screens/profile/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -162,7 +164,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ref.read(loadingProvider.notifier).state = false;
 
                         if (result.success == true) {
-                          Navigator.pushNamed(context, 'dashboardscreen');
+                          // Navigator.pushNamed(context, 'dashboardscreen');
+                           Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (_) => DashboardScreen()),
+                            (route) => false,
+                          );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(

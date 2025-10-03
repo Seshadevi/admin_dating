@@ -31,11 +31,25 @@ class _LookingForSelectionState extends State<LookingForSelection> {
   void _onItemTapped(Data item) {
     setState(() {
       if (_selectedLookingIds.contains(item.id)) {
+        // If already selected, remove it
         _selectedLookingIds.remove(item.id);
         _selectedLookingNames.remove(item.value);
       } else {
-        _selectedLookingIds.add(item.id!);
-        _selectedLookingNames.add(item.value ?? '');
+        // If not selected, check if we're at the limit
+        if (_selectedLookingIds.length < 2) {
+          // Can add
+          _selectedLookingIds.add(item.id!);
+          _selectedLookingNames.add(item.value ?? '');
+        } else {
+          // Already have 2 selected, show warning
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("You can select only 2 items. Deselect one first."),
+              duration: Duration(seconds: 2),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
       }
     });
   }
@@ -47,55 +61,47 @@ class _LookingForSelectionState extends State<LookingForSelection> {
     });
   }
 
- @override
-Widget build(BuildContext context) {
-  return SafeArea(
-    child: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Select lookingfor\n(Only 2 allowed)",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              TextButton(
-                onPressed: _onDone,
-                child: const Text("Done"),
-              )
-            ],
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Select looking for\n(Only 2 allowed)",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: _onDone,
+                  child: const Text("Done"),
+                ),
+              ],
+            ),
           ),
-        ),
-        const Divider(height: 1),
-        Expanded(
-          child: ListView.builder(
-            itemCount: widget.alllooking.length,
-            itemBuilder: (context, index) {
-              final item = widget.alllooking[index];
-              final isSelected = _selectedLookingIds.contains(item.id);
+          const Divider(height: 1),
+          Expanded(
+            child: ListView.builder(
+              itemCount: widget.alllooking.length,
+              itemBuilder: (context, index) {
+                final item = widget.alllooking[index];
+                final isSelected = _selectedLookingIds.contains(item.id);
 
-              return ListTile(
-                title: Text(item.value ?? ''),
-                trailing: isSelected
-                    ? const Icon(Icons.check_box, color: Colors.green)
-                    : const Icon(Icons.check_box_outline_blank),
-                onTap: () {
-                  if (isSelected || _selectedLookingIds.length < 2) {
-                    _onItemTapped(item);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("You can select only 2 looking for"),
-                      ),
-                    );
-                  }
-                },
-              );
-            },
+                return ListTile(
+                  title: Text(item.value ?? ''),
+                  trailing: isSelected
+                      ? const Icon(Icons.check_box, color: Colors.green)
+                      : const Icon(Icons.check_box_outline_blank),
+                  onTap: () => _onItemTapped(item),
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 }

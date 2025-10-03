@@ -62,6 +62,7 @@ class AdminGetsProvider extends StateNotifier<List<Admin>> {
     required String roleId,
     Set<int>? pageIds,
   }) async {
+    print('Creating admin with username: $username, email: $email, roleId: $roleId, pageIds: $pageIds, image path: ${image.path}');
     try {
       ref.read(loadingProvider.notifier).state = true;
       final token = await _getToken();

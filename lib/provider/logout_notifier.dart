@@ -8,7 +8,9 @@ class LogoutNotifier extends StateNotifier<void> {
 
   Future<void> logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Clear all stored data
+    print("Before logout: ${prefs.getKeys()}");
+    await prefs.clear();
+    print("After logout: ${prefs.getKeys()}");
     
     // Use root navigator to clear stack from the very top
     Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(

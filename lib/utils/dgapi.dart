@@ -32,6 +32,8 @@ class Dgapi {
   static const String religionAdd = "$baseUrl/user/religions";
   static const String TermsAdd = "$baseUrl/user/createTermsAndConditions";
   static const String starsignget = "$baseUrl/starsign";
+  static const String starsignupdate = "$baseUrl/starsign";
+  static const String starsigndelete = "$baseUrl/starsign";
   static const String languagesGet = "$baseUrl/language";
   static const String starsignAdd = "$baseUrl/starsign";
   static const String languagesAdd = "$baseUrl/language";

@@ -31,9 +31,13 @@ class _ExperienceSelectionState extends State<ExperienceSelection> {
   void _onItemTapped(Data item) {
     setState(() {
       if (_selectedExperienceIds.contains(item.id)) {
+        // If already selected, deselect it
         _selectedExperienceIds.remove(item.id);
         _selectedExperienceNames.remove(item.experience);
       } else {
+        // If not selected, replace any existing selection with the new one
+        _selectedExperienceIds.clear();
+        _selectedExperienceNames.clear();
         _selectedExperienceIds.add(item.id!);
         _selectedExperienceNames.add(item.experience ?? '');
       }
@@ -47,55 +51,47 @@ class _ExperienceSelectionState extends State<ExperienceSelection> {
     });
   }
 
- @override
-Widget build(BuildContext context) {
-  return SafeArea(
-    child: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text("Select experience)",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              TextButton(
-                onPressed: _onDone,
-                child: const Text("Done"),
-              )
-            ],
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Select experience\n(Only 1 allowed)",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: _onDone,
+                  child: const Text("Done"),
+                ),
+              ],
+            ),
           ),
-        ),
-        const Divider(height: 1),
-        Expanded(
-          child: ListView.builder(
-            itemCount: widget.allexperience.length,
-            itemBuilder: (context, index) {
-              final item = widget.allexperience[index];
-              final isSelected = _selectedExperienceIds.contains(item.id);
+          const Divider(height: 1),
+          Expanded(
+            child: ListView.builder(
+              itemCount: widget.allexperience.length,
+              itemBuilder: (context, index) {
+                final item = widget.allexperience[index];
+                final isSelected = _selectedExperienceIds.contains(item.id);
 
-              return ListTile(
-                title: Text(item.experience ?? ''),
-                trailing: isSelected
-                    ? const Icon(Icons.radio_button_checked, color: Colors.green)
-                    : const Icon(Icons.radio_button_unchecked),
-                onTap: () {
-                  if (isSelected || _selectedExperienceIds.length < 1) {
-                    _onItemTapped(item);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("You can select only 1 experience"),
-                      ),
-                    );
-                  }
-                },
-              );
-            },
+                return ListTile(
+                  title: Text(item.experience ?? ''),
+                  trailing: isSelected
+                      ? const Icon(Icons.radio_button_checked, color: Colors.green)
+                      : const Icon(Icons.radio_button_unchecked, color: Colors.grey),
+                  onTap: () => _onItemTapped(item),
+                );
+              },
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 }

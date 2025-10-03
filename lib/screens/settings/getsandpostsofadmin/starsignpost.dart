@@ -55,7 +55,7 @@ class _StarsignpostscreenState
       );
     } else {
       // 🔹 Call UPDATE API (Uncomment this when implementing)
-      // await ref.read(lookingProvider.notifier).updateLookingFor(_editingId!, text);
+      await ref.read(starsignProvider.notifier).updatestarsign(_editingId!, text);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Updated successfully")),
       );

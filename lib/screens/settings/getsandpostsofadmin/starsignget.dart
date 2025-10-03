@@ -92,11 +92,42 @@ class _StarsignGetScreenState extends ConsumerState<StarsignGetScreen> {
                               
                                       
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete,
-                                          color: Colors.red),
-                                      onPressed: () {
-                                        // TODO: Handle delete action
+                                     IconButton(
+                                      icon: const Icon(Icons.delete, color: Colors.red),
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: const Text("Confirm Delete"),
+                                              content: const Text("Are you sure you want to delete this sport?"),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context, false),
+                                                  child: const Text("Cancel"),
+                                                ),
+                                                ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: Colors.red,
+                                                    foregroundColor: Colors.white,
+                                                  ),
+                                                  onPressed: () => Navigator.pop(context, true),
+                                                  child: const Text("Delete"),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+
+                                        if (confirm == true) {
+                                          // Use the correct provider for sports deletion
+                                          // Replace this with the actual sports delete method:
+                                          await ref.read(starsignProvider.notifier).deletedstarsign(item.id);
+                                          
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text("Starsign deleted successfully")),
+                                          );
+                                        }
                                       },
                                     ),
                                   ],

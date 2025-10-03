@@ -606,14 +606,14 @@ class _RealUsersScreenState extends ConsumerState<RealUsersScreen> {
                       onPressed: () => _handleLike(user),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: DatingColors.primaryGreen,
-                        foregroundColor: Colors.white,
+                        foregroundColor: Colors.black,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
                         padding: EdgeInsets.all(8),
                         minimumSize: Size(40, 40),
                       ),
-                      child: Icon(Icons.favorite, size: 20),
+                      child: Icon(Icons.favorite, size: 20,color: Colors.white),
                     ),
                     SizedBox(width: 8),
 
@@ -964,6 +964,20 @@ class UserCard extends StatelessWidget {
   final String baseUrl = "http://97.74.93.26:6100";
 
   const UserCard({super.key, required this.user});
+  int _calculateAge(String dob) {
+    try {
+      final birthDate = DateTime.parse(dob);
+      final today = DateTime.now();
+      int age = today.year - birthDate.year;
+      if (today.month < birthDate.month ||
+          (today.month == birthDate.month && today.day < birthDate.day)) {
+        age--;
+      }
+      return age;
+    } catch (e) {
+      return 0;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1029,26 +1043,27 @@ class UserCard extends StatelessWidget {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               if (user.modes != null && user.modes!.isNotEmpty)
-                Text(
-                  'Modes: ${_getModesDisplay(user.modes)}',
-                  style: TextStyle(fontSize: 16, color: Colors.blue[600]),
-                ),
-              if (user.dob != null)
                 // Text(
-                //   'Age: ${_calculateAge(user.dob!)}',
-                //   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                //   'Modes: ${_getModesDisplay(user.modes)}',
+                //   style: TextStyle(fontSize: 16, color: Colors.blue[600]),
                 // ),
-              SizedBox(height: 16),
+              if (user.dob != null)
+              //   Text(
+              //     'Age: ${_calculateAge(user.dob!)}',
+              //     style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              //   ),
+              // SizedBox(height: 16),
 
               // Work and Education
               if (user.work != null)
                 _buildInfoSection('Work',
-                    '${user.work!.title ?? ''} at ${user.work!.company ?? ''}'),
+                    '${user.work?.title ?? ''}'),
               if (user.education != null)
                 _buildInfoSection(
                     'Education', user.education!.institution ?? ''),
               if (user.location != null)
-                _buildInfoSection('Location', user.location!.name ?? ''),
+
+                _buildInfoSection('Location', user.hometown ?? ''),
 
               // Interests
               if (user.interests?.isNotEmpty == true)
@@ -1059,6 +1074,48 @@ class UserCard extends StatelessWidget {
               if (user.qualities?.isNotEmpty == true)
                 _buildListSection('Qualities',
                     user.qualities!.map((e) => e.name ?? '').toList()),
+
+                    if (user.drinking?.isNotEmpty == true)
+                _buildListSection('Drinking',
+                    user.drinking!.map((e) => e.preference ?? '').toList()),
+
+                    if (user.experiences?.isNotEmpty == true)
+                _buildListSection('Experience',
+                    user.experiences!.map((e) => e.experience ?? '').toList()),
+                    if (user.industries?.isNotEmpty == true)
+                _buildListSection('Industry',
+                    user.industries!.map((e) => e.industry ?? '').toList()),
+                    if (user.genderIdentities?.isNotEmpty == true)
+                _buildListSection('GenderIdentities',
+                    user.genderIdentities!.map((e) => e.identity ?? '').toList()),
+                    if (user.kids?.isNotEmpty == true)
+                _buildListSection('Kids',
+                    user.kids!.map((e) => e.kids ?? '').toList()),
+                    if (user.lookingFor?.isNotEmpty == true)
+                _buildListSection('LookingFor',
+                    user.lookingFor!.map((e) => e.value ?? '').toList()),
+                    if (user.religions?.isNotEmpty == true)
+                _buildListSection('Religion',
+                    user.religions!.map((e) => e.religion ?? '').toList()),
+                    if (user.spokenLanguages?.isNotEmpty == true)
+                _buildListSection('Languages',
+                    user.spokenLanguages!.map((e) => e.language?? '').toList()),
+                    if (user.relationships?.isNotEmpty == true)
+                _buildListSection('Relationship',
+                    user.relationships!.map((e) => e.relation ?? '').toList()),
+                    _buildInfoSection('Location', user.dob ?? ''),
+                    _buildInfoSection('Educationlevel', user.educationLevel ?? ''),
+                    _buildInfoSection('exercise', user.exercise ?? ''),
+                    _buildInfoSection('Gender', user.gender ?? ''),
+                    _buildInfoSection('HaveKids', user.haveKids?? ''),
+                    _buildInfoSection('Polotics', user.politics ?? ''),
+                    _buildInfoSection('NewToArea', user.newToArea ?? ''),
+                    // _buildInfoSection('Locatio', user.politics ?? ''),
+                    _buildInfoSection('Pronoun', user.pronouns ?? ''),
+                    _buildInfoSection('Smoke', user.smoking ?? ''),
+                   
+
+                    
             ],
           ),
         ),
@@ -1089,17 +1146,17 @@ class UserCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
           ),
           SizedBox(height: 4),
           Text(content,
-              style: TextStyle(fontSize: 14, color: Colors.grey[700])),
+              style: TextStyle(fontSize: 10, color: Colors.grey[600])),
         ],
       ),
     );
   }
    Widget _buildListSection(String title, List<String> items) {
-    if (items.isEmpty) return SizedBox();
+    // if (items.isEmpty) return SizedBox();
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12),
@@ -1108,16 +1165,23 @@ class UserCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,color:Colors.black),
           ),
-          SizedBox(height: 8),
+          // SizedBox(height: 4),
           Wrap(
-            spacing: 8,
+            spacing: 1,
             runSpacing: 4,
             children: items
-                .map((item) => Chip(
-                      label: Text(item, style: TextStyle(fontSize: 12)),
-                      backgroundColor: Colors.grey[100],
+                .map((item) => Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[10],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        item, 
+                        style: TextStyle(fontSize: 10, color: Colors.grey[800]),
+                      ),
                     ))
                 .toList(),
           ),
@@ -1125,7 +1189,4 @@ class UserCard extends StatelessWidget {
       ),
     );
   }
-
-
- 
 }
