@@ -112,7 +112,6 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
             ? const Center(child: CircularProgressIndicator())
             : _buildReportList(state),
 
-
             const SizedBox(height: 12),
           ],
         ),
