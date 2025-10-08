@@ -111,9 +111,9 @@ Future<bool> _onWillPop() async {
           backgroundColor: DatingColors.darkGreen,
           child: const Icon(Icons.refresh, color: DatingColors.white),
         ),
-        bottomNavigationBar: CustomBottomNavBar(
-          currentIndex: 1,
-        ),
+        // bottomNavigationBar: CustomBottomNavBar(
+        //   currentIndex: 1,
+        // ),
       ),
     );
   }

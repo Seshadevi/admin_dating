@@ -538,7 +538,7 @@ class _AddProfileScreenState extends ConsumerState<AddProfileScreen> {
     print('experience..........$experiencelist');
     print('relationship..........$relationshiplist');
     // print('starsign..........$starsig');
-
+ 
     return Scaffold(
       backgroundColor: const Color(0xffB2D12E),
       appBar: AppBar(

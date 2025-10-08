@@ -1,6 +1,7 @@
 import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/models/users/otheruserlikedpersonsmodel.dart';
+import 'package:admin_dating/provider/users/likeanddislikeprovider.dart';
 import 'package:admin_dating/provider/users/otheruserslikedpersonsprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -221,30 +222,64 @@ class _LikedpeoplesScreenState extends ConsumerState<LikedpeoplesScreen>
                   ),
                   const SizedBox(height: 4),
                   Row(
-                    children: [
-                      Icon(
-                        Icons.favorite,
-                        size: 14,
-                        color: DatingColors.primaryGreen,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatDate(user.likedAt),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[500],
+                  children: [
+                    // Dislike button
+                    ElevatedButton(
+                      onPressed: () => _handleDislike(user),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: DatingColors.errorRed,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
+                        padding: EdgeInsets.all(8),
+                        minimumSize: Size(40, 40),
                       ),
-                    ],
-                  ),
+                      child: Icon(Icons.close, size: 20),
+                    ),
+                    SizedBox(width: 8),
+
+                    // Like button
+                    ElevatedButton(
+                      onPressed: () => _handleLike(user),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: DatingColors.primaryGreen,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.all(8),
+                        minimumSize: Size(40, 40),
+                      ),
+                      child: Icon(Icons.favorite, size: 20,color: Colors.white),
+                    ),
+                  ],
+                 ),
+                  // Row(
+                  //   children: [
+                  //     Icon(
+                  //       Icons.favorite,
+                  //       size: 14,
+                  //       color: DatingColors.primaryGreen,
+                  //     ),
+                  //     const SizedBox(width: 4),
+                  //     Text(
+                  //       _formatDate(user.likedAt),
+                  //       style: TextStyle(
+                  //         fontSize: 11,
+                  //         color: Colors.grey[500],
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             ),
             // Arrow Icon
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-            ),
+            // Icon(
+            //   Icons.chevron_right,
+            //   color: Colors.grey[400],
+            // ),
           ],
         ),
       ),
@@ -295,5 +330,34 @@ class _LikedpeoplesScreenState extends ConsumerState<LikedpeoplesScreen>
     } catch (e) {
       return '';
     }
+  }
+
+   void _handleLike(Data user) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Liked- ${user.firstName ?? 'User'}'),
+        backgroundColor: DatingColors.primaryGreen,
+        duration: Duration(seconds: 1),
+      ),
+    );
+ 
+    ref.read(likeanddislikeprovider.notifier).addLikeDislike(
+        specificToken: accessToken,
+        realuserid: user.userId,
+        swipedirection: "right");
+   }
+
+  void _handleDislike(Data user) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Dislike- ${user.firstName ?? 'User'}'),
+        backgroundColor: Colors.grey[600],
+        duration: Duration(seconds: 1),
+      ),
+    );
+    ref.read(likeanddislikeprovider.notifier).addLikeDislike(
+        specificToken: accessToken,
+        realuserid: user.userId,
+        swipedirection: "left");
   }
 }

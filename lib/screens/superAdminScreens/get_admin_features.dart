@@ -159,9 +159,9 @@ class _GetAdminFeaturesState extends ConsumerState<GetAdminFeatures> {
           ref.read(adminFeatureProvider.notifier).getAdminFeatures();
         },
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: 1,
-      ),
+      // bottomNavigationBar: CustomBottomNavBar(
+      //   currentIndex: 1,
+      // ),
     );
   }
 }

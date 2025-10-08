@@ -63,7 +63,7 @@ import 'package:admin_dating/screens/users/matchesscreen.dart';
 import 'package:admin_dating/screens/users/realusersscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:admin_dating/screens/bottomnavbar/bottomnavbar.dart';
 import 'constants/dating_colors.dart';
 
 void main() {
@@ -106,7 +106,7 @@ class _MyAppState extends ConsumerState<MyApp> {
 
         // Check if the user has a valid access token
         if (accessToken != null && accessToken.isNotEmpty) {
-          return const DashboardScreen(); // User is authenticated, redirect to Dashboard
+          return const CustomBottomNavBar(); // User is authenticated, redirect to Dashboard
         } else {
           print('No valid access token, trying auto-login');
         }
@@ -133,7 +133,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                 snapshot.data == true &&
                 (accessToken != null && accessToken.isNotEmpty)) {
               // If auto-login is successful and access token is available, go to Dashboard
-              return const DashboardScreen();
+              return const CustomBottomNavBar();
             } else {
               // If auto-login fails or no token, redirect to LoginScreen
               return LoginScreen();

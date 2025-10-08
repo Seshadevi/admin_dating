@@ -258,7 +258,7 @@ class _AdminsScreenState extends ConsumerState<AdminsScreen> {
         child: Icon(Icons.refresh, color: colorScheme.onPrimary),
         onPressed: () => ref.read(adminGetsProvider.notifier).getAdmins(),
       ),
-      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
+      // bottomNavigationBar: const CustomBottomNavBar(currentIndex: 1),
     );
   }
 }

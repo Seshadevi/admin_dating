@@ -155,7 +155,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       final password = _passwordController.text.trim();
 
                       ref.read(loadingProvider.notifier).state = true;
-                      print("login screen  email $email ,password $password");
+                       print("login screen  email $email ,password $password");
                       try {
                         final result = await ref
                             .read(loginProvider.notifier)
@@ -167,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           // Navigator.pushNamed(context, 'dashboardscreen');
                            Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (_) => DashboardScreen()),
+                            MaterialPageRoute(builder: (_) => CustomBottomNavBar()),
                             (route) => false,
                           );
                         } else {

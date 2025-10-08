@@ -105,7 +105,7 @@ class _SubscriptionsScreenState extends ConsumerState<SubscriptionsScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, st) => Center(child: Text('❌ Error: $e')),
         ),
-        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 3),
+        // bottomNavigationBar: const CustomBottomNavBar(currentIndex: 3),
       ),
     );
   }

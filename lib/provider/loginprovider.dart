@@ -32,7 +32,7 @@ class LoginNotifier extends StateNotifier<UserModel> {
         return false;
       }
       
-
+      print("try auto login data -$extractedData");
       // Update your provider state here (if applicable)
       state = loginModel;
 
@@ -65,7 +65,7 @@ class LoginNotifier extends StateNotifier<UserModel> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final loginModel = UserModel.fromJson(decoded);
-
+        print("userlogin data:$decoded");
         await prefs.setString('userData', json.encode(loginModel.toJson()));
         
             // Save just the access token separately
