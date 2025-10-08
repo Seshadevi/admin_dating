@@ -534,7 +534,7 @@ class _UsersScreenState extends State<UsersScreen>
       length: 3,
       child: Scaffold(
         backgroundColor: colorScheme.background,
-        // bottomNavigationBar: CustomBottomNavBar(currentIndex: 1),
+        bottomNavigationBar: CustomBottomNavBar(currentIndex: 1),
         body: SafeArea(
           child: Column(
             children: [

@@ -332,32 +332,36 @@ class _LikedpeoplesScreenState extends ConsumerState<LikedpeoplesScreen>
     }
   }
 
-   void _handleLike(Data user) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Liked- ${user.firstName ?? 'User'}'),
-        backgroundColor: DatingColors.primaryGreen,
-        duration: Duration(seconds: 1),
-      ),
-    );
- 
-    ref.read(likeanddislikeprovider.notifier).addLikeDislike(
+   void _handleLike(Data user) async {
+  final message = await ref.read(likeanddislikeprovider.notifier).addLikeDislike(
         specificToken: accessToken,
         realuserid: user.userId,
-        swipedirection: "right");
-   }
+        swipedirection: "right",
+      );
 
-  void _handleDislike(Data user) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Dislike- ${user.firstName ?? 'User'}'),
-        backgroundColor: Colors.grey[600],
-        duration: Duration(seconds: 1),
-      ),
-    );
-    ref.read(likeanddislikeprovider.notifier).addLikeDislike(
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message), // ✅ show API message here
+      backgroundColor: DatingColors.primaryGreen,
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
+
+void _handleDislike(Data user) async {
+  final message = await ref.read(likeanddislikeprovider.notifier).addLikeDislike(
         specificToken: accessToken,
         realuserid: user.userId,
-        swipedirection: "left");
-  }
+        swipedirection: "left",
+      );
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message), // ✅ show API message here
+      backgroundColor: Colors.grey[600],
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
+
 }

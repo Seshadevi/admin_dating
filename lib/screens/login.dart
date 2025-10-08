@@ -167,7 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           // Navigator.pushNamed(context, 'dashboardscreen');
                            Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (_) => CustomBottomNavBar()),
+                            MaterialPageRoute(builder: (_) => DashboardScreen()),
                             (route) => false,
                           );
                         } else {

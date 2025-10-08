@@ -58,7 +58,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ],
           ),
         ),
-        // bottomNavigationBar: CustomBottomNavBar(currentIndex: 0),
+        bottomNavigationBar: CustomBottomNavBar(currentIndex: 0),
       ),
     );
   }

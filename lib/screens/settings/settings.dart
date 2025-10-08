@@ -319,7 +319,7 @@ Future<bool> _onWillPop() async {
             )
           ],
         ),
-        // bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
+        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 5),
       ),
     );
   }

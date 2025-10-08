@@ -157,9 +157,9 @@ class _GetRolesState extends ConsumerState<GetRoles> {
           ref.read(rolesProvider.notifier).getroles();
         },
       ),
-      // bottomNavigationBar: CustomBottomNavBar(
-      //   currentIndex: 1,
-      // ),
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: 1,
+      ),
     );
   }
 }

@@ -111,7 +111,7 @@ Future<bool> _onWillPop() async {
       onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: const Color(0xFFF8F9FA),
-        // bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
+        bottomNavigationBar: const CustomBottomNavBar(currentIndex: 4),
         body: SafeArea(
           child: Column(
             children: [

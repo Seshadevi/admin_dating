@@ -116,7 +116,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
           ],
         ),
       ),
-      // bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
+      bottomNavigationBar: const CustomBottomNavBar(currentIndex: 2),
     );
   }
 

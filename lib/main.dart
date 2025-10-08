@@ -106,7 +106,7 @@ class _MyAppState extends ConsumerState<MyApp> {
 
         // Check if the user has a valid access token
         if (accessToken != null && accessToken.isNotEmpty) {
-          return const CustomBottomNavBar(); // User is authenticated, redirect to Dashboard
+          return const DashboardScreen(); // User is authenticated, redirect to Dashboard
         } else {
           print('No valid access token, trying auto-login');
         }
@@ -133,7 +133,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                 snapshot.data == true &&
                 (accessToken != null && accessToken.isNotEmpty)) {
               // If auto-login is successful and access token is available, go to Dashboard
-              return const CustomBottomNavBar();
+              return const DashboardScreen();
             } else {
               // If auto-login fails or no token, redirect to LoginScreen
               return LoginScreen();
