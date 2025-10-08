@@ -1,3 +1,4 @@
+
 import 'package:admin_dating/constants/dating_colors.dart';
 import 'package:admin_dating/provider/loader.dart';
 import 'package:admin_dating/provider/users/likeanddislikeprovider.dart';
@@ -69,25 +70,7 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
     }
   }
 
-  // Future<void> _setAccessTokenInPreferences() async {
-  //   if (accessToken != null) {
-  //     final prefs = await SharedPreferences.getInstance();
-      
-  //     // Create user data structure similar to your login response
-  //     final userData = {
-  //       'accessToken': accessToken,
-  //       'data': [
-  //         {
-  //           'access_token': accessToken,
-  //           'user_id': userId?.toString() ?? 'unknown' // Convert to string safely
-  //         }
-  //       ]
-  //     };
-      
-  //     await prefs.setString('userData', jsonEncode(userData));
-  //     print('Access token set in SharedPreferences for API calls');
-  //   }
-  // }
+  
 
   void _filterLikesAndDislikes(List<Data> data) {
     likedUsers.clear();
@@ -123,6 +106,30 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
             fontSize: 24,
           ),
         ),
+         actions: [
+            IconButton(
+              onPressed: () {
+                // Add user functionality
+                // _showAddUserDialog(context);
+                Navigator.pushNamed(
+                  context,
+                  '/likedpeoplesscreen',
+                  arguments: {
+                'accessToken': accessToken,
+               
+                'userId':userId
+              },
+                );
+                
+              },
+              icon: const Icon(
+                Icons.favorite_outlined,
+                color: DatingColors.white,
+                size: 48,
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
         backgroundColor: DatingColors.primaryGreen,
         elevation: 0,
         bottom: TabBar(
@@ -141,24 +148,7 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
             ),
           ],
         ),
-        // actions: [
-        //   if (accessToken != null)
-        //     Container(
-        //       margin: const EdgeInsets.only(right: 16),
-        //       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        //       decoration: BoxDecoration(
-        //         color: Colors.white.withOpacity(0.2),
-        //         borderRadius: BorderRadius.circular(12),
-        //       ),
-        //       child: const Text(
-        //         'Token Active',
-        //         style: TextStyle(
-        //           color: DatingColors.White,
-        //           fontSize: 12,
-        //         ),
-        //       ),
-        //     ),
-        // ],
+       
       ),
       body: isLoading
           ? const Center(
@@ -409,58 +399,7 @@ class _LikesDislikesScreenState extends ConsumerState<LikesDislikesScreen>
     );
   }
 
-  Widget _buildUserDetails(TargetUser user) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (user.email?.isNotEmpty == true)
-          Row(
-            children: [
-              Icon(Icons.email_outlined, size: 14, color: Colors.grey[600]),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  user.email!,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey[600],
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        if (user.gender?.isNotEmpty == true || user.age != null) ...[
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(Icons.person_outline, size: 14, color: Colors.grey[600]),
-              const SizedBox(width: 6),
-              Text(
-                '${user.gender ?? 'Unknown'}, ${user.age ?? 'Unknown'} years',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ],
-        if (user.bio?.isNotEmpty == true) ...[
-          const SizedBox(height: 4),
-          Text(
-            user.bio!,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[500],
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ],
-    );
-  }
+ 
 
   Widget _buildActionInfo(Data userData, bool isLiked) {
     return Row(

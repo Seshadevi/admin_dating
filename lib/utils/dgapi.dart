@@ -81,6 +81,7 @@ class Dgapi {
   static const String likedislike = "$baseUrl/admin/adminlikesordislikes";
   static const String realUsers = "$baseUrl/admin/realusersforadmin";
   static const String likedislikepost = "$baseUrl/user/like-dislike";
+  static const String likeDislikeget="$baseUrl/user/like-dislike";
   static const String matchesget = "$baseUrl/admin/adminmatches";
   static const String fetchadmins = "$baseUrl/superAdmin/getAdmin";
   static const String createadmin = "$baseUrl/superAdmin/createAdmin";
@@ -105,4 +106,5 @@ class Dgapi {
    static const String  sportsUpdate= "$baseUrl/admin/updatesports";
    static const String  sportsDelete= "$baseUrl/admin/deletesports";
   static const String  getreports= "$baseUrl/getreports";
+  
 }
